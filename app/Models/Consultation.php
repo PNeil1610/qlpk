@@ -40,7 +40,7 @@ class Consultation extends Model
         'follow_up_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-       'temperature' => 'decimal:1',
+        'temperature' => 'decimal:1',
     ];
 
     // ========================
@@ -72,10 +72,22 @@ class Consultation extends Model
     // ========================
 
     // 🔥 1 consultation thuộc 1 patient
-   public function patient()
-{
-    return $this->belongsTo(Patient::class, 'patient_id');
-}
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class, 'patient_id');
+    }
+
+    // 🔥 1 consultation có 1diagnosis
+    public function diagnosis()
+    {
+        return $this->belongsTo(
+            Diagnosis::class,
+            'diagnosis_code',
+            'diagnosis_code'
+        );
+    }
+
+
 
     // ========================
     // 🔍 SCOPE

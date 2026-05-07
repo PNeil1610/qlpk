@@ -1,7 +1,8 @@
 <div class="sidebar d-flex flex-column" style="height: 100vh; background: #222;">
     <div class="clinic-brand-info text-center p-3 border-bottom border-secondary mb-3">
         @if(isset($clinicSetting) && $clinicSetting->logo_url)
-            <img src="{{ asset($clinicSetting->logo_url) }}" alt="Logo" class="img-fluid rounded-circle mb-2 bg-white p-1" style="width: 70px; height: 70px; object-fit: contain;">
+            <img src="{{ asset($clinicSetting->logo_url) }}" alt="Logo" class="img-fluid rounded-circle mb-2 bg-white p-1"
+                style="width: 70px; height: 70px; object-fit: contain;">
         @endif
 
         <h5 class="text-white fw-bold mb-2" style="line-height: 1.4;">
@@ -13,7 +14,7 @@
 
     <a href="{{ route('patients.index') }}">👤 Bệnh nhân</a>
     <a href="{{ route('consultations.index') }}">🩺 Phiên khám</a>
-    <a href="#">👨‍⚕️ Bác sĩ</a>
+    <a href="{{ route('diagnoses.index') }}">📖 Danh mục mã bệnh</a>
     <a href="#">💊 Đơn thuốc</a>
     <a href="#">💰 Hóa đơn</a>
 
@@ -22,7 +23,7 @@
             @if(isset($clinicSetting) && $clinicSetting->address)
                 <div class="mb-1">📍 {{ $clinicSetting->address }}</div>
             @endif
-            
+
             @if(isset($clinicSetting) && $clinicSetting->phone_number)
                 <div>📞 <strong>{{ $clinicSetting->phone_number }}</strong></div>
             @endif
