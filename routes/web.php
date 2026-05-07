@@ -60,6 +60,7 @@ Route::prefix('diagnoses')->name('diagnoses.')->group(function () {
 });
 Route::get('diagnoses/ajax/search', [DiagnosisController::class, 'ajaxSearch'])->name('diagnoses.ajax.search');
 
+Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/patients/ajax/search', [PatientController::class, 'ajaxSearch'])
@@ -70,6 +71,5 @@ Route::get(
 )
     ->name('consultations.ajax.search');
 
-Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
 Route::post('/profile/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
