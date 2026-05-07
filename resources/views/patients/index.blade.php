@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-
+<h3>Danh sách bệnh nhân</h3>
 <a href="{{ route('patients.create') }}" class="btn btn-primary mb-3">+ Thêm</a>
 
 <form method="GET" action="{{ route('patients.index') }}" class="mb-3">
