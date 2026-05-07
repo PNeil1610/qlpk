@@ -8,10 +8,23 @@
 
 <form method="GET" class="mb-3">
     <div class="d-flex gap-2">
-        <input type="text" name="keyword" class="form-control"
-            placeholder="Tìm tên hoặc mã bệnh nhân..."
-            value="{{ request('keyword') }}">
-        <button class="btn btn-primary">Tìm</button>
+        
+        <input type="text" 
+               name="keyword" 
+               class="form-control"
+               placeholder="Tìm tên hoặc mã bệnh nhân..."
+               value="{{ request('keyword') }}">
+
+        <button class="btn btn-primary">
+            Tìm
+        </button>
+
+        <!-- 🔥 RESET -->
+        <a href="{{ route('consultations.index') }}" 
+           class="btn btn-secondary">
+            Reset
+        </a>
+
     </div>
 </form>
 
