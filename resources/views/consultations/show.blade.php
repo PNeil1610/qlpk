@@ -15,7 +15,7 @@
             <p><b>Nhiệt độ:</b> {{ $consultation->temperature }}</p>
             <p><b>Huyết áp:</b> {{ $consultation->blood_pressure }}</p>
             <p><b>Chẩn đoán:</b> {{ $consultation->diagnosis_notes }}</p>
-            <p><b>Mã bệnh chuẩn:</b> {{ $consultation->diagnosis_code}}</p>
+            <p><b>Mã bệnh chuẩn (tham khảo):</b> {{ $consultation->diagnosis_code}}</p>
             <p><b>Ngày tái khám:</b> {{ $consultation->follow_up_date }}</p>
             <p><b>Trạng thái:</b> {{ $consultation->status_text }}</p>
         </div>
