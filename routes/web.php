@@ -28,7 +28,7 @@ Route::prefix('patients')->name('patients.')->group(function () {
     Route::get('/{id}/edit', [PatientController::class, 'edit'])->name('edit');
     Route::put('/{id}', [PatientController::class, 'update'])->name('update');
     Route::delete('/{id}', [PatientController::class, 'destroy'])->name('destroy');
-    
+
 });
 
 Route::prefix('consultations')->name('consultations.')->group(function () {
@@ -55,5 +55,13 @@ Route::get('/test', function () {
 });
 
 Auth::routes();
-
+//tìm kiếm patients
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/patients/ajax/search', [PatientController::class, 'ajaxSearch'])
+    ->name('patients.ajax.search');
+//tìm kiếm consultations
+Route::get(
+    '/consultations/ajax/search',
+    [ConsultationController::class, 'ajaxSearch']
+)
+    ->name('consultations.ajax.search');

@@ -9,24 +9,24 @@ class PatientController extends Controller
 {
     // 📌 Danh sách bệnh nhân
     public function index(Request $request)
-{
-    $query = Patient::query();
+    {
+        $query = Patient::query();
 
-    // 🔍 nếu có keyword
-    if ($request->keyword) {
-        $keyword = $request->keyword;
+        // 🔍 nếu có keyword
+        if ($request->keyword) {
+            $keyword = $request->keyword;
 
-        $query->where(function ($q) use ($keyword) {
-            $q->where('full_name', 'like', "%$keyword%")
-              ->orWhere('phone_number', 'like', "%$keyword%")
-              ->orWhere('patient_code', 'like', "%$keyword%");
-        });
+            $query->where(function ($q) use ($keyword) {
+                $q->where('full_name', 'like', "%$keyword%")
+                    ->orWhere('phone_number', 'like', "%$keyword%")
+                    ->orWhere('patient_code', 'like', "%$keyword%");
+            });
+        }
+
+        $patients = $query->latest()->paginate(10);
+
+        return view('patients.index', compact('patients'));
     }
-
-    $patients = $query->latest()->paginate(10);
-
-    return view('patients.index', compact('patients'));
-}
 
     // 📌 Form thêm
     public function create()
@@ -103,21 +103,52 @@ class PatientController extends Controller
     public function destroy($id)
     {
         $patient = Patient::findOrFail($id);
+
+        // 🔥 kiểm tra đã có phiên khám chưa
+        if ($patient->consultations()->exists()) {
+
+            return redirect()->route('patients.index')
+                ->with(
+                    'error',
+                    'Không thể xóa bệnh nhân vì đã có phiên khám.'
+                );
+        }
+
         $patient->delete();
 
         return redirect()->route('patients.index')
-            ->with('success', 'Xóa thành công');
+            ->with('success', 'Xóa bệnh nhân thành công.');
     }
 
-public function search(Request $request)
-{
-    $keyword = $request->keyword;
+    public function search(Request $request)
+    {
+        $keyword = $request->keyword;
 
-    $patients = Patient::where('full_name', 'like', "%$keyword%")
-        ->orWhere('patient_code', 'like', "%$keyword%")
-        ->limit(10)
-        ->get(['id', 'full_name', 'patient_code']);
+        $patients = Patient::where('full_name', 'like', "%$keyword%")
+            ->orWhere('patient_code', 'like', "%$keyword%")
+            ->limit(10)
+            ->get(['id', 'full_name', 'patient_code']);
 
-    return response()->json($patients);
-}
+        return response()->json($patients);
+    }
+
+    public function ajaxSearch(Request $request)
+    {
+        $keyword = $request->keyword;
+
+        $patients = Patient::query()
+
+            ->when($keyword, function ($query) use ($keyword) {
+
+                $query->where('full_name', 'like', "%$keyword%")
+                    ->orWhere('patient_code', 'like', "%$keyword%")
+                    ->orWhere('phone_number', 'like', "%$keyword%");
+            })
+
+            ->latest()
+            ->get();
+
+        return response()->json($patients);
+    }
+
 }

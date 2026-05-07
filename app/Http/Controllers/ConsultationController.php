@@ -17,14 +17,14 @@ class ConsultationController extends Controller
 
         // 🔍 tìm kiếm theo tên bệnh nhân
         if ($request->keyword) {
-    $keyword = $request->keyword;
+            $keyword = $request->keyword;
 
-    $query->whereHas('patient', function ($q) use ($keyword) {
-        $q->where('full_name', 'like', "%$keyword%")
-          ->orWhere('patient_code', 'like', "%$keyword%")
-          ->orWhere('phone_number', 'like', "%$keyword%");
-    });
-}
+            $query->whereHas('patient', function ($q) use ($keyword) {
+                $q->where('full_name', 'like', "%$keyword%")
+                    ->orWhere('patient_code', 'like', "%$keyword%")
+                    ->orWhere('phone_number', 'like', "%$keyword%");
+            });
+        }
 
         $consultations = $query->latest()->paginate(10);
 
@@ -34,23 +34,50 @@ class ConsultationController extends Controller
     /**
      * ➕ Form tạo phiên khám
      */
-    public function create()
+    public function create(Request $request)
     {
-        $patients = Patient::get(['id', 'full_name', 'patient_code']);
+        $selectedPatient = null;
 
-        return view('consultations.create', compact('patients'));
+        if ($request->patient_id) {
+            $selectedPatient = Patient::find($request->patient_id);
+        }
+
+        return view('consultations.create', compact(
+            'selectedPatient'
+        ));
     }
-
     /**
      * 💾 Lưu phiên khám
      */
     public function store(Request $request)
     {
+        // $validated = $request->validate([
+        //     'patient_id' => 'required|exists:patient,id',
+        //     'consultation_date' => 'required|date',
+        //     'symptoms' => 'nullable|string',
+        //     'temperature' => 'nullable|numeric|min:30|max:45',
+        //     'blood_pressure' => 'nullable|string|max:20',
+        //     'chief_complaint' => 'nullable|string|max:500',
+        // ]);
+
         $validated = $request->validate([
+
             'patient_id' => 'required|exists:patient,id',
-            'consultation_date' => 'required|date',
             'symptoms' => 'nullable|string',
+
+            'temperature' => 'nullable|numeric|min:30|max:45',
+
+            'blood_pressure' => 'nullable|string|max:20',
+
             'chief_complaint' => 'nullable|string|max:500',
+
+            'diagnosis_code' => 'nullable|string|max:15',
+
+            'diagnosis_notes' => 'nullable|string',
+
+            'follow_up_date' => 'nullable|date',
+
+            'status' => 'required|integer',
         ]);
 
         $consultation = new Consultation();
@@ -103,6 +130,8 @@ class ConsultationController extends Controller
             'chief_complaint' => 'nullable|string|max:500',
             'diagnosis_code' => 'nullable|string|max:15',
             'diagnosis_notes' => 'nullable|string',
+            'temperature' => 'nullable|numeric|min:30|max:45',
+            'blood_pressure' => 'nullable|string|max:20',
             'follow_up_date' => 'nullable|date',
             'status' => 'required|integer',
         ]);
@@ -124,4 +153,27 @@ class ConsultationController extends Controller
         return redirect()->route('consultations.index')
             ->with('success', 'Xóa thành công');
     }
+
+    public function ajaxSearch(Request $request)
+    {
+        $keyword = $request->keyword;
+
+        $consultations = Consultation::with('patient')
+
+            ->when($keyword, function ($query) use ($keyword) {
+
+                $query->whereHas('patient', function ($q) use ($keyword) {
+
+                    $q->where('full_name', 'like', "%$keyword%")
+                        ->orWhere('patient_code', 'like', "%$keyword%")
+                        ->orWhere('phone_number', 'like', "%$keyword%");
+                });
+            })
+
+            ->latest()
+            ->get();
+
+        return response()->json($consultations);
+    }
+
 }

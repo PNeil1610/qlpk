@@ -23,6 +23,8 @@ class Consultation extends Model
         'order_number',
         'consultation_date',
         'symptoms',
+        'temperature',
+        'blood_pressure',
         'diagnosis_code',
         'diagnosis_notes',
         'chief_complaint',
@@ -38,6 +40,7 @@ class Consultation extends Model
         'follow_up_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+       'temperature' => 'decimal:1',
     ];
 
     // ========================
