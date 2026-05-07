@@ -53,3 +53,7 @@ Route::get('/', function () {
 Route::get('/test', function () {
     return view('hello');
 });
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class PatientController extends Controller
 {
-    // 📌 Danh sách
+    // 📌 Danh sách bệnh nhân
     public function index(Request $request)
 {
     $query = Patient::query();
