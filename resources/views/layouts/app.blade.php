@@ -82,24 +82,23 @@
                                         </li>
                                     @endif
                                 @else
-                                    <li class="nav-item dropdown">
-                                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                            {{ Auth::user()->name }}
-                                        </a>
+                                <li class="nav-item d-flex align-items-center">
+                                    <a class="nav-link d-flex align-items-center" href="{{ url('/profile') }}">
+                                        <img src="{{ Auth::user()->avatar_url ? asset(Auth::user()->avatar_url) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->full_name) . '&background=random' }}" 
+                                            alt="Avatar" width="32" height="32" class="rounded-circle me-2 border">
+                                        <span class="fw-bold text-dark">{{ Auth::user()->full_name }}</span>
+                                    </a>
+                                </li>
 
-                                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                            <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
-                                                                     document.getElementById('logout-form').submit();">
-                                                {{ __('Logout') }}
-                                            </a>
-
-                                            <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                                                class="d-none">
-                                                @csrf
-                                            </form>
-                                        </div>
-                                    </li>
+                                <li class="nav-item d-flex align-items-center ms-3">
+                                    <a class="btn btn-outline-danger btn-sm" href="{{ route('logout') }}"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                        Đăng xuất
+                                    </a>
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                        @csrf
+                                    </form>
+                                </li>
                                 @endguest
                             </ul>
                         </div>

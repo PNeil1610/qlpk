@@ -65,3 +65,6 @@ Route::get(
     [ConsultationController::class, 'ajaxSearch']
 )
     ->name('consultations.ajax.search');
+    
+Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
+Route::post('/profile/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
