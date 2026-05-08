@@ -10,13 +10,11 @@ class PatientDataSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Tìm ông tài khoản benhnhan_demo
         $user = User::where('username', 'benhnhan_demo')->first();
 
         if ($user) {
-            // 2. Tạo một hồ sơ bệnh án cho ông này
             Patient::create([
-                'user_id' => $user->id, // Nối dây ở đây!
+                'user_id' => $user->id,
                 'patient_code' => 'BN' . date('Y') . '001',
                 'full_name' => $user->full_name,
                 'gender' => 'Male',
