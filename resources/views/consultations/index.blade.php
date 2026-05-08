@@ -196,7 +196,7 @@
 </div>
 
 @endsection
-
+<!--tìm kiếm ajax-->
 @push('scripts')
 
 <script>
