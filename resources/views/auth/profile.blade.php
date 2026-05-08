@@ -13,8 +13,18 @@
                     </button>
                 </div>
                 <h4 class="mt-3">{{ $user->full_name }}</h4>
-                <p class="text-muted">@ {{ $user->username }}</p>
-            </div>
+                <p class="text-muted mb-2">@ {{ $user->username }}</p>
+                
+                <div class="mt-1">
+                    @if($user->roles->count() > 0)
+                        @foreach($user->roles as $role)
+                            <span class="badge bg-info text-dark border">{{ $role->role_name }}</span>
+                        @endforeach
+                    @else
+                        <span class="badge bg-secondary">Chưa cấp quyền</span>
+                    @endif
+                </div>
+                </div>
         </div>
 
         <div class="col-md-8">
@@ -22,12 +32,12 @@
                 <div class="card-header bg-white font-weight-bold">Thông tin chi tiết</div>
                 <div class="card-body">
                     
-                    @if(session('success'))
+                    <!-- @if(session('success'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             {{ session('success') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                    @endif
+                    @endif -->
 
                     <form method="POST" action="{{ route('profile.update') }}">
                         @csrf
@@ -54,6 +64,7 @@
                         </div>
                         
                         <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+                        <a href="{{ route('home') }}" class="btn btn-outline-secondary btn-sm">Quay lại</a>
                     </form>
 
                 </div>
