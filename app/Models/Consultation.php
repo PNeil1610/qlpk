@@ -87,7 +87,24 @@ class Consultation extends Model
         );
     }
 
+    public function rooms()
+    {
+        return $this->belongsToMany(
+            Room::class,
+            'consultation_room'
+        )
+            ->withPivot([
+                'notes',
+                'status',
+                'created_at',
+                'updated_at'
+            ]);
+    }
 
+    public function consultationRooms()
+    {
+        return $this->hasMany(ConsultationRoom::class);
+    }
 
     // ========================
     // 🔍 SCOPE

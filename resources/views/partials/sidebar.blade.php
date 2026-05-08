@@ -16,6 +16,8 @@
     <a href="{{ route('consultations.index') }}">🩺 Phiên khám</a>
     <a href="{{ route('diagnoses.index') }}">📖 Danh mục mã bệnh</a>
     <a href="{{ route('departments.index') }}">🗂️ Danh mục khoa</a>
+    <a href="{{ route('rooms.index') }}">🏥 Quản lý phòng</a>
+    <a href="{{ route('consultation_rooms.index') }}">🏥 Sắp xếp phòng khám</a>
     <a href="#">💊 Đơn thuốc</a>
     <a href="#">💰 Hóa đơn</a>
 

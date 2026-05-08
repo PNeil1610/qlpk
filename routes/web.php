@@ -5,6 +5,9 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\RoomController;
+use App\Http\Controllers\ConsultationRoomController;
+
 // CRUD đầy đủ
 // Route::resource('patients', PatientController::class);
 // Route::resource('consultations', ConsultationController::class);
@@ -73,18 +76,54 @@ Route::prefix('departments')->name('departments.')->controller(DepartmentControl
     Route::delete('/{id}', 'destroy')->name('destroy');
 });
 Route::get('/departments/ajax/search', [DepartmentController::class, 'ajaxSearch'])->name('departments.ajax.search');
+//phòng
+Route::prefix('rooms')->name('rooms.')->controller(RoomController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/create', 'create')->name('create');
+    Route::post('/', 'store')->name('store');
+    Route::get('/ajax/search', 'ajaxSearch')->name('ajax.search');
+    Route::get('/{id}', 'show')->name('show');
+    Route::get('/{id}/edit', 'edit')->name('edit');
+    Route::put('/{id}', 'update')->name('update');
+    Route::delete('/{id}', 'destroy')->name('destroy');
+});
 
+// //phòng
+// Route::prefix('consultation_rooms')->name('consultation_rooms.')->controller(ConsultationRoomController::class)->group(function () {
+//     Route::get('/', 'index')->name('index');
+//     Route::get('/create', 'create')->name('create');
+//     Route::post('/', 'store')->name('store');
+//     Route::get('/{consultationId}/{roomId}', 'show')->name('show');
+//     Route::get('/{consultationId}/{roomId}/edit', 'edit')->name('edit');
+//     Route::put('/{consultationId}/{roomId}', 'update')->name('update');
+//     Route::delete('/{consultationId}/{roomId}', 'destroy')->name('destroy');
+// });
 
+//xếp phòng
+Route::prefix('consultation-rooms')
+    ->name('consultation_rooms.')
+    ->controller(ConsultationRoomController::class)
+    ->group(function () {
 
+        Route::get('/', 'index')
+            ->name('index');
 
+        Route::get('/create', 'create')
+            ->name('create');
 
+        Route::post('/', 'store')
+            ->name('store');
 
+        Route::get('/{consultation_id}/{room_id}/edit', 'edit')
+            ->name('edit');
 
+        Route::put('/{consultation_id}/{room_id}', 'update')
+            ->name('update');
 
+        Route::delete('/{consultation_id}/{room_id}', 'destroy')
+            ->name('destroy');
 
-
-
-
+    });
 
 Auth::routes();
 //user
