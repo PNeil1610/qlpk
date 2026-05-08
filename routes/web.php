@@ -99,3 +99,7 @@ Route::get(
 
 Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
 Route::post('/profile/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+
+Route::get('/my-medical-record', [App\Http\Controllers\PatientController::class, 'myRecord'])
+    ->name('patients.my_record')
+    ->middleware('auth');

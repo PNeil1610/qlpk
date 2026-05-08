@@ -166,4 +166,15 @@ class PatientController extends Controller
 
         return redirect()->route('patients.index');
     }
+    public function myRecord()
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+
+        $myPatientRecord = $user->patient;
+
+        if (!$myPatientRecord) {
+            return redirect()->back()->with('error', 'Hệ thống chưa ghi nhận hồ sơ bệnh án của bạn.');
+        }
+        return view('patients.my_record', compact('myPatientRecord'));
+    }
 }

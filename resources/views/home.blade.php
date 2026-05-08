@@ -20,6 +20,9 @@
                         <a href="{{ url('/profile') }}" class="btn btn-primary">
                             Cập nhật thông tin ngay
                         </a>
+                        <a href="{{ route('patients.my_record') }}" class="btn btn-secondary">
+                            Xem hồ sơ của tôi
+                        </a>
                         <a href="{{ url('/') }}" class="btn btn-outline-secondary">
                             Về trang chủ
                         </a>

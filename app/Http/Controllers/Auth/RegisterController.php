@@ -62,17 +62,31 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $user = User::create([
-            'full_name' => $data['full_name'],
-            'username' => $data['username'],
-            'password_hash' => Hash::make($data['password']),
-            'status' => 1,
-        ]);
-        $patientRole = Role::where('role_code', 'PATIENT')->first();
-        if ($patientRole) {
-            $user->roles()->attach($patientRole->id);
-        }
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($data) {
+            
+            $user = \App\Models\User::create([
+                'username' => $data['username'],
+                'full_name' => $data['full_name'],
+                'password_hash' => \Illuminate\Support\Facades\Hash::make($data['password']),
+                'status' => 1,
+            ]);
 
-        return $user;
+            $patientRole = \App\Models\Role::where('role_code', 'PATIENT')->first();
+            if ($patientRole) {
+                $user->roles()->attach($patientRole->id);
+            }
+
+            $patient = \App\Models\Patient::create([
+                'user_id' => $user->id,
+                'full_name' => $user->full_name,
+                'status' => 1,
+            ]);
+
+            $patient->update([
+                'patient_code' => 'BN' . str_pad($patient->id, 6, '0', STR_PAD_LEFT)
+            ]);
+
+            return $user; 
+        });
     }
 }

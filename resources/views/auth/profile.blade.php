@@ -32,12 +32,12 @@
                 <div class="card-header bg-white font-weight-bold">Thông tin chi tiết</div>
                 <div class="card-body">
                     
-                    @if(session('success'))
+                    <!-- @if(session('success'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             {{ session('success') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                    @endif
+                    @endif -->
 
                     <form method="POST" action="{{ route('profile.update') }}">
                         @csrf
@@ -64,6 +64,7 @@
                         </div>
                         
                         <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+                        <a href="{{ route('home') }}" class="btn btn-outline-secondary btn-sm">Quay lại</a>
                     </form>
 
                 </div>
