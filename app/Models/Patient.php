@@ -25,7 +25,8 @@ class Patient extends Model
         'national_id',
         'insurance_number',
         'emergency_contact',
-        'age',          // 
+        'user_id',
+        'age',          
         'status'
     ];
 
@@ -86,11 +87,16 @@ class Patient extends Model
     }
 
     public function scopeSearch($query, $keyword)
-{
-    return $query->where(function ($q) use ($keyword) {
-        $q->where('full_name', 'like', "%$keyword%")
-          ->orWhere('phone_number', 'like', "%$keyword%")
-          ->orWhere('patient_code', 'like', "%$keyword%");
-    });
-}
+    {
+        return $query->where(function ($q) use ($keyword) {
+            $q->where('full_name', 'like', "%$keyword%")
+            ->orWhere('phone_number', 'like', "%$keyword%")
+            ->orWhere('patient_code', 'like', "%$keyword%");
+        });
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 }

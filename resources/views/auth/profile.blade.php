@@ -13,8 +13,18 @@
                     </button>
                 </div>
                 <h4 class="mt-3">{{ $user->full_name }}</h4>
-                <p class="text-muted">@ {{ $user->username }}</p>
-            </div>
+                <p class="text-muted mb-2">@ {{ $user->username }}</p>
+                
+                <div class="mt-1">
+                    @if($user->roles->count() > 0)
+                        @foreach($user->roles as $role)
+                            <span class="badge bg-info text-dark border">{{ $role->role_name }}</span>
+                        @endforeach
+                    @else
+                        <span class="badge bg-secondary">Chưa cấp quyền</span>
+                    @endif
+                </div>
+                </div>
         </div>
 
         <div class="col-md-8">

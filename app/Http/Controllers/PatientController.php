@@ -150,5 +150,20 @@ class PatientController extends Controller
 
         return response()->json($patients);
     }
+    public function showMyMedicalRecord()
+    {
+        $user = Auth::user();
 
+        if ($user->hasRole('PATIENT')) {
+            $myPatientRecord = $user->patient; 
+
+            if (!$myPatientRecord) {
+                return redirect()->home()->with('error', 'Bạn chưa có hồ sơ bệnh án trên hệ thống.');
+            }
+
+            return view('patients.my_record', ['patient' => $myPatientRecord]);
+        }
+
+        return redirect()->route('patients.index');
+    }
 }
