@@ -76,6 +76,11 @@ class Room extends Model
     {
         return $this->hasMany(ConsultationRoom::class);
     }
+
+    public function roomDetail()
+    {
+        return $this->hasOne(RoomDetail::class);
+    }
     // =========================
     // ACCESSOR
     // =========================

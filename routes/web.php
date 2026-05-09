@@ -7,6 +7,7 @@ use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ConsultationRoomController;
+use App\Http\Controllers\RoomDetailController;
 
 // CRUD đầy đủ
 // Route::resource('patients', PatientController::class);
@@ -87,6 +88,10 @@ Route::prefix('rooms')->name('rooms.')->controller(RoomController::class)->group
     Route::put('/{id}', 'update')->name('update');
     Route::delete('/{id}', 'destroy')->name('destroy');
 });
+
+// Chi tiết phòng
+Route::get('/room-details/ajax/search', [RoomDetailController::class, 'ajaxSearch'])->name('room_details.ajax.search');
+Route::resource('room-details', RoomDetailController::class)->names('room_details');
 
 // //phòng
 // Route::prefix('consultation_rooms')->name('consultation_rooms.')->controller(ConsultationRoomController::class)->group(function () {

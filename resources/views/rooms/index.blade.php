@@ -117,6 +117,13 @@
 
                         </a>
 
+                        <a href="{{ route('room_details.create', ['room_id' => $room->id]) }}"
+                           class="btn btn-success btn-sm">
+
+                            + Chi tiết
+
+                        </a>
+
                         <form action="{{ route('rooms.destroy', $room->id) }}"
                               method="POST"
                               style="display:inline;">
@@ -256,6 +263,13 @@ $(document).ready(function () {
                                        class="btn btn-warning btn-sm">
 
                                         Sửa
+
+                                    </a>
+
+                                    <a href="/room-details/create?room_id=${r.id}"
+                                       class="btn btn-success btn-sm">
+
+                                        + Chi tiết
 
                                     </a>
 
