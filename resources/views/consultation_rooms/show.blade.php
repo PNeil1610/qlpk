@@ -17,7 +17,7 @@
                 </th>
 
                 <td>
-                    {{ $room->room_code }}
+                    {{ $consultationRoom->room->room_code }}
                 </td>
 
             </tr>
@@ -29,7 +29,7 @@
                 </th>
 
                 <td>
-                    {{ $room->room_name }}
+                    {{ $consultationRoom->room->room_name }}
                 </td>
 
             </tr>
@@ -41,7 +41,7 @@
                 </th>
 
                 <td>
-                    {{ $room->room_type }}
+                    {{ $consultationRoom->room->room_type }}
                 </td>
 
             </tr>
@@ -53,7 +53,7 @@
                 </th>
 
                 <td>
-                    {{ $room->department->dept_name ?? '--' }}
+                    {{ $consultationRoom->room->department->dept_name ?? '--' }}
                 </td>
 
             </tr>
@@ -65,7 +65,7 @@
                 </th>
 
                 <td>
-                    {{ $room->floor ?? '--' }}
+                    {{ $consultationRoom->room->floor ?? '--' }}
                 </td>
 
             </tr>
@@ -77,7 +77,7 @@
                 </th>
 
                 <td>
-                    {{ $room->capacity ?? '--' }}
+                    {{ $consultationRoom->room->capacity ?? '--' }}
                 </td>
 
             </tr>
@@ -90,7 +90,7 @@
 
                 <td>
 
-                    @switch($room->status)
+                    @switch($consultationRoom->status)
 
                         @case(1)
                             <span class="badge bg-success">
@@ -129,14 +129,14 @@
                 </th>
 
                 <td>
-                    {{ $room->created_at }}
+                    {{ $consultationRoom->created_at }}
                 </td>
 
             </tr>
 
         </table>
 
-        <a href="{{ route('rooms.index') }}"
+        <a href="{{ route('consultation_rooms.index') }}"
            class="btn btn-secondary">
 
             Quay lại

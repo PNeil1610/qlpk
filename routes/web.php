@@ -114,6 +114,9 @@ Route::prefix('consultation-rooms')
         Route::post('/', 'store')
             ->name('store');
 
+        Route::get('/{consultation_id}/{room_id}', 'show')
+            ->name('show');
+
         Route::get('/{consultation_id}/{room_id}/edit', 'edit')
             ->name('edit');
 

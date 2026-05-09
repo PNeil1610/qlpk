@@ -69,6 +69,15 @@
 
                         <td>
 
+                            <a href="{{ route('consultation_rooms.show', [
+                    'consultation_id' => $item->consultation_id,
+                    'room_id' => $item->room_id
+                ]) }}" class="btn btn-info btn-sm">
+
+                                Xem
+
+                            </a>
+
                             <a href="{{ route('consultation_rooms.edit', [
                     'consultation_id' => $item->consultation_id,
                     'room_id' => $item->room_id
