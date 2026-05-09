@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Patient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PatientController extends Controller
 {
@@ -155,7 +156,7 @@ class PatientController extends Controller
         $user = Auth::user();
 
         if ($user->hasRole('PATIENT')) {
-            $myPatientRecord = $user->patient; 
+            $myPatientRecord = $user->patient;
 
             if (!$myPatientRecord) {
                 return redirect()->home()->with('error', 'Bạn chưa có hồ sơ bệnh án trên hệ thống.');
