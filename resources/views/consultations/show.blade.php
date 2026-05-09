@@ -6,20 +6,66 @@
 
     <div class="card">
         <div class="card-body">
-            <p><b>Mã PK:</b> {{ $consultation->id }}</p>
-            <p><b>Mã BN:</b> {{ $consultation->patient->patient_code }}</p>
-            <p><b>Bệnh nhân:</b> {{ $consultation->patient->full_name }}</p>
-            <p><b>Ngày khám:</b> {{ $consultation->consultation_date }}</p>
-            <p><b>Lý do khám:</b> {{ $consultation->chief_complaint }}</p>
-            <p><b>Triệu chứng:</b> {{ $consultation->symptoms }}</p>
-            <p><b>Nhiệt độ:</b> {{ $consultation->temperature }}</p>
-            <p><b>Huyết áp:</b> {{ $consultation->blood_pressure }}</p>
-            <p><b>Chẩn đoán:</b> {{ $consultation->diagnosis_notes }}</p>
-            <p><b>Mã bệnh chuẩn (tham khảo):</b> {{ $consultation->diagnosis_code}}</p>
-            <p><b>Ngày tái khám:</b> {{ $consultation->follow_up_date }}</p>
-            <p><b>Trạng thái:</b> {{ $consultation->status_text }}</p>
+            <div class="table-responsive">
+                <table class="table table-bordered mb-0">
+                    <tbody>
+                        <tr>
+                            <th width="250">Mã PK</th>
+                            <td>{{ $consultation->id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Mã BN</th>
+                            <td>{{ $consultation->patient->patient_code }}</td>
+                        </tr>
+                        <tr>
+                            <th>Bệnh nhân</th>
+                            <td>{{ $consultation->patient->full_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Ngày khám</th>
+                            <td>{{ $consultation->consultation_date }}</td>
+                        </tr>
+                        <tr>
+                            <th>Lý do khám</th>
+                            <td>{{ $consultation->chief_complaint }}</td>
+                        </tr>
+                        <tr>
+                            <th>Triệu chứng</th>
+                            <td>{{ $consultation->symptoms }}</td>
+                        </tr>
+                        <tr>
+                            <th>Nhiệt độ</th>
+                            <td>{{ $consultation->temperature }}</td>
+                        </tr>
+                        <tr>
+                            <th>Huyết áp</th>
+                            <td>{{ $consultation->blood_pressure }}</td>
+                        </tr>
+                        <tr>
+                            <th>Chẩn đoán</th>
+                            <td>{{ $consultation->diagnosis_notes }}</td>
+                        </tr>
+                        <tr>
+                            <th>Mã bệnh chuẩn (tham khảo)</th>
+                            <td>{{ $consultation->diagnosis_code }}</td>
+                        </tr>
+                        <tr>
+                            <th>Ngày tái khám</th>
+                            <td>{{ $consultation->follow_up_date }}</td>
+                        </tr>
+                        <tr>
+                            <th>Trạng thái</th>
+                            <td>{{ $consultation->status_text }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="{{ route('consultations.index') }}" class="btn btn-secondary">
+                Quay lại
+            </a>
         </div>
     </div>
-    <a href="{{ route('consultations.index') }}" class="btn btn-secondary">Quay lại</a>
 
 @endsection

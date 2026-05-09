@@ -5,91 +5,62 @@
     <h3>Chi tiết phòng</h3>
 
     <div class="card">
-
         <div class="card-body">
-
-            <p>
-                <strong>Mã phòng:</strong>
-                {{ $room->room_code }}
-            </p>
-
-            <p>
-                <strong>Tên phòng:</strong>
-                {{ $room->room_name }}
-            </p>
-
-            <p>
-                <strong>Loại phòng:</strong>
-                {{ $room->room_type }}
-            </p>
-
-            <p>
-                <strong>Khoa:</strong>
-                {{ $room->department->dept_name ?? '--' }}
-            </p>
-
-            <p>
-                <strong>Tầng:</strong>
-                {{ $room->floor ?? '--' }}
-            </p>
-
-            <p>
-                <strong>Sức chứa:</strong>
-                {{ $room->capacity ?? '--' }}
-            </p>
-
-            <p>
-                <strong>Trạng thái:</strong>
-
-                @switch($room->status)
-
-                    @case(1)
-                        <span class="badge bg-success">
-                            Hoạt động
-                        </span>
-                        @break
-
-                    @case(0)
-                        <span class="badge bg-secondary">
-                            Đóng
-                        </span>
-                        @break
-
-                    @case(2)
-                        <span class="badge bg-primary">
-                            Đang sử dụng
-                        </span>
-                        @break
-
-                    @case(3)
-                        <span class="badge bg-warning text-dark">
-                            Bảo trì
-                        </span>
-                        @break
-
-                @endswitch
-
-            </p>
-
-            <p>
-                <strong>Ngày tạo:</strong>
-                {{ $room->created_at }}
-            </p>
-
-            <p>
-                <strong>Cập nhật:</strong>
-                {{ $room->updated_at }}
-            </p>
-
+            <div class="table-responsive">
+                <table class="table table-bordered mb-0">
+                    <tbody>
+                        <tr>
+                            <th width="250">Mã phòng</th>
+                            <td>{{ $room->room_code }}</td>
+                        </tr>
+                        <tr>
+                            <th>Tên phòng</th>
+                            <td>{{ $room->room_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Loại phòng</th>
+                            <td>{{ $room->room_type }}</td>
+                        </tr>
+                        <tr>
+                            <th>Khoa</th>
+                            <td>{{ $room->department->dept_name ?? '--' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Tầng</th>
+                            <td>{{ $room->floor ?? '--' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Sức chứa</th>
+                            <td>{{ $room->capacity ?? '--' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Trạng thái</th>
+                            <td>
+                                @switch($room->status)
+                                    @case(1) Hoạt động @break
+                                    @case(0) Đóng @break
+                                    @case(2) Đang sử dụng @break
+                                    @case(3) Bảo trì @break
+                                @endswitch
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Ngày tạo</th>
+                            <td>{{ $room->created_at }}</td>
+                        </tr>
+                        <tr>
+                            <th>Cập nhật</th>
+                            <td>{{ $room->updated_at }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-
+        <div class="card-footer">
+            <a href="{{ route('rooms.index') }}" class="btn btn-secondary">
+                Quay lại
+            </a>
+        </div>
     </div>
-
-    <a href="{{ route('rooms.index') }}"
-       class="btn btn-secondary mt-3">
-
-        Quay lại
-
-    </a>
 
 @endsection
