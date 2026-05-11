@@ -52,10 +52,9 @@ class PatientController extends Controller
         $patient = new Patient();
         $patient->fill($validated);
 
-        // auto
-        $patient->save(); // lưu trước để có id
-
-        $patient->patient_code = 'BN' . str_pad($patient->id, 6, '0', STR_PAD_LEFT);
+        // Tạo mã bệnh nhân tạm hoặc dựa trên ID tiếp theo để tránh lỗi thiếu patient_code khi save lần đầu
+        $nextId = Patient::max('id') + 1;
+        $patient->patient_code = 'BN' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
         $patient->status = Patient::STATUS_ACTIVE;
 
         $patient->save();
