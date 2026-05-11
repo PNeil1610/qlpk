@@ -130,49 +130,7 @@
 </div>
 
 
-<div class="row">
 
-    {{-- Tầng --}}
-    <div class="col-md-6 mb-3">
-
-        <label class="form-label">
-            Tầng
-        </label>
-
-        <input type="number" name="floor" class="form-control" value="{{ old('floor', $room->floor ?? '') }}"
-            placeholder="Nhập tầng">
-
-        @error('floor')
-
-            <small class="text-danger">
-                {{ $message }}
-            </small>
-
-        @enderror
-
-    </div>
-
-    {{-- Sức chứa --}}
-    <div class="col-md-6 mb-3">
-
-        <label class="form-label">
-            Sức chứa
-        </label>
-
-        <input type="number" name="capacity" class="form-control" value="{{ old('capacity', $room->capacity ?? '') }}"
-            placeholder="Số bệnh nhân tối đa">
-
-        @error('capacity')
-
-            <small class="text-danger">
-                {{ $message }}
-            </small>
-
-        @enderror
-
-    </div>
-
-</div>
 
 
 {{-- Trạng thái --}}

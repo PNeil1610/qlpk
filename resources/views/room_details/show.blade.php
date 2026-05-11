@@ -20,6 +20,14 @@
                             <td>{!! nl2br(e($roomDetail->equipment_list ?? '--')) !!}</td>
                         </tr>
                         <tr>
+                            <th>Tầng</th>
+                            <td>{{ $roomDetail->floor ?? '--' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Sức chứa</th>
+                            <td>{{ $roomDetail->capacity ?? '--' }}</td>
+                        </tr>
+                        <tr>
                             <th>Diện tích (m2)</th>
                             <td>{{ $roomDetail->area_sqm ?? '--' }}</td>
                         </tr>

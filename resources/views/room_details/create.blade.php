@@ -26,6 +26,18 @@
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label">Tầng</label>
+                    <input type="number" name="floor" class="form-control @error('floor') is-invalid @enderror" value="{{ old('floor') }}">
+                    @error('floor') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Sức chứa</label>
+                    <input type="number" name="capacity" class="form-control @error('capacity') is-invalid @enderror" value="{{ old('capacity') }}">
+                    @error('capacity') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label">Diện tích (m2)</label>
                     <input type="number" step="0.01" name="area_sqm" class="form-control @error('area_sqm') is-invalid @enderror" value="{{ old('area_sqm') }}">
                     @error('area_sqm') <div class="invalid-feedback">{{ $message }}</div> @enderror

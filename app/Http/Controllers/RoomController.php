@@ -33,8 +33,6 @@ class RoomController extends Controller
             'room_name' => 'required|string|max:150',
             'room_type' => 'required|in:Examination,Lab,Pharmacy,Emergency,Waiting,Administrative',
             'department_id' => 'nullable|exists:department,id',
-            'floor' => 'nullable|integer|min:0',
-            'capacity' => 'nullable|integer|min:1',
             'status' => 'required|in:0,1,2,3',
         ]);
 
@@ -72,8 +70,6 @@ class RoomController extends Controller
             'room_name' => 'required|string|max:150',
             'room_type' => 'required|in:Examination,Lab,Pharmacy,Emergency,Waiting,Administrative',
             'department_id' => 'nullable|exists:department,id',
-            'floor' => 'nullable|integer|min:0',
-            'capacity' => 'nullable|integer|min:1',
             'status' => 'required|in:0,1,2,3',
         ]);
 

@@ -4,11 +4,11 @@
 
     <h3>Danh sách phòng khám của phiên khám</h3>
 
-    <a href="{{ route('consultation_rooms.create') }}" class="btn btn-primary mb-3">
+    <!-- <a href="{{ route('consultation_rooms.create') }}" class="btn btn-primary mb-3">
 
-        + Thêm phòng cho phiên khám
+            + Thêm phòng cho phiên khám
 
-    </a>
+        </a> -->
 
     <table class="table table-bordered table-hover">
 

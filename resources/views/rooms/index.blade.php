@@ -42,8 +42,7 @@
                 <th>Tên phòng</th>
                 <th>Loại phòng</th>
                 <th>Khoa</th>
-                <th>Tầng</th>
-                <th>Sức chứa</th>
+
                 <th>Trạng thái</th>
                 <th width="220">Hành động</th>
 
@@ -65,9 +64,7 @@
 
                     <td>{{ $room->department->dept_name ?? '--' }}</td>
 
-                    <td>{{ $room->floor ?? '--' }}</td>
 
-                    <td>{{ $room->capacity ?? '--' }}</td>
 
                     <td>
 
@@ -244,9 +241,7 @@ $(document).ready(function () {
 
                                 <td>${r.department?.dept_name ?? '--'}</td>
 
-                                <td>${r.floor ?? '--'}</td>
 
-                                <td>${r.capacity ?? '--'}</td>
 
                                 <td>${status}</td>
 

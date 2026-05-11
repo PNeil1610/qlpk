@@ -24,6 +24,8 @@ class RoomDetailController extends Controller
     {
         $validated = $request->validate([
             'room_id' => 'required|exists:room,id|unique:room_detail,room_id',
+            'floor' => 'nullable|integer|min:0',
+            'capacity' => 'nullable|integer|min:1',
             'equipment_list' => 'nullable|string',
             'area_sqm' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
@@ -54,6 +56,8 @@ class RoomDetailController extends Controller
 
         $validated = $request->validate([
             'room_id' => 'required|exists:room,id|unique:room_detail,room_id,' . $id,
+            'floor' => 'nullable|integer|min:0',
+            'capacity' => 'nullable|integer|min:1',
             'equipment_list' => 'nullable|string',
             'area_sqm' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',

@@ -10,6 +10,8 @@ class RoomDetail extends Model
 
     protected $fillable = [
         'room_id',
+        'floor',
+        'capacity',
         'equipment_list',
         'area_sqm',
         'notes',
@@ -18,6 +20,8 @@ class RoomDetail extends Model
 
     protected $casts = [
         'room_id' => 'integer',
+        'floor' => 'integer',
+        'capacity' => 'integer',
         'area_sqm' => 'decimal:2',
         'last_cleaned_at' => 'datetime',
     ];

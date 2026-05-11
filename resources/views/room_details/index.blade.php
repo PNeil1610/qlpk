@@ -20,6 +20,8 @@
                         <tr>
                             <th>Mã phòng</th>
                             <th>Phòng</th>
+                            <th>Tầng</th>
+                            <th>Sức chứa</th>
                             <th>Diện tích (m2)</th>
                             <th>Lần dọn dẹp cuối</th>
                             <th>Hành động</th>
@@ -30,7 +32,9 @@
                             <tr>
                                 <td>{{ $item->room->room_code }}</td>
                                 <td>{{ $item->room->room_name ?? '--' }}</td>
-                                <td>{{ $item->area_sqm }}</td>
+                                <td>{{ $item->floor ?? '--' }}</td>
+                                <td>{{ $item->capacity ?? '--' }}</td>
+                                <td>{{ $item->area_sqm ?? '--' }}</td>
                                 <td>{{ $item->last_cleaned_at ? $item->last_cleaned_at->format('d/m/Y H:i') : '--' }}</td>
                                 <td>
                                     <a href="{{ route('room_details.show', $item->id) }}" class="btn btn-info btn-sm">Xem</a>
@@ -46,7 +50,7 @@
                         @endforeach
                         @if($roomDetails->isEmpty())
                             <tr>
-                                <td colspan="5" class="text-center">Chưa có dữ liệu</td>
+                                <td colspan="7" class="text-center">Chưa có dữ liệu</td>
                             </tr>
                         @endif
                     </tbody>
@@ -72,7 +76,7 @@ $(document).ready(function () {
             success: function (data) {
                 let html = '';
                 if (data.length === 0) {
-                    html += `<tr><td colspan="5" class="text-center">Không tìm thấy dữ liệu</td></tr>`;
+                    html += `<tr><td colspan="7" class="text-center">Không tìm thấy dữ liệu</td></tr>`;
                 } else {
                     data.forEach(function (r) {
                         let roomCode = r.room ? r.room.room_code : '--';
@@ -83,6 +87,8 @@ $(document).ready(function () {
                             <tr>
                                 <td>${roomCode}</td>
                                 <td>${roomName}</td>
+                                <td>${r.floor ?? '--'}</td>
+                                <td>${r.capacity ?? '--'}</td>
                                 <td>${r.area_sqm ?? '--'}</td>
                                 <td>${lastCleanedAt}</td>
                                 <td>

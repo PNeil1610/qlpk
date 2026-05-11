@@ -58,7 +58,7 @@
 
             </tr>
 
-            <tr>
+            <!-- <tr>
 
                 <th>
                     Tầng
@@ -80,7 +80,7 @@
                     {{ $consultationRoom->room->capacity ?? '--' }}
                 </td>
 
-            </tr>
+            </tr> -->
 
             <tr>
 

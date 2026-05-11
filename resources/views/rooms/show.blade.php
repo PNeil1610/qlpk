@@ -25,14 +25,7 @@
                             <th>Khoa</th>
                             <td>{{ $room->department->dept_name ?? '--' }}</td>
                         </tr>
-                        <tr>
-                            <th>Tầng</th>
-                            <td>{{ $room->floor ?? '--' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Sức chứa</th>
-                            <td>{{ $room->capacity ?? '--' }}</td>
-                        </tr>
+
                         <tr>
                             <th>Trạng thái</th>
                             <td>

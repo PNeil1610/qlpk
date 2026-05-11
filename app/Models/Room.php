@@ -14,8 +14,6 @@ class Room extends Model
         'room_name',
         'room_type',
         'department_id',
-        'floor',
-        'capacity',
         'status',
 
     ];
@@ -23,8 +21,6 @@ class Room extends Model
     protected $casts = [
 
         'department_id' => 'integer',
-        'floor' => 'integer',
-        'capacity' => 'integer',
         'status' => 'integer',
 
     ];
