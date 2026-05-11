@@ -96,6 +96,14 @@ class PatientController extends Controller
 
         $patient->update($validated);
 
+        // Đồng bộ thông tin nếu bệnh nhân này có tài khoản User (user_id)
+        if ($patient->user) {
+            $patient->user->email = $validated['email'] ?? $patient->user->email;
+            $patient->user->phone_number = $validated['phone_number'] ?? $patient->user->phone_number;
+            $patient->user->full_name = $validated['full_name'] ?? $patient->user->full_name;
+            $patient->user->save();
+        }
+
         return redirect()->route('patients.index')
             ->with('success', 'Cập nhật thành công');
     }

@@ -42,8 +42,10 @@ class ConsultationController extends Controller
             $selectedPatient = Patient::find($request->patient_id);
         }
 
+        $rooms = \App\Models\Room::where('status', \App\Models\Room::STATUS_AVAILABLE)->get();
+
         return view('consultations.create', compact(
-            'selectedPatient'
+            'selectedPatient', 'rooms'
         ));
     }
     /**
@@ -63,6 +65,7 @@ class ConsultationController extends Controller
         $validated = $request->validate([
 
             'patient_id' => 'required|exists:patient,id',
+            'room_id' => 'nullable|exists:room,id',
             'symptoms' => 'nullable|string',
 
             'temperature' => 'nullable|numeric|min:30|max:45',
@@ -76,8 +79,6 @@ class ConsultationController extends Controller
             'diagnosis_notes' => 'nullable|string',
 
             'follow_up_date' => 'nullable|date',
-
-            'status' => 'required|integer',
         ]);
 
         $consultation = new Consultation();
@@ -90,6 +91,15 @@ class ConsultationController extends Controller
         $consultation->order_number = time();
 
         $consultation->save();
+
+        // Nếu có chọn phòng khám, tạo bản ghi consultation_room
+        if ($request->room_id) {
+            \App\Models\ConsultationRoom::create([
+                'consultation_id' => $consultation->id,
+                'room_id' => $request->room_id,
+                'status' => 1, // Đang chờ
+            ]);
+        }
 
         return redirect()->route('consultations.index')
             ->with('success', 'Tạo phiên khám thành công');

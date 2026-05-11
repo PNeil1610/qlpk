@@ -36,6 +36,13 @@ class ProfileController extends Controller
         
         $user->save();
 
+        // Đồng bộ cập nhật thông tin qua bảng Patient (nếu User này là bệnh nhân)
+        if ($user->patient) {
+            $user->patient->email = $request->email;
+            $user->patient->phone_number = $request->phone_number;
+            $user->patient->save();
+        }
+
         return back()->with('success', 'Thông tin cá nhân đã được cập nhật thành công!');
     }
 }
