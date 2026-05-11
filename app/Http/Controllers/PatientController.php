@@ -101,6 +101,8 @@ class PatientController extends Controller
             $patient->user->email = $validated['email'] ?? $patient->user->email;
             $patient->user->phone_number = $validated['phone_number'] ?? $patient->user->phone_number;
             $patient->user->full_name = $validated['full_name'] ?? $patient->user->full_name;
+            $patient->user->address = $validated['address'] ?? $patient->user->address;
+            $patient->user->national_id = $validated['national_id'] ?? $patient->user->national_id;
             $patient->user->save();
         }
 

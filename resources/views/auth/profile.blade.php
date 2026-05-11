@@ -62,6 +62,22 @@
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
                         </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Địa chỉ</label>
+                            <input type="text" class="form-control @error('address') is-invalid @enderror" id="address" name="address" placeholder="Nhập địa chỉ của bạn" value="{{ old('address', $user->address) }}">
+                            @error('address')
+                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="national_id" class="form-label">Số CCCD / CMND</label>
+                            <input type="text" class="form-control @error('national_id') is-invalid @enderror" id="national_id" name="national_id" placeholder="Nhập số CCCD/CMND" value="{{ old('national_id', $user->national_id) }}">
+                            @error('national_id')
+                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
                         
                         <button type="submit" class="btn btn-success">Lưu thay đổi</button>
                         <a href="{{ route('home') }}" class="btn btn-outline-secondary btn-sm">Quay lại</a>

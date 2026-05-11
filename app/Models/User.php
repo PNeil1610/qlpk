@@ -18,6 +18,8 @@ class User extends Authenticatable
         'full_name',
         'email',
         'phone_number',
+        'address',
+        'national_id',
         'avatar_url',
         'last_login_at',
         'status'
