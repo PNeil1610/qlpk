@@ -121,10 +121,11 @@ class ConsultationController extends Controller
      */
     public function edit($id)
     {
-        $consultation = Consultation::findOrFail($id);
+        $consultation = Consultation::with('rooms')->findOrFail($id);
         $patients = Patient::get(['id', 'full_name', 'patient_code']);
+        $rooms = \App\Models\Room::where('status', \App\Models\Room::STATUS_AVAILABLE)->get();
 
-        return view('consultations.edit', compact('consultation', 'patients'));
+        return view('consultations.edit', compact('consultation', 'patients', 'rooms'));
     }
 
     /**
@@ -136,6 +137,7 @@ class ConsultationController extends Controller
 
         $validated = $request->validate([
             'patient_id' => 'required|exists:patient,id',
+            'room_id' => 'nullable|exists:room,id',
             'consultation_date' => 'required|date',
             'symptoms' => 'nullable|string',
             'chief_complaint' => 'nullable|string|max:500',
@@ -148,6 +150,27 @@ class ConsultationController extends Controller
         ]);
 
         $consultation->update($validated);
+
+        // Cập nhật phòng khám
+        if ($request->has('room_id')) {
+            $consultationRoom = \App\Models\ConsultationRoom::where('consultation_id', $consultation->id)->first();
+            
+            if ($request->room_id) {
+                if ($consultationRoom) {
+                    $consultationRoom->update(['room_id' => $request->room_id]);
+                } else {
+                    \App\Models\ConsultationRoom::create([
+                        'consultation_id' => $consultation->id,
+                        'room_id' => $request->room_id,
+                        'status' => 1,
+                    ]);
+                }
+            } else {
+                if ($consultationRoom) {
+                    $consultationRoom->delete();
+                }
+            }
+        }
 
         return redirect()->route('consultations.index')
             ->with('success', 'Cập nhật thành công');

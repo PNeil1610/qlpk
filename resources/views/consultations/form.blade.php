@@ -43,16 +43,18 @@ BỆNH NHÂN
 
 
 {{-- ========================
-CHỌN PHÒNG KHÁM (Khi tạo mới)
+CHỌN PHÒNG KHÁM
 ======================== --}}
-@if(!isset($consultation))
 <div class="mb-3">
     <label class="form-label">Phòng khám</label>
+    @php
+        $currentRoomId = old('room_id', isset($consultation) ? ($consultation->rooms->first()->id ?? '') : '');
+    @endphp
     <select name="room_id" class="form-control @error('room_id') is-invalid @enderror">
         <option value="">-- Chọn phòng khám (Tùy chọn) --</option>
         @if(isset($rooms))
             @foreach($rooms as $room)
-                <option value="{{ $room->id }}" {{ old('room_id') == $room->id ? 'selected' : '' }}>
+                <option value="{{ $room->id }}" {{ $currentRoomId == $room->id ? 'selected' : '' }}>
                     {{ $room->room_name }} ({{ $room->room_code }}) - {{ $room->room_type_text }}
                 </option>
             @endforeach
@@ -62,7 +64,6 @@ CHỌN PHÒNG KHÁM (Khi tạo mới)
         <div class="invalid-feedback">{{ $message }}</div>
     @enderror
 </div>
-@endif
 
 
 {{-- ========================
