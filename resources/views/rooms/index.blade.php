@@ -1,171 +1,117 @@
 @extends('layouts.app')
 
 @section('content')
-
-    <h3>Danh sách phòng</h3>
-
-    <a href="{{ route('rooms.create') }}"
-       class="btn btn-primary mb-3">
-
-        + Thêm phòng
-
-    </a>
-
-    <div class="mb-3">
-
-        <div class="d-flex gap-2">
-
-            <input type="text"
-                   id="search"
-                   class="form-control"
-                   placeholder="Tìm mã phòng hoặc tên phòng...">
-
-            <button type="button"
-                    id="resetSearch"
-                    class="btn btn-secondary">
-
-                Reset
-
-            </button>
-
-        </div>
-
+<div class="container-fluid px-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0 text-primary"><i class="fas fa-door-open me-2"></i>Danh sách Phòng</h3>
+        <a href="{{ route('rooms.create') }}" class="btn btn-primary shadow-sm">
+            <i class="fas fa-plus-circle me-1"></i> Thêm Phòng
+        </a>
     </div>
 
-    <table class="table table-bordered table-hover">
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body py-3">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" id="search" class="form-control border-start-0 ps-0" placeholder="Tìm theo mã hoặc tên phòng...">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" id="resetSearch" class="btn btn-secondary shadow-sm">
+                        <i class="fas fa-sync-alt me-1"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <thead class="table-dark">
-
-            <tr>
-
-                <th>Mã phòng</th>
-                <th>Tên phòng</th>
-                <th>Loại phòng</th>
-                <th>Khoa</th>
-
-                <th>Trạng thái</th>
-                <th width="220">Hành động</th>
-
-            </tr>
-
-        </thead>
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0 align-middle">
+                    <thead class="bg-light">
+                        <tr>
+                            <th scope="col" class="ps-4">Mã phòng</th>
+                            <th scope="col">Tên phòng</th>
+                            <th scope="col">Loại phòng</th>
+                            <th scope="col">Khoa</th>
+                            <th scope="col" class="text-center">Trạng thái</th>
+                            <th scope="col" class="text-center pe-4" width="280">Thao tác</th>
+                        </tr>
+                    </thead>
 
         <tbody id="roomTable">
 
             @forelse($rooms as $room)
 
                 <tr>
-
-                    <td>{{ $room->room_code }}</td>
-
-                    <td>{{ $room->room_name }}</td>
-
+                    <td class="ps-4 fw-bold text-secondary">{{ $room->room_code }}</td>
+                    <td class="fw-bold text-dark">{{ $room->room_name }}</td>
                     <td>{{ $room->room_type }}</td>
-
                     <td>{{ $room->department->dept_name ?? '--' }}</td>
-
-
-
-                    <td>
+                    <td class="text-center">
 
                         @switch($room->status)
-
                             @case(1)
-                                <span class="badge bg-success">
-                                    Hoạt động
-                                </span>
+                                <span class="badge rounded-pill bg-success">Hoạt động</span>
                                 @break
-
                             @case(0)
-                                <span class="badge bg-secondary">
-                                    Đóng
-                                </span>
+                                <span class="badge rounded-pill bg-secondary">Đóng</span>
                                 @break
-
                             @case(2)
-                                <span class="badge bg-primary">
-                                    Đang sử dụng
-                                </span>
+                                <span class="badge rounded-pill bg-primary">Đang sử dụng</span>
                                 @break
-
                             @case(3)
-                                <span class="badge bg-warning text-dark">
-                                    Bảo trì
-                                </span>
+                                <span class="badge rounded-pill bg-warning text-dark">Bảo trì</span>
                                 @break
-
                         @endswitch
-
                     </td>
-
-                    <td>
-
-                        <a href="{{ route('rooms.show', $room->id) }}"
-                           class="btn btn-info btn-sm">
-
-                            Xem
-
-                        </a>
-
-                        <a href="{{ route('rooms.edit', $room->id) }}"
-                           class="btn btn-warning btn-sm">
-
-                            Sửa
-
-                        </a>
-
-                        <a href="{{ route('room_details.create', ['room_id' => $room->id]) }}"
-                           class="btn btn-success btn-sm">
-
-                            + Chi tiết
-
-                        </a>
-
-                        <form action="{{ route('rooms.destroy', $room->id) }}"
-                              method="POST"
-                              style="display:inline;">
-
-                            @csrf
-                            @method('DELETE')
-
-                            <button type="submit"
-                                    class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Bạn có chắc muốn xóa không?')">
-
-                                Xóa
-
-                            </button>
-
-                        </form>
-
+                    <td class="text-center pe-4">
+                        <div class="d-flex gap-2 justify-content-center">
+                            <a href="{{ route('rooms.show', $room->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
+                                <i class="fas fa-eye me-1"></i> Xem
+                            </a>
+                            <a href="{{ route('rooms.edit', $room->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
+                                <i class="fas fa-edit me-1"></i> Sửa
+                            </a>
+                            <a href="{{ route('room_details.create', ['room_id' => $room->id]) }}" class="btn btn-sm btn-success shadow-sm" title="Thêm Chi tiết">
+                                <i class="fas fa-plus me-1"></i> Chi tiết
+                            </a>
+                            <form action="{{ route('rooms.destroy', $room->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa không?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
+                                    <i class="fas fa-trash-alt me-1"></i> Xóa
+                                </button>
+                            </form>
+                        </div>
                     </td>
 
                 </tr>
 
             @empty
-
                 <tr>
-
-                    <td colspan="8"
-                        class="text-center text-muted">
-
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class="fas fa-door-closed fs-2 mb-3 mt-2 d-block text-black-50"></i>
                         Không có dữ liệu
-
                     </td>
-
                 </tr>
-
             @endforelse
-
         </tbody>
-
     </table>
-
-    <div class="d-flex justify-content-center">
-
-        {{ $rooms->links('pagination::bootstrap-5') }}
-
     </div>
+    </div>
+    <div class="card-footer bg-white border-0 py-3">
+        <div class="d-flex justify-content-end">
+            {{ $rooms->links() }}
+        </div>
+    </div>
+    </div>
+</div>
 
 @endsection
 
@@ -194,16 +140,14 @@ $(document).ready(function () {
                 let html = '';
 
                 if (data.length === 0) {
-
                     html += `
                         <tr>
-                            <td colspan="8"
-                                class="text-center">
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-door-closed fs-2 mb-3 mt-2 d-block text-black-50"></i>
                                 Không tìm thấy dữ liệu
                             </td>
                         </tr>
                     `;
-
                 } else {
 
                     data.forEach(function (r) {
@@ -230,70 +174,33 @@ $(document).ready(function () {
                         }
 
                         html += `
-
                             <tr>
-
-                                <td>${r.room_code ?? ''}</td>
-
-                                <td>${r.room_name ?? ''}</td>
-
+                                <td class="ps-4 fw-bold text-secondary">${r.room_code ?? ''}</td>
+                                <td class="fw-bold text-dark">${r.room_name ?? ''}</td>
                                 <td>${r.room_type ?? ''}</td>
-
                                 <td>${r.department?.dept_name ?? '--'}</td>
-
-
-
-                                <td>${status}</td>
-
-                                <td>
-
-                                    <a href="/rooms/${r.id}"
-                                       class="btn btn-info btn-sm">
-
-                                        Xem
-
-                                    </a>
-
-                                    <a href="/rooms/${r.id}/edit"
-                                       class="btn btn-warning btn-sm">
-
-                                        Sửa
-
-                                    </a>
-
-                                    <a href="/room-details/create?room_id=${r.id}"
-                                       class="btn btn-success btn-sm">
-
-                                        + Chi tiết
-
-                                    </a>
-
-                                    <form action="/rooms/${r.id}"
-                                          method="POST"
-                                          style="display:inline;">
-
-                                        <input type="hidden"
-                                               name="_token"
-                                               value="{{ csrf_token() }}">
-
-                                        <input type="hidden"
-                                               name="_method"
-                                               value="DELETE">
-
-                                        <button type="submit"
-                                                class="btn btn-danger btn-sm"
-                                                onclick="return confirm('Bạn có chắc muốn xóa không?')">
-
-                                            Xóa
-
-                                        </button>
-
-                                    </form>
-
+                                <td class="text-center">${status}</td>
+                                <td class="text-center pe-4">
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <a href="/rooms/${r.id}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
+                                            <i class="fas fa-eye me-1"></i> Xem
+                                        </a>
+                                        <a href="/rooms/${r.id}/edit" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
+                                            <i class="fas fa-edit me-1"></i> Sửa
+                                        </a>
+                                        <a href="/room-details/create?room_id=${r.id}" class="btn btn-sm btn-success shadow-sm" title="Thêm Chi tiết">
+                                            <i class="fas fa-plus me-1"></i> Chi tiết
+                                        </a>
+                                        <form action="/rooms/${r.id}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa không?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
+                                                <i class="fas fa-trash-alt me-1"></i> Xóa
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
-
                             </tr>
-
                         `;
                     });
                 }

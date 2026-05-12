@@ -1,31 +1,25 @@
 @extends('layouts.app')
 
 @section('content')
+<div class="container-fluid px-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0 text-primary"><i class="fas fa-hospital-user me-2"></i>Sắp xếp Phòng khám</h3>
+    </div>
 
-    <h3>Danh sách phòng khám của phiên khám</h3>
-
-    <!-- <a href="{{ route('consultation_rooms.create') }}" class="btn btn-primary mb-3">
-
-            + Thêm phòng cho phiên khám
-
-        </a> -->
-
-    <table class="table table-bordered table-hover">
-
-        <thead class="table-dark">
-
-            <tr>
-
-                <th>Phiên khám</th>
-                <th>Bệnh nhân</th>
-                <th>Phòng</th>
-                <th>Ghi chú</th>
-                <th>Trạng thái</th>
-                <th width="220">Hành động</th>
-
-            </tr>
-
-        </thead>
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0 align-middle">
+                    <thead class="bg-light">
+                        <tr>
+                            <th scope="col" class="ps-4">Phiên khám</th>
+                            <th scope="col">Bệnh nhân</th>
+                            <th scope="col">Phòng</th>
+                            <th scope="col">Ghi chú</th>
+                            <th scope="col" class="text-center">Trạng thái</th>
+                            <th scope="col" class="text-center pe-4" width="220">Hành động</th>
+                        </tr>
+                    </thead>
 
         <tbody>
 
@@ -33,103 +27,64 @@
 
                     <tr>
 
-                        <td>
-                            #{{ $item->consultation_id }}
-                        </td>
-
-                        <td>
-                            {{ $item->consultation->patient->full_name ?? '--' }}
-                        </td>
-
-                        <td>
-                            {{ $item->room->room_name ?? '--' }}
-                        </td>
-
-                        <td>
-                            {{ $item->notes ?? '--' }}
-                        </td>
-
-                        <td>
-
+                        <td class="ps-4 fw-bold text-secondary">#{{ $item->consultation_id }}</td>
+                        <td class="fw-bold text-dark">{{ $item->consultation->patient->full_name ?? '--' }}</td>
+                        <td class="fw-bold text-primary">{{ $item->room->room_name ?? '--' }}</td>
+                        <td class="text-muted">{{ $item->notes ?? '--' }}</td>
+                        <td class="text-center">
                             @if($item->status == 1)
-
-                                <span class="badge bg-success">
-                                    Hoạt động
-                                </span>
-
+                                <span class="badge rounded-pill bg-success">Hoạt động</span>
                             @else
-
-                                <span class="badge bg-secondary">
-                                    Không hoạt động
-                                </span>
-
+                                <span class="badge rounded-pill bg-secondary">Không hoạt động</span>
                             @endif
-
                         </td>
 
-                        <td>
-
-                            <a href="{{ route('consultation_rooms.show', [
-                    'consultation_id' => $item->consultation_id,
-                    'room_id' => $item->room_id
-                ]) }}" class="btn btn-info btn-sm">
-
-                                Xem
-
-                            </a>
-
-                            <a href="{{ route('consultation_rooms.edit', [
-                    'consultation_id' => $item->consultation_id,
-                    'room_id' => $item->room_id
-                ]) }}" class="btn btn-warning btn-sm">
-
-                                Sửa
-
-                            </a>
-
-                            <form action="{{ route('consultation_rooms.destroy', [
-                    'consultation_id' => $item->consultation_id,
-                    'room_id' => $item->room_id
-                ]) }}" method="POST" style="display:inline;">
-
-                                @csrf
-                                @method('DELETE')
-
-                                <button type="submit" class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Bạn có chắc muốn xóa không?')">
-
-                                    Xóa
-
-                                </button>
-
-                            </form>
-
+                        <td class="text-center pe-4">
+                            <div class="d-flex gap-2 justify-content-center">
+                                <a href="{{ route('consultation_rooms.show', [
+                                    'consultation_id' => $item->consultation_id,
+                                    'room_id' => $item->room_id
+                                ]) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
+                                    <i class="fas fa-eye me-1"></i> Xem
+                                </a>
+                                <a href="{{ route('consultation_rooms.edit', [
+                                    'consultation_id' => $item->consultation_id,
+                                    'room_id' => $item->room_id
+                                ]) }}" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
+                                    <i class="fas fa-edit me-1"></i> Sửa
+                                </a>
+                                <form action="{{ route('consultation_rooms.destroy', [
+                                    'consultation_id' => $item->consultation_id,
+                                    'room_id' => $item->room_id
+                                ]) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa không?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
+                                        <i class="fas fa-trash-alt me-1"></i> Xóa
+                                    </button>
+                                </form>
+                            </div>
                         </td>
 
                     </tr>
 
             @empty
-
                 <tr>
-
-                    <td colspan="6" class="text-center text-muted">
-
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class="fas fa-hospital-user fs-2 mb-3 mt-2 d-block text-black-50"></i>
                         Không có dữ liệu
-
                     </td>
-
                 </tr>
-
             @endforelse
-
         </tbody>
-
     </table>
-
-    <div class="d-flex justify-content-center">
-
-        {{ $consultationRooms->links('pagination::bootstrap-5') }}
-
     </div>
-
+    </div>
+    <div class="card-footer bg-white border-0 py-3">
+        <div class="d-flex justify-content-end">
+            {{ $consultationRooms->links('pagination::bootstrap-5') }}
+        </div>
+    </div>
+    </div>
+</div>
 @endsection

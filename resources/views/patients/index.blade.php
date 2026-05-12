@@ -1,101 +1,99 @@
 @extends('layouts.app')
 <!-- danh sách bệnh nhân -->
 @section('content')
-<h3>Danh sách bệnh nhân</h3>
-<a href="{{ route('patients.create') }}" class="btn btn-primary mb-3">+ Thêm</a>
-
-<div class="mb-3">
-
-    <div class="d-flex gap-2">
-
-        <input type="text"
-               id="search"
-               class="form-control"
-               placeholder="Tìm tên, mã bệnh nhân, SĐT...">
-
-        <button type="button"
-                id="resetSearch"
-                class="btn btn-secondary">
-            Reset
-        </button>
-
+<div class="container-fluid px-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0 text-primary"><i class="fas fa-users me-2"></i>Danh sách Bệnh nhân</h3>
+        <a href="{{ route('patients.create') }}" class="btn btn-primary shadow-sm">
+            <i class="fas fa-plus-circle me-1"></i> Thêm Bệnh nhân
+        </a>
     </div>
 
-</div>
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body py-3">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" id="search" class="form-control border-start-0 ps-0" placeholder="Tìm tên, mã bệnh nhân, SĐT...">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" id="resetSearch" class="btn btn-secondary shadow-sm">
+                        <i class="fas fa-sync-alt me-1"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<table class="table table-bordered">
-    <thead class="table-dark">
-    <tr>
-        <th>Mã BN</th>
-        <th>Tên</th>
-        <th>Tuổi</th>
-        <th>Giới tính</th>
-        <th>SĐT</th>
-        <th>Trạng thái</th>
-        <th>Hành động</th>
-    </tr>
-    </thead>
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0 align-middle">
+                    <thead class="bg-light">
+                        <tr>
+                            <th scope="col" class="ps-4">Mã BN</th>
+                            <th scope="col">Tên</th>
+                            <th scope="col" class="text-center">Tuổi</th>
+                            <th scope="col" class="text-center">Giới tính</th>
+                            <th scope="col">SĐT</th>
+                            <th scope="col" class="text-center">Trạng thái</th>
+                            <th scope="col" class="text-center pe-4" width="300">Hành động</th>
+                        </tr>
+                    </thead>
 <tbody id="patientTable">
     @foreach($patients as $p)
     <tr>
-        <td>{{ $p->patient_code }}</td>
-        <td>{{ $p->full_name }}</td>
-        <td>{{ $p->age }}</td>
-        <td>{{ $p->gender_text }}</td>
+        <td class="ps-4 fw-bold text-secondary">{{ $p->patient_code }}</td>
+        <td class="fw-bold text-dark">{{ $p->full_name }}</td>
+        <td class="text-center">{{ $p->age }}</td>
+        <td class="text-center">{{ $p->gender_text }}</td>
         <td>{{ $p->phone_number }}</td>
-        <td>
-    @switch($p->status)
-        @case(1)
-            <span class="badge bg-secondary">Hoạt động</span>
-            @break
-        @case(0)
-            <span class="badge bg-dark">Không hoạt động</span>
-            @break
-    @endswitch
-</td>
-        <td>
-
-    {{-- XEM --}}
-    <a href="{{ route('patients.show', $p->id) }}"
-       class="btn btn-info btn-sm">
-        Xem
-    </a>
-
-    {{-- SỬA --}}
-    <a href="{{ route('patients.edit', $p->id) }}"
-       class="btn btn-warning btn-sm">
-        Sửa
-    </a>
-
-    {{-- 🔥 TẠO PHIÊN KHÁM --}}
-    <a href="{{ route('consultations.create', ['patient_id' => $p->id]) }}"
-       class="btn btn-success btn-sm">
-        Tạo phiên khám
-    </a>
-
-    {{-- XÓA --}}
-    <form action="{{ route('patients.destroy', $p->id) }}"
-          method="POST"
-          style="display:inline;">
-
-        @csrf
-        @method('DELETE')
-
-        <button type="submit"
-                class="btn btn-danger btn-sm"
-                onclick="return confirm('Bạn có chắc muốn xoá không?')">
-
-            Xóa
-        </button>
-
-    </form>
-</td>
+        <td class="text-center">
+            @switch($p->status)
+                @case(1)
+                    <span class="badge rounded-pill bg-success">Hoạt động</span>
+                    @break
+                @case(0)
+                    <span class="badge rounded-pill bg-secondary">Không hoạt động</span>
+                    @break
+            @endswitch
+        </td>
+        <td class="text-center pe-4">
+            <div class="d-flex gap-2 justify-content-center">
+                <a href="{{ route('patients.show', $p->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
+                    <i class="fas fa-eye me-1"></i> Xem
+                </a>
+                <a href="{{ route('patients.edit', $p->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
+                    <i class="fas fa-edit me-1"></i> Sửa
+                </a>
+                <a href="{{ route('consultations.create', ['patient_id' => $p->id]) }}" class="btn btn-sm btn-success shadow-sm" title="Tạo phiên khám">
+                    <i class="fas fa-notes-medical me-1"></i> Phiên khám
+                </a>
+                <form action="{{ route('patients.destroy', $p->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xoá không?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
+                        <i class="fas fa-trash-alt me-1"></i> Xóa
+                    </button>
+                </form>
+            </div>
+        </td>
     </tr>
     @endforeach
-</tbody>
-</table>
-<div class="d-flex justify-content-center">
-    {{ $patients->appends(request()->all())->links() }}
+        </tbody>
+    </table>
+    </div>
+    </div>
+    <div class="card-footer bg-white border-0 py-3">
+        <div class="d-flex justify-content-end">
+            {{ $patients->appends(request()->all())->links() }}
+        </div>
+    </div>
+    </div>
 </div>
 @endsection
 
@@ -127,15 +125,14 @@ $(document).ready(function () {
                 let html = '';
 
                 if (data.length === 0) {
-
                     html += `
                         <tr>
-                            <td colspan="7" class="text-center">
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="fas fa-users-slash fs-2 mb-3 mt-2 d-block text-black-50"></i>
                                 Không tìm thấy dữ liệu
                             </td>
                         </tr>
                     `;
-
                 } else {
 
                     data.forEach(function (p) {
@@ -151,64 +148,37 @@ $(document).ready(function () {
                         }
 
                         let status = p.status == 1
-                            ? '<span class="badge bg-success">Hoạt động</span>'
-                            : '<span class="badge bg-secondary">Không hoạt động</span>';
+                            ? '<span class="badge rounded-pill bg-success">Hoạt động</span>'
+                            : '<span class="badge rounded-pill bg-secondary">Không hoạt động</span>';
 
                         html += `
                             <tr>
-
-                                <td>${p.patient_code ?? ''}</td>
-
-                                <td>${p.full_name ?? ''}</td>
-
-                                <td>${p.age ?? ''}</td>
-
-                                <td>${gender}</td>
-
+                                <td class="ps-4 fw-bold text-secondary">${p.patient_code ?? ''}</td>
+                                <td class="fw-bold text-dark">${p.full_name ?? ''}</td>
+                                <td class="text-center">${p.age ?? ''}</td>
+                                <td class="text-center">${gender}</td>
                                 <td>${p.phone_number ?? ''}</td>
-
-                                <td>${status}</td>
-
-                                <td>
-
-    <a href="/patients/${p.id}"
-       class="btn btn-info btn-sm">
-       Xem
-    </a>
-
-    <a href="/patients/${p.id}/edit"
-       class="btn btn-warning btn-sm">
-       Sửa
-    </a>
-
-    <a href="/consultations/create?patient_id=${p.id}"
-       class="btn btn-success btn-sm">
-       Tạo phiên khám
-    </a>
-
-    <form action="/patients/${p.id}"
-          method="POST"
-          style="display:inline;">
-
-        <input type="hidden"
-               name="_token"
-               value="{{ csrf_token() }}">
-
-        <input type="hidden"
-               name="_method"
-               value="DELETE">
-
-        <button type="submit"
-                class="btn btn-danger btn-sm"
-                onclick="return confirm('Bạn có chắc muốn xoá không?')">
-
-            Xóa
-        </button>
-
-    </form>
-
-</td>
-
+                                <td class="text-center">${status}</td>
+                                <td class="text-center pe-4">
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <a href="/patients/${p.id}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
+                                            <i class="fas fa-eye me-1"></i> Xem
+                                        </a>
+                                        <a href="/patients/${p.id}/edit" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
+                                            <i class="fas fa-edit me-1"></i> Sửa
+                                        </a>
+                                        <a href="/consultations/create?patient_id=${p.id}" class="btn btn-sm btn-success shadow-sm" title="Tạo phiên khám">
+                                            <i class="fas fa-notes-medical me-1"></i> Phiên khám
+                                        </a>
+                                        <form action="/patients/${p.id}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xoá không?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
+                                                <i class="fas fa-trash-alt me-1"></i> Xóa
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
                             </tr>
                         `;
                     });
