@@ -14,7 +14,8 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
     <style>
@@ -82,23 +83,23 @@
                                         </li>
                                     @endif
                                 @else
-                                <li class="nav-item d-flex align-items-center">
-                                    <a class="nav-link d-flex align-items-center" href="{{ url('/profile') }}">
-                                        <img src="{{ Auth::user()->avatar_url ? asset(Auth::user()->avatar_url) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->full_name) . '&background=random' }}" 
-                                            alt="Avatar" width="32" height="32" class="rounded-circle me-2 border">
-                                        <span class="fw-bold text-dark">{{ Auth::user()->full_name }}</span>
-                                    </a>
-                                </li>
+                                    <li class="nav-item d-flex align-items-center">
+                                        <a class="nav-link d-flex align-items-center" href="{{ url('/profile') }}">
+                                            <img src="{{ Auth::user()->avatar_url ? asset(Auth::user()->avatar_url) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->full_name) . '&background=random' }}"
+                                                alt="Avatar" width="32" height="32" class="rounded-circle me-2 border">
+                                            <span class="fw-bold text-dark">{{ Auth::user()->full_name }}</span>
+                                        </a>
+                                    </li>
 
-                                <li class="nav-item d-flex align-items-center ms-3">
-                                    <a class="btn btn-outline-danger btn-sm" href="{{ route('logout') }}"
-                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                        Đăng xuất
-                                    </a>
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </li>
+                                    <li class="nav-item d-flex align-items-center ms-3">
+                                        <a class="btn btn-outline-danger btn-sm" href="{{ route('logout') }}"
+                                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                            Đăng xuất
+                                        </a>
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                            @csrf
+                                        </form>
+                                    </li>
                                 @endguest
                             </ul>
                         </div>
