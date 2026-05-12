@@ -133,6 +133,17 @@ Route::prefix('consultation-rooms')
 
     });
 
+Route::prefix('staff')->name('staff.')->group(function () {
+    Route::get('/', [App\Http\Controllers\StaffController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\StaffController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\StaffController::class, 'store'])->name('store');
+    
+    Route::get('/{id}', [App\Http\Controllers\StaffController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [App\Http\Controllers\StaffController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [App\Http\Controllers\StaffController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\StaffController::class, 'destroy'])->name('destroy');
+});
+
 Auth::routes();
 //user
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
