@@ -135,6 +135,7 @@ Route::prefix('consultation-rooms')
 
 Route::prefix('staff')->name('staff.')->group(function () {
     Route::get('/', [App\Http\Controllers\StaffController::class, 'index'])->name('index');
+    Route::get('/ajax/search', [App\Http\Controllers\StaffController::class, 'ajaxSearch'])->name('ajax.search');
     Route::get('/create', [App\Http\Controllers\StaffController::class, 'create'])->name('create');
     Route::post('/', [App\Http\Controllers\StaffController::class, 'store'])->name('store');
     

@@ -105,4 +105,20 @@ class StaffController extends Controller
 
         return redirect()->route('staff.index')->with('success', 'Đã xóa hồ sơ nhân viên: ' . $name);
     }
+
+    public function ajaxSearch(Request $request)
+    {
+        $keyword = $request->keyword;
+
+        $staffs = Staff::with(['department', 'room'])
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where('full_name', 'like', "%{$keyword}%")
+                    ->orWhere('staff_code', 'like', "%{$keyword}%")
+                    ->orWhere('phone_number', 'like', "%{$keyword}%");
+            })
+            ->latest()
+            ->get();
+
+        return response()->json($staffs);
+    }
 }
