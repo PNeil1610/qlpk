@@ -41,6 +41,7 @@
                             <th scope="col">Mã BN</th>
                             <th scope="col">Bệnh nhân</th>
                             <th scope="col">Ngày khám</th>
+                            <th scope="col" class="text-center">Phòng khám</th>
                             <th scope="col" class="text-center">Nhiệt độ</th>
                             <th scope="col" class="text-center">Huyết áp</th>
                             <th scope="col">Triệu chứng</th>
@@ -59,6 +60,13 @@
             <td class="fw-bold text-secondary">{{ $c->patient->patient_code ?? 'N/A' }}</td>
             <td class="fw-bold text-dark">{{ $c->patient->full_name ?? 'N/A' }}</td>
             <td>{{ $c->consultation_date ? $c->consultation_date->format('d/m/Y H:i') : '' }}</td>
+            <td class="text-center text-primary fw-bold">
+                @if($c->rooms->isNotEmpty())
+                    {{ $c->rooms->pluck('room_name')->join(', ') }}
+                @else
+                    --
+                @endif
+            </td>
             <td class="text-center">{{ $c->temperature ?? '--' }}</td>
             <td class="text-center">{{ $c->blood_pressure ?? '--' }}</td>
             <td class="text-muted">{{ Str::limit($c->symptoms, 40) }}</td>
@@ -105,7 +113,7 @@
 
         @empty
         <tr>
-            <td colspan="9" class="text-center py-5 text-muted">
+            <td colspan="10" class="text-center py-5 text-muted">
                 <i class="fas fa-stethoscope fs-2 mb-3 mt-2 d-block text-black-50"></i>
                 Không có dữ liệu
             </td>
@@ -153,7 +161,7 @@ $(document).ready(function () {
                 if (data.length === 0) {
                     html += `
                         <tr>
-                            <td colspan="9" class="text-center py-5 text-muted">
+                            <td colspan="10" class="text-center py-5 text-muted">
                                 <i class="fas fa-stethoscope fs-2 mb-3 mt-2 d-block text-black-50"></i>
                                 Không tìm thấy dữ liệu
                             </td>
@@ -184,12 +192,18 @@ $(document).ready(function () {
                                 break;
                         }
 
+                        let roomNames = '--';
+                        if (c.rooms && c.rooms.length > 0) {
+                            roomNames = c.rooms.map(r => r.room_name).join(', ');
+                        }
+
                         html += `
                             <tr>
                                 <td class="ps-4 fw-bold text-secondary">${c.id}</td>
                                 <td class="fw-bold text-secondary">${c.patient?.patient_code ?? 'N/A'}</td>
                                 <td class="fw-bold text-dark">${c.patient?.full_name ?? 'N/A'}</td>
                                 <td>${ c.consultation_date ? new Date(c.consultation_date).toLocaleString('vi-VN') : '' }</td>
+                                <td class="text-center text-primary fw-bold">${roomNames}</td>
                                 <td class="text-center">${c.temperature ?? '--'}</td>
                                 <td class="text-center">${c.blood_pressure ?? '--'}</td>
                                 <td class="text-muted">${c.symptoms ?? ''}</td>

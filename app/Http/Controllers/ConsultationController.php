@@ -13,7 +13,7 @@ class ConsultationController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Consultation::with('patient');
+        $query = Consultation::with(['patient', 'rooms']);
 
         // 🔍 tìm kiếm theo tên bệnh nhân
         if ($request->keyword) {
@@ -192,7 +192,7 @@ class ConsultationController extends Controller
     {
         $keyword = $request->keyword;
 
-        $consultations = Consultation::with('patient')
+        $consultations = Consultation::with(['patient', 'rooms'])
 
             ->when($keyword, function ($query) use ($keyword) {
 
