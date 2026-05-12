@@ -55,6 +55,9 @@
                                 </td>
                                 <td class="text-center pe-4">
                                     <div class="d-flex gap-2 justify-content-center">
+                                        <a href="{{ route('medicines.details', $item->id) }}" class="btn btn-sm btn-success shadow-sm text-white" title="Quản lý chi tiết & giá">
+                                            <i class="fas fa-eye me-1"></i> Chi tiết
+                                        </a>
                                         <a href="{{ route('medicines.show', $item->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem chi tiết">
                                             <i class="fas fa-eye me-1"></i> Xem
                                         </a>

@@ -34,42 +34,22 @@ class MedicineController extends Controller
         $request->validate([
             'medicine_category_id' => 'required|exists:medicine_category,id',
             'medicine_name'        => 'required|string|max:150',
-            'unit'                 => 'required|string|max:50',
-            'price'                => 'required|numeric|min:0',
-            'active_ingredient'    => 'nullable|string|max:200',
         ], [
             'medicine_name.required' => 'Vui lòng nhập tên thuốc.',
-            'unit.required'          => 'Vui lòng nhập đơn vị tính (Viên, Chai...).',
-            'price.required'         => 'Vui lòng nhập giá bán.'
         ]);
 
-        try {
-            return DB::transaction(function () use ($request) {
-                $medicine = Medicine::create([
-                    'medicine_category_id' => $request->medicine_category_id,
-                    'medicine_name'        => $request->medicine_name,
-                    'note'                 => $request->note,
-                    'status'               => $request->status,
-                ]);
+        $medicine = Medicine::create([
+            'medicine_category_id' => $request->medicine_category_id,
+            'medicine_name'        => $request->medicine_name,
+            'note'                 => $request->note,
+            'status'               => $request->status ?? 1,
+        ]);
 
-                $code = 'TH' . str_pad($medicine->id, 6, '0', STR_PAD_LEFT);
-                $medicine->update(['medicine_code' => $code]);
+        $code = 'TH' . str_pad($medicine->id, 4, '0', STR_PAD_LEFT);
+        $medicine->update(['medicine_code' => $code]);
 
-                MedicineDetail::create([
-                    'medicine_id'       => $medicine->id,
-                    'unit'              => $request->unit,
-                    'price'             => $request->price,
-                    'active_ingredient' => $request->active_ingredient,
-                    'storage_condition' => $request->storage_condition,
-                    'order_number'      => $request->order_number,
-                    'status'            => 1,
-                ]);
-
-                return redirect()->route('medicines.index')->with('success', 'Đã thêm thuốc: ' . $medicine->medicine_name);
-            });
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi: ' . $e->getMessage());
-        }
+        return redirect()->route('medicines.show', $medicine->id)
+                         ->with('success', 'Đã khởi tạo thuốc thành công. Vui lòng thêm Đơn vị tính và Giá bán!');
     }
     
     public function show($id)
@@ -95,35 +75,17 @@ class MedicineController extends Controller
         $request->validate([
             'medicine_category_id' => 'required|exists:medicine_category,id',
             'medicine_name'        => 'required|string|max:150',
-            'unit'                 => 'required|string|max:50',
-            'price'                => 'required|numeric|min:0',
         ]);
 
-        try {
-            return DB::transaction(function () use ($request, $medicine) {
-                $medicine->update([
-                    'medicine_category_id' => $request->medicine_category_id,
-                    'medicine_name'        => $request->medicine_name,
-                    'note'                 => $request->note,
-                    'status'               => $request->status,
-                ]);
+        $medicine->update([
+            'medicine_category_id' => $request->medicine_category_id,
+            'medicine_name'        => $request->medicine_name,
+            'note'                 => $request->note,
+            'status'               => $request->status,
+        ]);
 
-                $detail = $medicine->details()->where('status', 1)->first();
-                if ($detail) {
-                    $detail->update([
-                        'unit'              => $request->unit,
-                        'price'             => $request->price,
-                        'active_ingredient' => $request->active_ingredient,
-                        'storage_condition' => $request->storage_condition,
-                        'order_number'      => $request->order_number,
-                    ]);
-                }
-
-                return redirect()->route('medicines.index')->with('success', 'Đã cập nhật thông tin thuốc thành công.');
-            });
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Lỗi cập nhật: ' . $e->getMessage());
-        }
+        return redirect()->route('medicines.show', $medicine->id)
+                         ->with('success', 'Đã cập nhật thông tin gốc của thuốc.');
     }
 
     public function destroy($id)
@@ -137,5 +99,17 @@ class MedicineController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Không thể xóa vì thuốc này có dữ liệu liên quan.');
         }
+    }
+
+    public function details($id)
+    {
+        $medicine = Medicine::findOrFail($id);
+        
+        $details = $medicine->details()
+                            ->orderBy('status', 'desc')
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+
+        return view('medicines.details', compact('medicine', 'details'));
     }
 }
