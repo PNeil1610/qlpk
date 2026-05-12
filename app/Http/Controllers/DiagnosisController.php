@@ -154,6 +154,7 @@ class DiagnosisController extends Controller
 
             })
 
+            ->latest()
             ->limit(20)
             ->get();
 

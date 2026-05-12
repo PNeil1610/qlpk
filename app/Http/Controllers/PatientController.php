@@ -136,6 +136,7 @@ class PatientController extends Controller
 
         $patients = Patient::where('full_name', 'like', "%$keyword%")
             ->orWhere('patient_code', 'like', "%$keyword%")
+            ->latest()
             ->limit(10)
             ->get(['id', 'full_name', 'patient_code']);
 
