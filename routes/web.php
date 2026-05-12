@@ -148,7 +148,17 @@ Route::prefix('staff')->name('staff.')->group(function () {
 });
 Route::get('/my-clinic', [App\Http\Controllers\ConsultationController::class, 'myRoomPatients'])
     ->name('doctor.my_room')
-    ->middleware('role:DOCTOR'); // Chỉ cho phép role Doctor vào
+    ->middleware('role:DOCTOR');
+
+Route::prefix('medicine-categories')->name('medicine_categories.')->group(function () {
+    Route::get('/', [App\Http\Controllers\MedicineCategoryController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\MedicineCategoryController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\MedicineCategoryController::class, 'store'])->name('store');
+    
+    Route::get('/{id}/edit', [App\Http\Controllers\MedicineCategoryController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [App\Http\Controllers\MedicineCategoryController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\MedicineCategoryController::class, 'destroy'])->name('destroy');
+});
 
 Auth::routes();
 //user
