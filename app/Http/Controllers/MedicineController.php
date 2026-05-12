@@ -110,6 +110,75 @@ class MedicineController extends Controller
                             ->orderBy('created_at', 'desc')
                             ->get();
 
-        return view('medicines.details', compact('medicine', 'details'));
+        return view('medicines_detail.index', compact('medicine', 'details'));
+    }
+
+    public function editDetail($detail_id)
+    {
+        $detail = MedicineDetail::with('medicine')->findOrFail($detail_id);
+        return view('medicines_detail.edit', compact('detail'));
+    }
+
+    public function updateDetail(Request $request, $detail_id)
+    {
+        $detail = MedicineDetail::findOrFail($detail_id);
+        $detail->update($request->validate([
+            'unit'  => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'active_ingredient' => 'nullable|string',
+            'storage_condition' => 'nullable|string',
+        ]));
+
+        return redirect()->route('medicines.details', $detail->medicine_id)
+                         ->with('success', 'Đã cập nhật chi tiết thành công.');
+    }
+
+    public function destroyDetail($detail_id)
+    {
+        $detail = MedicineDetail::findOrFail($detail_id);
+        $mid = $detail->medicine_id;
+
+        if ($detail->status == 1) {
+            return redirect()->back()->with('error', 'Không thể xóa phiên bản đang áp dụng.');
+        }
+
+        $detail->delete();
+        return redirect()->route('medicines.details', $mid)->with('success', 'Đã xóa chi tiết giá.');
+    }
+
+    public function createDetail($id)
+    {
+        $medicine = Medicine::findOrFail($id);
+        return view('medicines_detail.create', compact('medicine'));
+    }
+
+    public function storeDetail(Request $request, $id)
+    {
+        $medicine = Medicine::findOrFail($id);
+        
+        $request->validate([
+            'unit'  => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'active_ingredient' => 'nullable|string',
+            'storage_condition' => 'nullable|string',
+        ]);
+
+        DB::transaction(function() use ($medicine, $request) {
+            // Hủy áp dụng các bản cũ
+            MedicineDetail::where('medicine_id', $medicine->id)->update(['status' => 0]);
+
+            // Tạo bản mới và đặt làm mặc định
+            MedicineDetail::create([
+                'medicine_id'       => $medicine->id,
+                'unit'              => $request->unit,
+                'price'             => $request->price,
+                'active_ingredient' => $request->active_ingredient,
+                'storage_condition' => $request->storage_condition,
+                'status'            => 1, // Mặc định áp dụng bản mới nhất
+            ]);
+        });
+
+        return redirect()->route('medicines.details', $medicine->id)
+                         ->with('success', 'Đã thêm phiên bản đơn giá mới và áp dụng thành công.');
     }
 }

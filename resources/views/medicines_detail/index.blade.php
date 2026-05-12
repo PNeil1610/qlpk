@@ -8,7 +8,7 @@
             <span class="text-muted fw-bold fs-5">Thuốc: {{ $medicine->medicine_name }} ({{ $medicine->medicine_code }})</span>
         </div>
         <div>
-            <a href="#" class="btn btn-primary shadow-sm me-2">
+            <a href="{{ route('medicines.details.create', $medicine->id) }}" class="btn btn-primary shadow-sm me-2">
                 <i class="fas fa-plus-circle me-1"></i> Thêm phiên bản mới
             </a>
             <a href="{{ route('medicines.index') }}" class="btn btn-outline-secondary shadow-sm">
@@ -51,8 +51,19 @@
                                     @endif
                                 </td>
                                 <td class="text-center pe-4">
-                                    <div class="btn-group" role="group">
-                                        <button class="btn btn-sm btn-outline-primary" title="Sửa chi tiết này"><i class="fas fa-edit"></i></button>
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <a href="{{ route('medicines.details.edit', $detail->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Sửa chi tiết">
+                                            <i class="fas fa-edit me-1"></i> Sửa
+                                        </a>
+                                        @if($detail->status != 1)
+                                            <form action="{{ route('medicines.details.destroy', $detail->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa phiên bản chi tiết này không?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
+                                                    <i class="fas fa-trash-alt me-1"></i> Xóa
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
