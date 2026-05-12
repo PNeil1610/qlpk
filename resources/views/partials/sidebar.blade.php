@@ -15,6 +15,7 @@
     <a href="{{ route('patients.index') }}">👤 Bệnh nhân</a>
     <a href="{{ route('staff.index') }}">👩‍⚕️ Nhân viên</a>
     <a href="{{ route('consultations.index') }}">🩺 Phiên khám</a>
+    <a href="{{ route('consultations.doctor') }}">👨‍⚕️ Ca khám của tôi</a>
     <a href="{{ route('diagnoses.index') }}">📖 Danh mục mã bệnh</a>
     <a href="{{ route('departments.index') }}">🗂️ Danh mục khoa</a>
     <a href="{{ route('rooms.index') }}">🏥 Quản lý phòng</a>

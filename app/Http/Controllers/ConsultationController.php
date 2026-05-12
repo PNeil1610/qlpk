@@ -45,7 +45,8 @@ class ConsultationController extends Controller
         $rooms = \App\Models\Room::where('status', \App\Models\Room::STATUS_AVAILABLE)->get();
 
         return view('consultations.create', compact(
-            'selectedPatient', 'rooms'
+            'selectedPatient',
+            'rooms'
         ));
     }
     /**
@@ -185,28 +186,47 @@ class ConsultationController extends Controller
 
         return response()->json($consultations);
     }
-    public function myRoomPatients()
-{
-    // 1. Lấy thông tin Bác sĩ từ tài khoản đang đăng nhập
-    $doctor = auth()->user()->staff;
+    public function doctorConsultations(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user || !$user->staff || !$user->staff->room_id) {
+            return redirect()->back()->with('error', 'Bạn không có phòng khám được chỉ định. Vui lòng liên hệ quản trị viên cập nhật phòng khám cho bạn.');
+        }
 
-    // 2. Kiểm tra nếu không phải nhân sự hoặc không được phân phòng
-    if (!$doctor || !$doctor->room_id) {
-        return redirect()->back()->with('error', 'Tài khoản của bạn chưa được phân vào phòng khám cụ thể.');
+        $roomId = $user->staff->room_id;
+        $roomName = $user->staff->room->room_name ?? 'Phòng khám';
+
+        $consultations = Consultation::with('patient')->whereHas('rooms', function ($q) use ($roomId) {
+            $q->where('id', $roomId);
+        })->latest()->paginate(10);
+
+        return view('doctor.doctor_index', compact('consultations', 'roomName'));
     }
 
-    // 3. Lấy danh sách phiên khám (Consultation) tại phòng này trong ngày hôm nay
-    // Giả sử bảng consultations có cột 'room_id' và 'patient_id'
-    $patients = \App\Models\Consultation::with('patient')
-        ->where('room_id', $doctor->room_id)
-        ->whereDate('created_at', \Carbon\Carbon::today())
-        ->where('status', '!=', 'completed') // Chỉ lấy những ca chưa khám xong
-        ->orderBy('created_at', 'asc')
-        ->get();
+    public function doctorAjaxSearch(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user || !$user->staff || !$user->staff->room_id) {
+            return response()->json([]);
+        }
 
-    return view('doctor.my_room', [
-        'patients' => $patients,
-        'room' => $doctor->room() // Để hiện tên phòng lên giao diện
-    ]);
-}
+        $roomId = $user->staff->room_id;
+        $keyword = $request->keyword;
+
+        $consultations = Consultation::with('patient')
+            ->whereHas('rooms', function ($q) use ($roomId) {
+                $q->where('id', $roomId);
+            })
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->whereHas('patient', function ($q) use ($keyword) {
+                    $q->where('full_name', 'like', "%$keyword%")
+                        ->orWhere('patient_code', 'like', "%$keyword%")
+                        ->orWhere('phone_number', 'like', "%$keyword%");
+                });
+            })
+            ->latest()
+            ->get();
+
+        return response()->json($consultations);
+    }
 }

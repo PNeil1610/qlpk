@@ -40,6 +40,8 @@ Route::get('/patients/ajax/search', [PatientController::class, 'ajaxSearch'])->n
 Route::prefix('consultations')->name('consultations.')->group(function () {
 
     Route::get('/', [ConsultationController::class, 'index'])->name('index');
+    Route::get('/doctor/my-consultations', [ConsultationController::class, 'doctorConsultations'])->name('doctor');
+    Route::get('/doctor/ajax/search', [ConsultationController::class, 'doctorAjaxSearch'])->name('doctor.ajax.search');
     Route::get('/create', [ConsultationController::class, 'create'])->name('create');
     Route::post('/', [ConsultationController::class, 'store'])->name('store');
 
@@ -138,7 +140,7 @@ Route::prefix('staff')->name('staff.')->group(function () {
     Route::get('/ajax/search', [App\Http\Controllers\StaffController::class, 'ajaxSearch'])->name('ajax.search');
     Route::get('/create', [App\Http\Controllers\StaffController::class, 'create'])->name('create');
     Route::post('/', [App\Http\Controllers\StaffController::class, 'store'])->name('store');
-    
+
     Route::get('/{id}', [App\Http\Controllers\StaffController::class, 'show'])->name('show');
     Route::get('/{id}/edit', [App\Http\Controllers\StaffController::class, 'edit'])->name('edit');
     Route::put('/{id}', [App\Http\Controllers\StaffController::class, 'update'])->name('update');

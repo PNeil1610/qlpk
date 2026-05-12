@@ -241,6 +241,6 @@ BUTTON
     Lưu
 </button>
 
-<a href="{{ route('consultations.index') }}" class="btn btn-secondary">
+<a href="{{ url()->previous() }}" class="btn btn-secondary">
     Quay lại
 </a>
