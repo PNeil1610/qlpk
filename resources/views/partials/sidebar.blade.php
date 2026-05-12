@@ -14,7 +14,18 @@
 
     <a href="{{ route('patients.index') }}">👤 Bệnh nhân</a>
     <a href="{{ route('staff.index') }}">👩‍⚕️ Nhân viên</a>
-    <a href="{{ route('consultations.index') }}">🩺 Phiên khám</a>
+    <a data-bs-toggle="collapse" href="#consultationsMenu" role="button" aria-expanded="false" aria-controls="consultationsMenu" class="d-flex justify-content-between align-items-center">
+        <span>🩺 Phiên khám</span>
+        <i class="fas fa-chevron-down ms-2" style="font-size: 0.75rem;"></i>
+    </a>
+    <div class="collapse" id="consultationsMenu">
+        <a href="{{ route('consultations.index') }}" class="ps-4 py-2 text-white-50" style="font-size: 0.9rem; border-left: 2px solid #555; margin-left: 15px;">
+            Phiên khám tổng
+        </a>
+        <a href="{{ route('consultations.index', ['filter' => 'no_room']) }}" class="ps-4 py-2 text-warning" style="font-size: 0.9rem; border-left: 2px solid #ffc107; margin-left: 15px;">
+            Phiên khám chờ
+        </a>
+    </div>
     <a href="{{ route('consultations.doctor') }}">👨‍⚕️ Ca khám của tôi</a>
     <a href="{{ route('diagnoses.index') }}">📖 Danh mục mã bệnh</a>
     <a href="{{ route('medicine_categories.index') }}">💊 Danh mục loại thuốc</a>

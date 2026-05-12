@@ -58,6 +58,31 @@ $(document).ready(function() {
         .append(option)
         .trigger('change');
 
+    // 🔥 Select2 cho Mã Bệnh
+    $('#diagnosis_code').select2({
+        theme: 'bootstrap-5',
+        placeholder: $('#diagnosis_code').data('placeholder'),
+        allowClear: true,
+        ajax: {
+            url: "{{ route('diagnoses.ajax.search') }}",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    keyword: params.term
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data.map(item => ({
+                        id: item.diagnosis_code, // Lưu mã bệnh vào value
+                        text: item.diagnosis_code + ' - ' + item.diagnosis_name
+                    }))
+                };
+            }
+        }
+    });
+
 });
 </script>
 @endpush

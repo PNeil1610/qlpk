@@ -15,6 +15,11 @@ class ConsultationController extends Controller
     {
         $query = Consultation::with(['patient', 'rooms']);
 
+        // Lọc phiên khám chưa có phòng
+        if ($request->has('filter') && $request->filter == 'no_room') {
+            $query->doesntHave('rooms');
+        }
+
         // 🔍 tìm kiếm theo tên bệnh nhân
         if ($request->keyword) {
             $keyword = $request->keyword;
@@ -191,9 +196,12 @@ class ConsultationController extends Controller
     public function ajaxSearch(Request $request)
     {
         $keyword = $request->keyword;
+        $filter = $request->filter;
 
         $consultations = Consultation::with(['patient', 'rooms'])
-
+            ->when($filter == 'no_room', function ($q) {
+                $q->doesntHave('rooms');
+            })
             ->when($keyword, function ($query) use ($keyword) {
 
                 $query->whereHas('patient', function ($q) use ($keyword) {

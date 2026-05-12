@@ -8,7 +8,10 @@
 
 <div class="container-fluid px-4 mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="mb-0 text-primary"><i class="fas fa-stethoscope me-2"></i>Danh sách Phiên khám</h3>
+        <h3 class="mb-0 text-primary">
+            <i class="fas fa-stethoscope me-2"></i>
+            {{ request('filter') == 'no_room' ? 'Danh sách Phiên khám chờ' : 'Danh sách Phiên khám tổng' }}
+        </h3>
     </div>
 
     <div class="card shadow-sm border-0 mb-3">
@@ -143,15 +146,15 @@ $(document).ready(function () {
     $('#search').on('keyup', function () {
 
         let keyword = $(this).val();
+        let urlParams = new URLSearchParams(window.location.search);
+        let filter = urlParams.get('filter');
 
         $.ajax({
-
             url: "{{ route('consultations.ajax.search') }}",
-
             type: "GET",
-
             data: {
-                keyword: keyword
+                keyword: keyword,
+                filter: filter
             },
 
             success: function (data) {
