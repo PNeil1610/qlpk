@@ -185,5 +185,28 @@ class ConsultationController extends Controller
 
         return response()->json($consultations);
     }
+    public function myRoomPatients()
+{
+    // 1. Lấy thông tin Bác sĩ từ tài khoản đang đăng nhập
+    $doctor = auth()->user()->staff;
 
+    // 2. Kiểm tra nếu không phải nhân sự hoặc không được phân phòng
+    if (!$doctor || !$doctor->room_id) {
+        return redirect()->back()->with('error', 'Tài khoản của bạn chưa được phân vào phòng khám cụ thể.');
+    }
+
+    // 3. Lấy danh sách phiên khám (Consultation) tại phòng này trong ngày hôm nay
+    // Giả sử bảng consultations có cột 'room_id' và 'patient_id'
+    $patients = \App\Models\Consultation::with('patient')
+        ->where('room_id', $doctor->room_id)
+        ->whereDate('created_at', \Carbon\Carbon::today())
+        ->where('status', '!=', 'completed') // Chỉ lấy những ca chưa khám xong
+        ->orderBy('created_at', 'asc')
+        ->get();
+
+    return view('doctor.my_room', [
+        'patients' => $patients,
+        'room' => $doctor->room() // Để hiện tên phòng lên giao diện
+    ]);
+}
 }

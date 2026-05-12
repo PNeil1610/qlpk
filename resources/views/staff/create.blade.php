@@ -12,6 +12,40 @@
     <form action="{{ route('staff.store') }}" method="POST">
         @csrf
         <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card shadow-sm border-0 border-start border-primary border-4">
+                    <div class="card-header bg-white fw-bold">
+                        <i class="fas fa-user-lock text-primary me-2"></i>Thiết lập tài khoản đăng nhập cho nhân viên
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Tên đăng nhập *</label>
+                                <input type="text" name="username" class="form-control" required placeholder="VD: bacsi.kien">
+                                <small class="text-muted">Dùng để đăng nhập vào hệ thống.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Mật khẩu khởi tạo *</label>
+                                <div class="input-group">
+                                    <input type="password" name="password" id="password" class="form-control" required placeholder="Nhập mật khẩu">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Ít nhất 6 ký tự.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        function togglePassword() {
+            var x = document.getElementById("password");
+            if (x.type === "password") { x.type = "text"; } else { x.type = "password"; }
+        }
+        </script>
             <div class="col-md-6 mb-4">
                 <div class="card shadow-sm border-0 h-100">
                     <div class="card-header bg-white font-weight-bold border-bottom">

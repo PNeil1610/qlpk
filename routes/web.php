@@ -144,6 +144,9 @@ Route::prefix('staff')->name('staff.')->group(function () {
     Route::put('/{id}', [App\Http\Controllers\StaffController::class, 'update'])->name('update');
     Route::delete('/{id}', [App\Http\Controllers\StaffController::class, 'destroy'])->name('destroy');
 });
+Route::get('/my-clinic', [App\Http\Controllers\ConsultationController::class, 'myRoomPatients'])
+    ->name('doctor.my_room')
+    ->middleware('role:DOCTOR'); // Chỉ cho phép role Doctor vào
 
 Auth::routes();
 //user

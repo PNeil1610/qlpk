@@ -7,6 +7,10 @@ use App\Models\Staff;
 use App\Models\Department;
 use App\Models\Room;
 use App\Models\User;
+use App\Models\Role;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+
 
 class StaffController extends Controller
 {
@@ -28,34 +32,52 @@ class StaffController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'username'  => 'required|unique:users,username',
+            'password'  => 'required|min:6',
             'full_name' => 'required|string|max:150',
-            'staff_type' => 'required|in:Doctor,Nurse,Technician,Pharmacist,Receptionist,Cashier,Admin',
-            'email' => 'nullable|email|max:100',
-            'phone_number' => 'nullable|string|max:15',
+            'email'     => 'nullable|email|unique:users,email',
+            'phone_number' => 'nullable|string|max:15|unique:users,phone_number',
+            'address' => 'nullable|string|max:255',
+            'national_id' => 'nullable|string|max:20|unique:users,national_id',
+            'staff_type'=> 'required',
         ]);
 
-        $data = $request->all();
-        if (!empty($data['yob'])) {
-            $data['age'] = date('Y') - $data['yob'];
-        }
+        return DB::transaction(function () use ($request) {
+            $user = User::create([
+                'username'      => $request->username,
+                'full_name'     => $request->full_name,
+                'email'         => $request->email,
+                'phone_number'  => $request->phone_number,
+                'address'       => $request->address,
+                'national_id'   => $request->national_id,
+                'password_hash' => Hash::make($request->password),
+                'status'        => 1,
+            ]);
 
-        $staff = Staff::create($data);
+            $roleCode = strtoupper($request->staff_type);
+            $role = Role::where('role_code', $roleCode)->first();
+            if ($role) {
+                $user->roles()->attach($role->id);
+            }
 
-        $prefix = 'NV';
-        if ($staff->staff_type == 'Doctor') {
-            $prefix = 'BS';
-        } elseif ($staff->staff_type == 'Nurse') {
-            $prefix = 'DD';
-        } elseif ($staff->staff_type == 'Pharmacist') {
-            $prefix = 'DS';
-        }
+            $data = $request->all();
+            $data['user_id'] = $user->id;
+            
+            $data['full_name'] = $user->full_name;
+            $data['email'] = $user->email;
 
-        $year = date('y'); 
-        $code = $prefix . str_pad($staff->id, 6, '0', STR_PAD_LEFT);
+            if (!empty($data['yob'])) {
+                $data['age'] = date('Y') - $data['yob'];
+            }
 
-        $staff->update(['staff_code' => $code]);
+            $staff = Staff::create($data);
 
-        return redirect()->route('staff.index')->with('success', 'Đã thêm nhân viên: ' . $staff->full_name . ' thành công!');
+            $prefix = ($staff->staff_type == 'Doctor') ? 'BS' : 'NV';
+            $code = $prefix . date('y') . str_pad($staff->id, 4, '0', STR_PAD_LEFT);
+            $staff->update(['staff_code' => $code]);
+
+            return redirect()->route('staff.index')->with('success', 'Tạo nhân viên thành công!');
+        });
     }
 
     public function edit($id)
@@ -66,6 +88,7 @@ class StaffController extends Controller
 
         return view('staff.edit', compact('staff', 'departments', 'rooms'));
     }
+
     public function update(Request $request, $id)
     {
         $staff = Staff::findOrFail($id);
@@ -76,6 +99,7 @@ class StaffController extends Controller
             'email' => 'nullable|email|max:100',
             'national_id' => 'nullable|unique:staff,national_id,' . $id,
             'phone_number' => 'nullable|string|max:15',
+            'address' => 'nullable|string|max:255',
         ]);
 
         $data = $request->all();
@@ -85,6 +109,16 @@ class StaffController extends Controller
         }
 
         $staff->update($data);
+
+        if($staff->user) {
+            $staff->user->update([
+                'full_name'    => $request->full_name,
+                'email'        => $request->email,
+                'phone_number' => $request->phone_number,
+                'address'      => $request->address,
+                'national_id'  => $request->national_id,
+            ]);
+        }
 
         return redirect()->route('staff.index')->with('success', 'Hồ sơ của ' . $staff->full_name . ' đã được cập nhật toàn diện.');
     }
