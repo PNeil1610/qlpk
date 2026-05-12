@@ -1,165 +1,124 @@
 @extends('layouts.app')
 
 @section('content')
+<div class="container-fluid px-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-0 text-primary"><i class="fas fa-edit me-2"></i>Sửa Phiên Khám</h3>
+            <span class="text-muted">Bệnh nhân: <strong>{{ $consultation->patient->full_name }}</strong></span>
+        </div>
+        <a href="{{ route('consultations.index') }}" class="btn btn-outline-secondary shadow-sm">
+            <i class="fas fa-arrow-left me-1"></i> Quay lại
+        </a>
+    </div>
 
-    <h3>Sửa phiên khám</h3>
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show"><i class="fas fa-check-circle me-1"></i> {{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    @endif
+    @if($errors->any())
+        <div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
+    @endif
 
-    <form method="POST" action="{{ route('consultations.update', $consultation->id) }}">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white fw-bold py-3">
+                    <i class="fas fa-clipboard-list text-primary me-2"></i>Thông tin Phiên Khám
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ route('consultations.update', $consultation->id) }}">
+                        @csrf
+                        @method('PUT')
 
-        @csrf
-        @method('PUT')
+                        {{-- Giữ lại các field không cho sửa --}}
+                        <input type="hidden" name="patient_id" value="{{ $consultation->patient_id }}">
+                        <input type="hidden" name="consultation_date" value="{{ $consultation->consultation_date }}">
+                        <input type="hidden" name="chief_complaint" value="{{ $consultation->chief_complaint }}">
+                        <input type="hidden" name="symptoms" value="{{ $consultation->symptoms }}">
+                        <input type="hidden" name="temperature" value="{{ $consultation->temperature }}">
+                        <input type="hidden" name="blood_pressure" value="{{ $consultation->blood_pressure }}">
 
-        @include('consultations.form')
+                        {{-- BỆNH NHÂN (chỉ đọc) --}}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Bệnh nhân</label>
+                            <input type="text" class="form-control bg-light" value="{{ $consultation->patient->patient_code }} - {{ $consultation->patient->full_name }}" readonly>
+                        </div>
 
-    </form>
+                        {{-- NGÀY KHÁM (chỉ đọc) --}}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Ngày khám</label>
+                                <input type="text" class="form-control bg-light" value="{{ \Carbon\Carbon::parse($consultation->consultation_date)->format('d/m/Y H:i') }}" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Lý do khám</label>
+                                <input type="text" class="form-control bg-light" value="{{ $consultation->chief_complaint ?? '---' }}" readonly>
+                            </div>
+                        </div>
 
-    <style>
-        /* Thêm viền xanh và bóng đổ (border-success shadow-sm) cho ô Select2 Mã bệnh */
-        #diagnosis_code+.select2-container .select2-selection {
-            border: 1px solid #198754 !important;
-            /* Màu success của Bootstrap */
-            box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important;
-        }
+                        {{-- TRIỆU CHỨNG (chỉ đọc) --}}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Triệu chứng ban đầu</label>
+                            <textarea class="form-control bg-light" rows="2" readonly>{{ $consultation->symptoms ?? '---' }}</textarea>
+                        </div>
 
-        /* Giới hạn chiều cao dropdown và thêm thanh cuộn */
-        .select2-container .select2-results__options {
-            max-height: 250px !important;
-            overflow-y: auto !important;
+                        {{-- NHIỆT ĐỘ & HUYẾT ÁP (chỉ đọc) --}}
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Nhiệt độ (°C)</label>
+                                <input type="text" class="form-control bg-light" value="{{ $consultation->temperature ?? '---' }}" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Huyết áp</label>
+                                <input type="text" class="form-control bg-light" value="{{ $consultation->blood_pressure ?? '---' }}" readonly>
+                            </div>
+                        </div>
 
-            /* ... (CSS hiện tại của bạn giữ nguyên) ... */
+                        <hr class="my-4">
+                        <h6 class="text-primary fw-bold mb-3"><i class="fas fa-cog me-2"></i>Thông tin có thể chỉnh sửa</h6>
 
-            /* 1. Đảm bảo khung select có chiều cao linh hoạt và dùng flexbox để căn giữa nội dung */
-            .select2-container .select2-selection--single {
-                height: auto !important;
-                min-height: 38px;
-                /* Tương đương form-control của Bootstrap 5 */
-                display: flex !important;
-                align-items: center;
-                position: relative;
-            }
+                        {{-- PHÒNG KHÁM (cho phép sửa) --}}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Phòng khám</label>
+                            @php
+                                $currentRoomId = old('room_id', $consultation->rooms->first()->id ?? '');
+                            @endphp
+                            <select name="room_id" class="form-select shadow-sm @error('room_id') is-invalid @enderror">
+                                <option value="">-- Chưa phân phòng --</option>
+                                @foreach($rooms as $room)
+                                    <option value="{{ $room->id }}" {{ $currentRoomId == $room->id ? 'selected' : '' }}>
+                                        {{ $room->room_name }} ({{ $room->room_code }}) — {{ $room->room_type_text }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('room_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
 
-            /* 2. Ép nội dung chữ nằm gọn trong khung, không rớt dòng */
-            .select2-container .select2-selection--single .select2-selection__rendered {
-                width: 100%;
-                padding-left: 0.75rem;
-                /* Padding trái giống input thường */
-                padding-right: 2.5rem !important;
-                /* Chừa khoảng trống bên phải cho nút X và mũi tên */
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                line-height: 1.5;
-            }
+                        {{-- TRẠNG THÁI (cho phép sửa) --}}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Trạng thái phiên khám</label>
+                            <select name="status" class="form-select shadow-sm @error('status') is-invalid @enderror">
+                                <option value="0" {{ old('status', $consultation->status) == 0 ? 'selected' : '' }}>Mới tạo</option>
+                                <option value="1" {{ old('status', $consultation->status) == 1 ? 'selected' : '' }}>Chờ khám</option>
+                                <option value="2" {{ old('status', $consultation->status) == 2 ? 'selected' : '' }}>Đang khám</option>
+                                <option value="3" {{ old('status', $consultation->status) == 3 ? 'selected' : '' }}>Chờ thanh toán</option>
+                                <option value="4" {{ old('status', $consultation->status) == 4 ? 'selected' : '' }}>Hoàn thành</option>
+                            </select>
+                            @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
 
-            /* 3. Cố định vị trí nút X (clear) sang góc bên phải */
-            .select2-container .select2-selection--single .select2-selection__clear {
-                position: absolute !important;
-                right: 30px;
-                /* Đặt cạnh nút mũi tên xổ xuống */
-                top: 50%;
-                transform: translateY(-50%);
-                margin: 0;
-                z-index: 10;
-                float: none;
-                /* Xóa float mặc định gây lỗi layout */
-            }
-        }
-    </style>
-
+                        <div class="text-end pt-3 border-top">
+                            <a href="{{ route('consultations.index') }}" class="btn btn-secondary shadow-sm me-2">
+                                <i class="fas fa-times me-1"></i> Hủy
+                            </a>
+                            <button type="submit" class="btn btn-primary shadow-sm px-5 fw-bold">
+                                <i class="fas fa-save me-1"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
-
-
-@push('scripts')
-    <script>
-        $(document).ready(function () {
-
-            $('#patient_id').select2({
-                placeholder: "Tìm bệnh nhân...",
-                allowClear: true,
-
-                ajax: {
-                    url: "/patients/search",
-                    dataType: 'json',
-                    delay: 250,
-
-                    data: function (params) {
-                        return {
-                            keyword: params.term
-                        };
-                    },
-
-                    processResults: function (data) {
-                        return {
-                            results: data.map(item => ({
-                                id: item.id,
-                                text: item.patient_code + ' - ' + item.full_name
-                            }))
-                        };
-                    }
-                }
-            });
-
-            // 🔥 Hiển thị bệnh nhân đã chọn khi edit
-            var selected = {
-                id: "{{ $consultation->patient_id }}",
-                text: "{{ $consultation->patient->patient_code }} - {{ $consultation->patient->full_name }}"
-            };
-
-            var option = new Option(selected.text, selected.id, true, true);
-
-            $('#patient_id')
-                .append(option)
-                .trigger('change');
-
-            // 🔥 Select2 cho Mã Bệnh
-            $('#diagnosis_code').select2({
-                theme: 'bootstrap-5',
-                width: '100%', // Đảm bảo width không bị co giãn gây giật
-                placeholder: $('#diagnosis_code').data('placeholder'),
-                allowClear: true,
-                ajax: {
-                    url: "{{ route('diagnoses.ajax.search') }}",
-                    dataType: 'json',
-                    delay: 250,
-                    data: function (params) {
-                        return {
-                            keyword: params.term
-                        };
-                    },
-                    processResults: function (data) {
-                        return {
-                            results: data.map(item => ({
-                                id: item.diagnosis_code, // Lưu mã bệnh vào value
-                                text: item.diagnosis_code + ' - ' + item.diagnosis_name,
-                                code: item.diagnosis_code,
-                                name: item.diagnosis_name
-                            }))
-                        };
-                    }
-                },
-                templateResult: function (item) {
-                    if (item.loading) return item.text;
-
-                    // Xử lý cho option khởi tạo từ Blade (chỉ có id và text, không có code và name)
-                    let code = item.code || item.id;
-                    let name = item.name;
-                    if (!name && item.text && item.text.includes(' - ')) {
-                        name = item.text.split(' - ').slice(1).join(' - ');
-                    }
-
-                    // Nếu không có thông tin (vd: placeholder), hiển thị text mặc định
-                    if (!code) return item.text;
-
-                    // Giao diện list dropdown dễ nhìn hơn
-                    return $(`
-                    <div class="d-flex align-items-center border-bottom pb-2 mb-1">
-                        <span class="badge bg-success me-3" style="min-width: 60px; font-size: 0.9em;">${code}</span>
-                        <span class="text-dark fw-medium">${name || item.text}</span>
-                    </div>
-                `);
-                }
-            });
-
-        });
-    </script>
-@endpush

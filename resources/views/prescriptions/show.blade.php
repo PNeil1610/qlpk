@@ -8,8 +8,8 @@
             <button onclick="window.print()" class="btn btn-secondary shadow-sm me-2">
                 <i class="fas fa-print me-1"></i> In Toa
             </button>
-            <a href="{{ route('prescriptions.index') }}" class="btn btn-outline-secondary shadow-sm">
-                <i class="fas fa-arrow-left me-1"></i> Trở về danh sách
+            <a href="{{ route('consultations.doctor') }}" class="btn btn-outline-secondary shadow-sm">
+                <i class="fas fa-arrow-left me-1"></i> Trở về danh sách phiếu khám
             </a>
         </div>
     </div>
