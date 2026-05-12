@@ -54,15 +54,19 @@
                                     @endif
                                 </td>
                                 <td class="text-center pe-4">
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('medicines.show', $item->id) }}" class="btn btn-sm btn-outline-info" title="Xem chi tiết">
-                                            <i class="fas fa-eye"></i>
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <a href="{{ route('medicines.show', $item->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem chi tiết">
+                                            <i class="fas fa-eye me-1"></i> Xem
                                         </a>
-                                        <a href="{{ route('medicines.edit', $item->id) }}" class="btn btn-sm btn-outline-primary" title="Sửa"><i class="fas fa-edit"></i></a>
+                                        <a href="{{ route('medicines.edit', $item->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
+                                            <i class="fas fa-edit me-1"></i> Sửa
+                                        </a>
                                         <form action="{{ route('medicines.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thuốc này không?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa"><i class="fas fa-trash"></i></button>
+                                            <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
+                                                <i class="fas fa-trash-alt me-1"></i> Xóa
+                                            </button>
                                         </form>
                                     </div>
                                 </td>
