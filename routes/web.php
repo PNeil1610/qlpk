@@ -171,6 +171,14 @@ Route::prefix('medicines')->name('medicines.')->group(function () {
     Route::get('/{id}/edit', [App\Http\Controllers\MedicineController::class, 'edit'])->name('edit');
     Route::put('/{id}', [App\Http\Controllers\MedicineController::class, 'update'])->name('update');
     Route::delete('/{id}', [App\Http\Controllers\MedicineController::class, 'destroy'])->name('destroy');
+
+    // Quản lý từng bản ghi chi tiết (đơn giá/đơn vị)
+    Route::get('/{id}/details/create', [App\Http\Controllers\MedicineController::class, 'createDetail'])->name('details.create');
+    Route::post('/{id}/details', [App\Http\Controllers\MedicineController::class, 'storeDetail'])->name('details.store');
+    
+    Route::get('/details/{detail_id}/edit', [App\Http\Controllers\MedicineController::class, 'editDetail'])->name('details.edit');
+    Route::put('/details/{detail_id}', [App\Http\Controllers\MedicineController::class, 'updateDetail'])->name('details.update');
+    Route::delete('/details/{detail_id}', [App\Http\Controllers\MedicineController::class, 'destroyDetail'])->name('details.destroy');
 });
 
 Auth::routes();
