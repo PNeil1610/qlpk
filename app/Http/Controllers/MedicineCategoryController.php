@@ -44,6 +44,12 @@ class MedicineCategoryController extends Controller
                          ->with('success', 'Đã thêm nhóm thuốc: ' . $category->category_name . ' thành công!');
     }
 
+    public function show($id)
+    {
+        $category = MedicineCategory::findOrFail($id);
+        return view('medicine_categories.show', compact('category'));
+    }
+
     public function edit($id)
     {
         $category = MedicineCategory::findOrFail($id);
@@ -78,14 +84,24 @@ class MedicineCategoryController extends Controller
         $category = MedicineCategory::findOrFail($id);
         $categoryName = $category->category_name;
         
-        // Kiểm tra logic nếu thuốc này đã được sử dụng thì không cho xóa (nếu có model Medicine)
-        // if ($category->medicines()->exists()) {
-        //     return redirect()->route('medicine_categories.index')->with('error', 'Không thể xóa loại thuốc này vì đang chứa thuốc.');
-        // }
-
         $category->delete();
 
         return redirect()->route('medicine_categories.index')
                          ->with('success', 'Đã xóa nhóm thuốc: ' . $categoryName . ' thành công!');
+    }
+
+    public function ajaxSearch(Request $request)
+    {
+        $keyword = $request->keyword;
+
+        $categories = MedicineCategory::query()
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where('category_code', 'like', "%$keyword%")
+                      ->orWhere('category_name', 'like', "%$keyword%");
+            })
+            ->latest()
+            ->get();
+
+        return response()->json($categories);
     }
 }
