@@ -62,6 +62,9 @@
             </div>
         </div>
         <div class="card-footer">
+            <a href="{{ route('prescriptions.create', ['consultation_id' => $consultation->id]) }}" class="btn btn-success shadow-sm">
+                <i class="fas fa-pills me-1"></i> Kê Toa Thuốc
+            </a>
             <a href="{{ url()->previous() }}" class="btn btn-secondary">
                 Quay lại
             </a>

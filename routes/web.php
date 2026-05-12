@@ -173,6 +173,17 @@ Route::prefix('medicines')->name('medicines.')->group(function () {
     Route::delete('/{id}', [App\Http\Controllers\MedicineController::class, 'destroy'])->name('destroy');
 });
 
+Route::prefix('prescriptions')->name('prescriptions.')->group(function () {
+    Route::get('/', [App\Http\Controllers\PrescriptionController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\PrescriptionController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\PrescriptionController::class, 'store'])->name('store');
+    
+    Route::get('/{id}/show', [App\Http\Controllers\PrescriptionController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [App\Http\Controllers\PrescriptionController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [App\Http\Controllers\PrescriptionController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\PrescriptionController::class, 'destroy'])->name('destroy');
+});
+
 Auth::routes();
 //user
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
