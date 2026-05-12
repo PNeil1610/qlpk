@@ -119,4 +119,9 @@ class Consultation extends Model
     {
         return $query->where('status', self::STATUS_PENDING);
     }
+
+    public function prescriptions()
+    {
+        return $this->hasMany(\App\Models\Prescription::class, 'consultation_id', 'id');
+    }
 }

@@ -260,4 +260,14 @@ class ConsultationController extends Controller
 
         return response()->json($consultations);
     }
+    public function examineConsultation($id)
+    {
+        $consultation = Consultation::with(['patient', 'rooms', 'prescriptions'])->findOrFail($id);
+
+        $medicines = \App\Models\Medicine::with(['details' => function($q) {
+            $q->where('status', 1);
+        }])->where('status', 1)->get();
+
+        return view('doctor.examine', compact('consultation', 'medicines'));
+    }
 }

@@ -23,7 +23,6 @@
                             <th scope="col">Ngày kê</th>
                             <th scope="col">Bệnh nhân</th>
                             <th scope="col">Trạng thái</th>
-                            <th scope="col" class="text-center pe-4">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,17 +40,10 @@
                                         <span class="badge bg-success">Đã phát thuốc</span>
                                     @endif
                                 </td>
-                                <td class="text-center pe-4">
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('consultations.show', $item->consultation_id) }}" class="btn btn-sm btn-outline-info" title="Xem Toa thuốc">
-                                            <i class="fas fa-eye"></i> Xem Ca Khám
-                                        </a>
-                                    </div>
-                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center py-5 text-muted">
+                                <td colspan="4" class="text-center py-5 text-muted">
                                     Chưa có toa thuốc nào trên hệ thống.
                                 </td>
                             </tr>

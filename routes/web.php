@@ -42,6 +42,7 @@ Route::prefix('consultations')->name('consultations.')->group(function () {
     Route::get('/', [ConsultationController::class, 'index'])->name('index');
     Route::get('/doctor/my-consultations', [ConsultationController::class, 'doctorConsultations'])->name('doctor');
     Route::get('/doctor/ajax/search', [ConsultationController::class, 'doctorAjaxSearch'])->name('doctor.ajax.search');
+    Route::get('/doctor/{id}/examine', [ConsultationController::class, 'examineConsultation'])->name('doctor.examine');
     Route::get('/create', [ConsultationController::class, 'create'])->name('create');
     Route::post('/', [ConsultationController::class, 'store'])->name('store');
 

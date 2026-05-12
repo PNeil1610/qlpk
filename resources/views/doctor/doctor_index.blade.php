@@ -78,8 +78,8 @@
                     <a href="{{ route('consultations.show', $c->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
                         <i class="fas fa-eye me-1"></i> Xem
                     </a>
-                    <a href="{{ route('consultations.edit', $c->id) }}" class="btn btn-sm btn-warning shadow-sm" title="Khám bệnh">
-                        <i class="fas fa-stethoscope me-1"></i> Khám
+                    <a href="{{ route('consultations.doctor.examine', $c->id) }}" class="btn btn-sm btn-success shadow-sm" title="Khám bệnh & Kê đơn">
+                        <i class="fas fa-stethoscope me-1"></i> Khám & Kê đơn
                     </a>
                 </div>
             </td>
@@ -150,13 +150,13 @@ $(document).ready(function () {
                             <td class="text-center">${c.blood_pressure ?? '--'}</td>
                             <td class="text-muted">${c.symptoms ?? ''}</td>
                             <td class="text-center">${status}</td>
-                            <td class="text-center pe-4">
+                                    <td class="text-center pe-4">
                                 <div class="d-flex gap-2 justify-content-center">
                                     <a href="/consultations/${c.id}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
                                         <i class="fas fa-eye me-1"></i> Xem
                                     </a>
-                                    <a href="/consultations/${c.id}/edit" class="btn btn-sm btn-warning shadow-sm" title="Khám bệnh">
-                                        <i class="fas fa-stethoscope me-1"></i> Khám
+                                    <a href="/consultations/doctor/${c.id}/examine" class="btn btn-sm btn-success shadow-sm" title="Khám bệnh & Kê đơn">
+                                        <i class="fas fa-stethoscope me-1"></i> Khám & Kê đơn
                                     </a>
                                 </div>
                             </td>
