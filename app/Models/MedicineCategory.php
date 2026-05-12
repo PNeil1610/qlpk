@@ -17,4 +17,9 @@ class MedicineCategory extends Model
         'description',
         'status',
     ];
+
+    public function medicines()
+    {
+        return $this->hasMany(Medicine::class, 'medicine_category_id', 'id');
+    }
 }

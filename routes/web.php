@@ -162,6 +162,16 @@ Route::prefix('medicine-categories')->name('medicine_categories.')->group(functi
     Route::delete('/{id}', [App\Http\Controllers\MedicineCategoryController::class, 'destroy'])->name('destroy');
 });
 
+Route::prefix('medicines')->name('medicines.')->group(function () {
+    Route::get('/', [App\Http\Controllers\MedicineController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\MedicineController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\MedicineController::class, 'store'])->name('store');
+    Route::get('/{id}/show', [App\Http\Controllers\MedicineController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [App\Http\Controllers\MedicineController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [App\Http\Controllers\MedicineController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\MedicineController::class, 'destroy'])->name('destroy');
+});
+
 Auth::routes();
 //user
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
