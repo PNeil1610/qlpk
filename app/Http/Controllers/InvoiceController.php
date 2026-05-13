@@ -43,6 +43,78 @@ class InvoiceController extends Controller
     }
 
     /**
+     * 🔍 Tra cứu phiên khám để tạo hóa đơn (từ mã BN hoặc mã phiên khám)
+     */
+    public function lookup(Request $request)
+    {
+        $request->validate([
+            'lookup_keyword' => 'required|string|min:1',
+        ], [
+            'lookup_keyword.required' => 'Vui lòng nhập mã bệnh nhân hoặc mã phiên khám.',
+        ]);
+
+        $keyword = trim($request->lookup_keyword);
+
+        // Thử tìm theo mã phiên khám (số nguyên)
+        if (is_numeric($keyword)) {
+            $consultation = Consultation::with('patient')
+                ->where('id', $keyword)
+                ->whereIn('status', [
+                    Consultation::STATUS_WAIT_PAYMENT,
+                    Consultation::STATUS_PROCESSING,
+                ])
+                ->first();
+
+            if ($consultation) {
+                // Kiểm tra đã có hóa đơn chưa
+                $existingInvoice = \App\Models\Invoice::where('consultation_id', $consultation->id)->first();
+                if ($existingInvoice) {
+                    return redirect()->route('invoices.show', $existingInvoice->id)
+                                     ->with('error', 'Phiên khám #' . $keyword . ' đã có hóa đơn!');
+                }
+                return redirect()->route('invoices.create', ['consultation_id' => $consultation->id]);
+            }
+        }
+
+        // Tìm theo mã bệnh nhân hoặc tên
+        $patient = \App\Models\Patient::where('patient_code', $keyword)
+            ->orWhere('phone_number', $keyword)
+            ->first();
+
+        if (!$patient) {
+            return redirect()->back()
+                ->with('lookup_error', 'Không tìm thấy bệnh nhân với mã "' . $keyword . '".')
+                ->withInput();
+        }
+
+        // Tìm phiên khám đang chờ thanh toán của bệnh nhân
+        $consultations = Consultation::where('patient_id', $patient->id)
+            ->whereIn('status', [
+                Consultation::STATUS_WAIT_PAYMENT,
+                Consultation::STATUS_PROCESSING,
+            ])
+            ->whereDoesntHave('invoices')
+            ->orderBy('consultation_date', 'desc')
+            ->get();
+
+        if ($consultations->isEmpty()) {
+            return redirect()->back()
+                ->with('lookup_error', 'Bệnh nhân "' . $patient->full_name . '" không có phiên khám nào đang chờ thanh toán.')
+                ->withInput();
+        }
+
+        if ($consultations->count() === 1) {
+            return redirect()->route('invoices.create', ['consultation_id' => $consultations->first()->id]);
+        }
+
+        // Nhiều phiên khám: truyền về view để nhân viên chọn
+        return redirect()->back()
+            ->with('lookup_patient', $patient)
+            ->with('lookup_consultations', $consultations)
+            ->withInput();
+    }
+
+    /**
      * ➕ Form tạo hóa đơn
      */
     public function create(Request $request)

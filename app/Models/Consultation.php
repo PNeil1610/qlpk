@@ -129,4 +129,9 @@ class Consultation extends Model
     {
         return $this->hasOne(\App\Models\Invoice::class, 'consultation_id', 'id');
     }
+
+    public function invoices()
+    {
+        return $this->hasMany(\App\Models\Invoice::class, 'consultation_id', 'id');
+    }
 }

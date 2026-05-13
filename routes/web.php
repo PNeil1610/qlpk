@@ -196,6 +196,7 @@ Route::prefix('prescriptions')->name('prescriptions.')->group(function () {
 Route::prefix('invoices')->name('invoices.')->group(function () {
     Route::get('/', [App\Http\Controllers\InvoiceController::class, 'index'])->name('index');
     Route::get('/ajax/search', [App\Http\Controllers\InvoiceController::class, 'ajaxSearch'])->name('ajax.search');
+    Route::post('/lookup', [App\Http\Controllers\InvoiceController::class, 'lookup'])->name('lookup');
     Route::get('/create', [App\Http\Controllers\InvoiceController::class, 'create'])->name('create');
     Route::post('/', [App\Http\Controllers\InvoiceController::class, 'store'])->name('store');
     Route::get('/{id}/show', [App\Http\Controllers\InvoiceController::class, 'show'])->name('show');

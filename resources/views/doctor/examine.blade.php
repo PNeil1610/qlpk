@@ -55,9 +55,20 @@
                     </div>
                     <div class="card-body p-2">
                         @foreach($consultation->prescriptions as $pres)
-                            <a href="{{ route('prescriptions.show', $pres->id) }}" class="btn btn-sm btn-outline-success w-100 mb-1">
-                                <i class="fas fa-file-prescription me-1"></i> Toa #{{ $pres->id }} &mdash; {{ $pres->prescribed_at ? \Carbon\Carbon::parse($pres->prescribed_at)->format('d/m H:i') : '' }}
-                            </a>
+                            <div class="d-flex mb-1">
+                                <a href="{{ route('prescriptions.show', $pres->id) }}" class="btn btn-sm btn-outline-success flex-grow-1 text-start overflow-hidden">
+                                    <i class="fas fa-file-prescription me-1"></i> Toa #{{ $pres->id }} &mdash; {{ $pres->prescribed_at ? \Carbon\Carbon::parse($pres->prescribed_at)->format('d/m H:i') : '' }}
+                                </a>
+                                @if($pres->status == 1)
+                                    <form action="{{ route('prescriptions.destroy', $pres->id) }}" method="POST" class="ms-1" onsubmit="return confirm('Bạn có chắc chắn muốn xóa toa thuốc này không?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-times me-1"></i>Xóa
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
                         @endforeach
                     </div>
                 </div>

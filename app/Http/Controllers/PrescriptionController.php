@@ -100,4 +100,52 @@ class PrescriptionController extends Controller
 
         return view('prescriptions.show', compact('prescription'));
     }
+
+    public function destroy($id)
+    {
+        try {
+            return DB::transaction(function () use ($id) {
+                $prescription = Prescription::findOrFail($id);
+                $consultationId = $prescription->consultation_id;
+
+                // Kiểm tra nếu toa thuốc đã được phát thì không cho xóa
+                if ($prescription->status == 2) {
+                    return redirect()->back()->with('error', 'Không thể xóa toa thuốc đã được phát thuốc!');
+                }
+
+                // Kiểm tra nếu đã thanh toán hóa đơn thì không cho xóa (nếu có tính năng hóa đơn)
+                $invoice = \App\Models\Invoice::where('consultation_id', $consultationId)
+                    ->where('status', \App\Models\Invoice::STATUS_PAID)
+                    ->first();
+                
+                if ($invoice) {
+                    return redirect()->back()->with('error', 'Không thể xóa toa thuốc vì hóa đơn đã được thanh toán!');
+                }
+
+                // Xóa chi tiết toa thuốc
+                PrescriptionDetail::where('prescription_id', $id)->delete();
+
+                // Xóa toa thuốc
+                $prescription->delete();
+
+                // Cập nhật lại trạng thái phiên khám
+                $consultation = Consultation::find($consultationId);
+                if ($consultation) {
+                    // Kiểm tra xem còn toa thuốc nào khác không
+                    $remainingPrescriptions = Prescription::where('consultation_id', $consultationId)
+                        ->where('id', '!=', $id)
+                        ->count();
+                    
+                    if ($remainingPrescriptions == 0) {
+                        $consultation->update(['status' => Consultation::STATUS_PROCESSING]);
+                    }
+                }
+
+                return redirect()->route('consultations.doctor.examine', $consultationId)
+                                 ->with('success', 'Đã xóa toa thuốc thành công!');
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi xóa toa thuốc: ' . $e->getMessage());
+        }
+    }
 }

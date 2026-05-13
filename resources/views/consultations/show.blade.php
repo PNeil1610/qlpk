@@ -66,26 +66,14 @@
                 <i class="fas fa-pills me-1"></i> Kê Toa Thuốc
             </a>
 
-            @if($consultation->status == \App\Models\Consultation::STATUS_WAIT_PAYMENT)
-                @if($consultation->invoice)
-                    <a href="{{ route('invoices.show', $consultation->invoice->id) }}" class="btn btn-info shadow-sm">
-                        <i class="fas fa-file-invoice-dollar me-1"></i> Xem Hóa Đơn
-                    </a>
-                @else
-                    <a href="{{ route('invoices.create', ['consultation_id' => $consultation->id]) }}" class="btn btn-warning shadow-sm">
-                        <i class="fas fa-file-invoice me-1"></i> Tạo Hóa Đơn
-                    </a>
-                @endif
-            @endif
-
-            @if($consultation->invoice && $consultation->status == \App\Models\Consultation::STATUS_COMPLETED)
-                <a href="{{ route('invoices.show', $consultation->invoice->id) }}" class="btn btn-outline-success shadow-sm">
-                    <i class="fas fa-receipt me-1"></i> Xem Hóa Đơn
+            @if($consultation->invoice)
+                <a href="{{ route('invoices.show', $consultation->invoice->id) }}" class="btn btn-info shadow-sm">
+                    <i class="fas fa-file-invoice-dollar me-1"></i> Xem Hóa Đơn
                 </a>
             @endif
 
-            <a href="{{ url()->previous() }}" class="btn btn-secondary">
-                Quay lại
+            <a href="{{ route('consultations.doctor') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Quay lại
             </a>
         </div>
     </div>

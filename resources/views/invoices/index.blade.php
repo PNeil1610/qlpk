@@ -8,12 +8,91 @@
         <h3 class="mb-0 text-primary"><i class="fas fa-file-invoice-dollar me-2"></i>Danh Sách Hóa Đơn</h3>
     </div>
 
+    {{-- ===== PANEL TẠO HÓA ĐƠN MỚI ===== --}}
+    <div class="card shadow-sm border-0 border-top border-success border-3 mb-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-bold text-success"><i class="fas fa-plus-circle me-2"></i>Tạo Hóa Đơn Mới</h5>
+        </div>
+        <div class="card-body">
+            <form action="{{ route('invoices.lookup') }}" method="POST">
+                @csrf
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-7">
+                        <label class="form-label fw-semibold">Nhập mã bệnh nhân, số điện thoại hoặc mã phiên khám</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-success text-white"><i class="fas fa-search"></i></span>
+                            <input type="text" name="lookup_keyword"
+                                class="form-control form-control-lg @error('lookup_keyword') is-invalid @enderror"
+                                placeholder="VD: BN-0001, 0912345678, hoặc số phiên khám..."
+                                value="{{ old('lookup_keyword') }}"
+                                autofocus>
+                            @error('lookup_keyword')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Hệ thống sẽ tìm phiên khám đang ở trạng thái <strong>Đang khám</strong> hoặc <strong>Chờ thanh toán</strong>.
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm">
+                            <i class="fas fa-file-invoice me-2"></i>Tra cứu & Tạo HĐ
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            {{-- Thông báo lỗi tra cứu --}}
+            @if(session('lookup_error'))
+                <div class="alert alert-warning mt-3 mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ session('lookup_error') }}
+                </div>
+            @endif
+
+            {{-- Trường hợp tìm được nhiều phiên khám cho 1 bệnh nhân --}}
+            @if(session('lookup_patient') && session('lookup_consultations'))
+                @php
+                    $lPatient = session('lookup_patient');
+                    $lConsultations = session('lookup_consultations');
+                @endphp
+                <div class="alert alert-info mt-3 mb-0">
+                    <strong><i class="fas fa-user me-1"></i>{{ $lPatient->full_name }}</strong> có {{ $lConsultations->count() }} phiên khám chưa có hóa đơn. Vui lòng chọn phiên khám:
+                    <div class="mt-2 d-flex flex-wrap gap-2">
+                        @foreach($lConsultations as $c)
+                            <a href="{{ route('invoices.create', ['consultation_id' => $c->id]) }}"
+                               class="btn btn-sm btn-primary">
+                                <i class="fas fa-file-medical me-1"></i>
+                                Phiên #{{ $c->id }} — {{ \Carbon\Carbon::parse($c->consultation_date)->format('d/m/Y H:i') }}
+                                <span class="badge bg-light text-dark ms-1">{{ $c->status_text }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- Thông báo --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-1"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-triangle me-1"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
     {{-- Thanh tìm kiếm --}}
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body py-3">
             <div class="row g-3 align-items-end">
                 <div class="col-md-5">
-                    <label class="form-label fw-semibold small text-muted">Tìm kiếm</label>
+                    <label class="form-label fw-semibold small text-muted">Tìm kiếm hóa đơn</label>
                     <input type="text" id="search-keyword" class="form-control"
                         placeholder="Mã hóa đơn, tên bệnh nhân, mã BN..."
                         value="{{ request('keyword') }}">
@@ -22,9 +101,9 @@
                     <label class="form-label fw-semibold small text-muted">Trạng thái</label>
                     <select id="search-status" class="form-select">
                         <option value="">-- Tất cả --</option>
-                        <option value="0">Chờ thanh toán</option>
-                        <option value="1">Đã thanh toán</option>
-                        <option value="2">Đã hủy</option>
+                        <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Chờ thanh toán</option>
+                        <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Đã thanh toán</option>
+                        <option value="2" {{ request('status') === '2' ? 'selected' : '' }}>Đã hủy</option>
                     </select>
                 </div>
                 <div class="col-md-2">
