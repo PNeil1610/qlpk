@@ -95,6 +95,7 @@
                         <input type="hidden" name="symptoms" value="{{ $consultation->symptoms }}">
                         <input type="hidden" name="temperature" value="{{ $consultation->temperature }}">
                         <input type="hidden" name="blood_pressure" value="{{ $consultation->blood_pressure }}">
+                        <input type="hidden" name="redirect_to" value="doctor">
 
                         <div class="row">
                             <div class="col-md-8 mb-3">

@@ -177,6 +177,11 @@ class ConsultationController extends Controller
             }
         }
 
+        if ($request->redirect_to === 'doctor') {
+            return redirect()->route('consultations.doctor')
+                ->with('success', 'Đã lưu kết luận thành công!');
+        }
+
         return redirect()->route('consultations.index')
             ->with('success', 'Cập nhật thành công');
     }
