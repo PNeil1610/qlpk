@@ -124,4 +124,9 @@ class Consultation extends Model
     {
         return $this->hasMany(\App\Models\Prescription::class, 'consultation_id', 'id');
     }
+
+    public function invoice()
+    {
+        return $this->hasOne(\App\Models\Invoice::class, 'consultation_id', 'id');
+    }
 }

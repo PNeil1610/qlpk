@@ -36,8 +36,7 @@
     <a href="{{ route('consultation_rooms.index') }}">🏥 Sắp xếp phòng khám</a>
     <a href="{{ route('room_details.index') }}">🏥 Chi tiết phòng</a>
 
-    <a href="#">💊 Đơn thuốc</a>
-    <a href="#">💰 Hóa đơn</a>
+    <a href="{{ route('invoices.index') }}">💰 Hóa đơn</a>
 
     <div class="mt-auto clinic-contact-info p-3 border-top border-secondary">
         <div style="font-size: 0.85rem; color: #adb5bd; line-height: 1.5; text-align: left;">
