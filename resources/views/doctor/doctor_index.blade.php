@@ -75,9 +75,9 @@
             </td>
             <td class="text-center pe-4">
                 <div class="d-flex gap-2 justify-content-center">
-                    <a href="{{ route('consultations.show', $c->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
+                    <!-- <a href="{{ route('consultations.show', $c->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
                         <i class="fas fa-eye me-1"></i> Xem
-                    </a>
+                    </a> -->
                     @if($c->status === \App\Models\Consultation::STATUS_COMPLETED)
                         <a href="{{ route('consultations.doctor.examine', $c->id) }}" class="btn btn-sm btn-outline-secondary shadow-sm" title="Xem chi tiết">
                             <i class="fas fa-eye me-1"></i> Xem chi tiết
