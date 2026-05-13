@@ -350,7 +350,7 @@ class InvoiceController extends Controller
                 $invoice->update([
                     'payment_method' => $request->payment_method,
                     'paid_at' => now(),
-                    'cashier_id' => auth()->user()->staff->id ?? null,
+                    'cashier_id' => auth()->id() ?? null,
                     'status' => Invoice::STATUS_PAID,
                 ]);
 
