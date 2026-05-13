@@ -140,6 +140,12 @@ class ConsultationController extends Controller
     {
         $consultation = Consultation::findOrFail($id);
 
+        // 🔒 Không cho sửa nếu phiên khám đã hoàn thành thanh toán
+        if ($consultation->status === Consultation::STATUS_COMPLETED) {
+            return redirect()->route('consultations.doctor')
+                ->with('error', 'Phiên khám #' . $id . ' đã hoàn thành. Không thể chỉnh sửa nội dung.');
+        }
+
         $validated = $request->validate([
             'patient_id' => 'required|exists:patient,id',
             'room_id' => 'nullable|exists:room,id',
@@ -159,7 +165,7 @@ class ConsultationController extends Controller
         // Cập nhật phòng khám
         if ($request->has('room_id')) {
             $consultationRoom = \App\Models\ConsultationRoom::where('consultation_id', $consultation->id)->first();
-            
+
             if ($request->room_id) {
                 if ($consultationRoom) {
                     $consultationRoom->update(['room_id' => $request->room_id]);
@@ -269,9 +275,11 @@ class ConsultationController extends Controller
     {
         $consultation = Consultation::with(['patient', 'rooms', 'prescriptions'])->findOrFail($id);
 
-        $medicines = \App\Models\Medicine::with(['details' => function($q) {
-            $q->where('status', 1);
-        }])->where('status', 1)->get();
+        $medicines = \App\Models\Medicine::with([
+            'details' => function ($q) {
+                $q->where('status', 1);
+            }
+        ])->where('status', 1)->get();
 
         return view('doctor.examine', compact('consultation', 'medicines'));
     }

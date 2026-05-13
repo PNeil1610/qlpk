@@ -78,9 +78,15 @@
                     <a href="{{ route('consultations.show', $c->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
                         <i class="fas fa-eye me-1"></i> Xem
                     </a>
-                    <a href="{{ route('consultations.doctor.examine', $c->id) }}" class="btn btn-sm btn-success shadow-sm" title="Khám bệnh & Kê đơn">
-                        <i class="fas fa-stethoscope me-1"></i> Khám & Kê đơn
-                    </a>
+                    @if($c->status === \App\Models\Consultation::STATUS_COMPLETED)
+                        <a href="{{ route('consultations.doctor.examine', $c->id) }}" class="btn btn-sm btn-outline-secondary shadow-sm" title="Xem chi tiết">
+                            <i class="fas fa-eye me-1"></i> Xem chi tiết
+                        </a>
+                    @else
+                        <a href="{{ route('consultations.doctor.examine', $c->id) }}" class="btn btn-sm btn-success shadow-sm" title="Khám bệnh & Kê đơn">
+                            <i class="fas fa-stethoscope me-1"></i> Khám & Kê đơn
+                        </a>
+                    @endif
                 </div>
             </td>
         </tr>

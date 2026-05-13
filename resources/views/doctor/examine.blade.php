@@ -6,13 +6,23 @@
     {{-- HEADER --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h3 class="mb-0 text-primary"><i class="fas fa-stethoscope me-2"></i>Khám bệnh & Kê đơn thuốc</h3>
+            @if($consultation->status === \App\Models\Consultation::STATUS_COMPLETED)
+                <h3 class="mb-0 text-secondary"><i class="fas fa-eye me-2"></i>Xem phiếu khám (Chỉ đọc)</h3>
+            @else
+                <h3 class="mb-0 text-primary"><i class="fas fa-stethoscope me-2"></i>Khám bệnh & Kê đơn thuốc</h3>
+            @endif
             <span class="text-muted">Bệnh nhân: <strong>{{ $consultation->patient->full_name }}</strong> &mdash; Mã PK: <strong>#{{ $consultation->id }}</strong></span>
         </div>
         <a href="{{ route('consultations.doctor') }}" class="btn btn-outline-secondary shadow-sm">
             <i class="fas fa-arrow-left me-1"></i> Quay lại
         </a>
     </div>
+
+    @if($consultation->status === \App\Models\Consultation::STATUS_COMPLETED)
+        <div class="alert alert-secondary border-0 shadow-sm mb-4">
+            <i class="fas fa-lock me-2"></i><strong>Phiếu khám này đã hoàn thành thanh toán.</strong> Bạn chỉ có thể xem thông tin, không thể chỉnh sửa.
+        </div>
+    @endif
 
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show"><i class="fas fa-check-circle me-1"></i> {{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
@@ -59,7 +69,7 @@
                                 <a href="{{ route('prescriptions.show', $pres->id) }}" class="btn btn-sm btn-outline-success flex-grow-1 text-start overflow-hidden">
                                     <i class="fas fa-file-prescription me-1"></i> Toa #{{ $pres->id }} &mdash; {{ $pres->prescribed_at ? \Carbon\Carbon::parse($pres->prescribed_at)->format('d/m H:i') : '' }}
                                 </a>
-                                @if($pres->status == 1)
+                                @if($pres->status == 1 && $consultation->status !== \App\Models\Consultation::STATUS_COMPLETED)
                                     <form action="{{ route('prescriptions.destroy', $pres->id) }}" method="POST" class="ms-1" onsubmit="return confirm('Bạn có chắc chắn muốn xóa toa thuốc này không?')">
                                         @csrf
                                         @method('DELETE')
@@ -84,6 +94,15 @@
                     <i class="fas fa-user-md text-warning me-2"></i>Kết luận chuyên môn
                 </div>
                 <div class="card-body">
+                @if($consultation->status === \App\Models\Consultation::STATUS_COMPLETED)
+                    {{-- CHẾ ĐỘ CHỈ ĐỌC --}}
+                    <table class="table table-borderless table-sm">
+                        <tr><td class="text-muted" width="200">Chẩn đoán chi tiết:</td><td class="fw-bold">{{ $consultation->diagnosis_notes ?? '---' }}</td></tr>
+                        <tr><td class="text-muted">Mã bệnh chuẩn (ICD):</td><td>{{ $consultation->diagnosis_code ?? '---' }}</td></tr>
+                        <tr><td class="text-muted">Ngày tái khám:</td><td>{{ $consultation->follow_up_date ? \Carbon\Carbon::parse($consultation->follow_up_date)->format('d/m/Y') : '---' }}</td></tr>
+                        <tr><td class="text-muted">Trạng thái:</td><td><span class="badge bg-success">Hoàn thành</span></td></tr>
+                    </table>
+                @else
                     <form method="POST" action="{{ route('consultations.update', $consultation->id) }}" id="examineForm">
                         @csrf
                         @method('PUT')
@@ -139,10 +158,12 @@
                             </button>
                         </div>
                     </form>
+                @endif
                 </div>
             </div>
 
             {{-- PHẦN 2: KÊ ĐƠN THUỐC --}}
+            @if($consultation->status !== \App\Models\Consultation::STATUS_COMPLETED)
             <div class="card shadow-sm border-0 border-top border-success border-3">
                 <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center">
                     <span><i class="fas fa-pills text-success me-2"></i>Kê đơn thuốc</span>
@@ -204,6 +225,7 @@
                     </form>
                 </div>
             </div>
+            @endif
 
         </div>
     </div>
