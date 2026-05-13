@@ -1,0 +1,107 @@
+# AI_CONTEXT.md - Bản đồ Tư duy Nghiệp vụ & Kỹ thuật Dự án QLPK
+
+Tài liệu này được thiết kế để cung cấp cái nhìn toàn diện về hệ thống **Quản lý Phòng khám (QLPK)**, giúp các AI assistant hiểu nhanh cấu trúc và luồng hoạt động mà không cần quét lại toàn bộ codebase.
+
+---
+
+# 1. Tổng quan Dự án & Phạm vi Nghiệp vụ (Domain Overview)
+- **Mục tiêu:** Tối ưu hóa quy trình khám chữa bệnh tại phòng khám đa khoa, từ tiếp đón, khám lâm sàng đến kê đơn và thanh toán.
+- **Các Module chính:**
+    - **Quản lý Tiếp đón:** Đăng ký bệnh nhân mới, lập phiếu khám, phân bổ vào các phòng chức năng.
+    - **Quản lý Khám bệnh (EMR):** Bác sĩ ghi nhận triệu chứng, chẩn đoán (ICD-10), chỉ định cận lâm sàng và kê đơn thuốc.
+    - **Quản lý Dược phẩm:** Danh mục thuốc, đơn giá theo phiên bản, quản lý đơn vị tính.
+    - **Quản lý Tài chính:** Tra cứu hóa đơn, tính toán chi phí khám + thuốc, xác nhận thanh toán.
+    - **Hệ thống Phân quyền (RBAC):** Quản lý nhân sự và quyền hạn truy cập theo vai trò.
+
+# 2. Tech Stack & Infrastructure
+- **Ngôn ngữ & Framework:** PHP 8.1+, **Laravel 10** (MVC Architecture).
+- **Cơ sở dữ liệu:** **MySQL** (Sử dụng Eloquent ORM để quản lý quan hệ dữ liệu).
+- **Frontend:** Laravel Blade Template, Bootstrap 5, Vite, jQuery, Select2.
+- **Containerization:** **Laravel Sail** (Docker Compose) cung cấp môi trường phát triển đồng bộ.
+- **Kiến trúc:** Monolithic Web Application với RESTful Web Routes.
+
+# 3. Data Models & Database Schema (Quan trọng)
+Hệ thống sử dụng cơ sở dữ liệu quan hệ (RDBMS) với các thực thể chính:
+
+- **Users:** Lưu thông tin tài khoản đăng nhập và phân quyền.
+- **Staff:** Thông tin chi tiết nhân viên (Bác sĩ, Y tá...), liên kết 1-1 với `Users`. Có `room_id` để xác định vị trí làm việc.
+- **Patient:** Hồ sơ bệnh nhân, liên kết với `Users` (nếu bệnh nhân có tài khoản).
+- **Consultation (Phiên khám):** Thực thể trung tâm, liên kết `Patient`, `Diagnosis` (Mã bệnh), và `Room` (Phòng khám). 
+    - *Mối quan hệ:* 1 Bệnh nhân có nhiều Phiên khám; 1 Phiên khám có 1 Đơn thuốc; 1 Phiên khám có 1 Hóa đơn.
+- **Room & Department:** Quản lý cơ cấu tổ chức phòng ban và phòng khám.
+- **Prescription & PrescriptionDetail:** Thông tin đơn thuốc và chi tiết từng loại thuốc (số lượng, liều dùng).
+- **Invoice & InvoiceDetail:** Thông tin thanh toán, tự động tổng hợp chi phí từ Phiên khám và Đơn thuốc.
+- **Medicine & MedicineDetail:** Quản lý danh mục thuốc và lịch sử giá bán (Versioning qua `MedicineDetail`).
+
+# 4. Phân Quyền Hệ Thống (RBAC)
+Hệ thống quản lý quyền qua bảng `roles` và `permissions` thông qua Middleware:
+- **SUPERADMIN:** Toàn quyền hệ thống.
+- **DOCTOR:** Xem danh sách chờ tại phòng được chỉ định, thực hiện khám bệnh, kê đơn thuốc.
+- **RECEPTIONIST:** Tiếp đón bệnh nhân, tạo mới phiếu khám, xếp phòng.
+- **CASHIER:** Tra cứu và thu phí hóa đơn.
+- **PATIENT:** Xem hồ sơ bệnh án cá nhân và lịch sử khám.
+
+# 5. Chi tiết Cấu trúc Thư mục
+```text
+qlpk/
+├── app/
+│   ├── Http/Controllers/   # Xử lý Logic nghiệp vụ (Consultation, Invoice, Patient...)
+│   ├── Http/Middleware/    # Kiểm tra quyền (RoleMiddleware) và xác thực.
+│   ├── Models/             # Định nghĩa Schema và Quan hệ (Eloquent).
+│   └── Providers/          # Đăng ký các dịch vụ hệ thống.
+├── config/                 # Cấu hình Database, Auth, App...
+├── database/
+│   ├── migrations/         # Định nghĩa cấu trúc các bảng MySQL.
+│   └── seeders/            # Dữ liệu mẫu (Roles, Admin, Medicine Categories).
+├── resources/
+│   ├── views/              # Giao diện Blade (Doctor dashboard, Billing, Admin).
+│   └── js/css/             # Assets quản lý bởi Vite.
+├── routes/
+│   └── web.php             # Khai báo toàn bộ luồng URL và gán Controller/Middleware.
+└── docker-compose.yml      # Cấu hình các dịch vụ Docker (Sail).
+```
+
+# 6. Breakdown Code Cốt Lõi (Core File Analysis)
+
+- **app/Models/User.php:** Quản lý Auth và RBAC (hàm `hasRole`, `hasPermission`).
+- **app/Http/Controllers/ConsultationController.php:** 
+    - `doctorConsultations()`: Lọc bệnh nhân theo `room_id` của bác sĩ đang login.
+    - `examineConsultation()`: Logic tích hợp cho phép bác sĩ vừa xem bệnh án vừa kê đơn thuốc trên cùng một view.
+- **app/Http/Controllers/InvoiceController.php:** 
+    - `lookup()`: Logic tra cứu đa năng (theo mã bệnh nhân, mã phiên khám hoặc SĐT).
+    - `store()`: Tự động tính toán phí khám và phí thuốc dựa trên dữ liệu từ `Consultation`.
+- **app/Models/Consultation.php:** Định nghĩa các trạng thái phiên khám (`STATUS_NEW`, `STATUS_PENDING`, `STATUS_COMPLETED`...) và logic chuyển trạng thái.
+
+# 7. Luồng Nghiệp vụ Cốt lõi (Core Business Flows)
+
+### A. Luồng Tiếp đón & Xếp phòng
+1. User (Receptionist) tạo bệnh nhân hoặc tra cứu bệnh nhân cũ (`PatientController@store`).
+2. Tạo Phiếu khám (`ConsultationController@store`), chọn phòng khám mục tiêu.
+3. Bản ghi được tạo trong bảng `consultation_room` với trạng thái `PENDING`.
+
+### B. Luồng Khám bệnh & Kê đơn
+1. Bác sĩ đăng nhập, vào Dashboard phòng mình (`doctor/my-consultations`).
+2. Chọn bệnh nhân đang chờ -> Vào giao diện Khám bệnh.
+3. Nhập triệu chứng, chẩn đoán và chọn thuốc từ danh mục (`PrescriptionController@store`).
+4. Kết thúc khám: Phiên khám chuyển trạng thái sang "Chờ thanh toán" (`WAIT_PAYMENT`).
+
+### C. Luồng Thanh toán & Hoàn thành
+1. Thu ngân tra cứu phiên khám/bệnh nhân (`InvoiceController@lookup`).
+2. Hệ thống tổng hợp `consultation_fee` + `medicine_fee`.
+3. Thu ngân xác nhận thanh toán (`pay()`).
+4. **Hậu xử lý:** Cập nhật Hóa đơn thành `PAID` và Phiên khám thành `COMPLETED`.
+
+# 8. Môi trường & Triển khai (Docker Setup)
+- **Docker Services (via Sail):**
+    - `laravel.test`: Chạy PHP 8.2/8.1 và Nginx/Swoole.
+    - `mysql`: Database chính.
+    - `redis`: Caching và Session.
+    - `mailpit`: Testing email.
+- **Biến môi trường (.env):**
+    - `DB_CONNECTION=mysql`
+    - `DB_DATABASE=qlpk`
+    - `APP_KEY`: Khóa bảo mật Laravel.
+    - `VITE_*`: Các biến cấu hình cho frontend build.
+
+---
+*Ghi chú: Luôn kiểm tra `routes/web.php` để nắm bắt các URL mới và `app/Models` để cập nhật các thay đổi về schema.*
