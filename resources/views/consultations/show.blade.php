@@ -60,16 +60,61 @@
                     </tbody>
                 </table>
             </div>
-        </div>
-        <div class="card-footer">
-            <a href="{{ route('prescriptions.create', ['consultation_id' => $consultation->id]) }}" class="btn btn-success shadow-sm">
-                <i class="fas fa-pills me-1"></i> Kê Toa Thuốc
-            </a>
 
-            @if($consultation->invoice)
-                <a href="{{ route('invoices.show', $consultation->invoice->id) }}" class="btn btn-info shadow-sm">
-                    <i class="fas fa-file-invoice-dollar me-1"></i> Xem Hóa Đơn
-                </a>
+            @if($consultation->prescriptions->count() > 0)
+                <div class="mt-4">
+                    <h5 class="fw-bold text-success border-bottom pb-2">
+                        <i class="fas fa-prescription-bottle-alt me-2"></i>Toa thuốc trong phiên khám này
+                    </h5>
+                    @foreach($consultation->prescriptions as $p)
+                        <div class="mb-4 bg-white shadow-sm p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <span class="badge bg-success py-2 px-3">Toa thuốc #{{ $p->id }}</span>
+                                    <small class="text-muted ms-2">{{ $p->prescribed_at->format('d/m/Y H:i') }}</small>
+                                </div>
+                                <a href="{{ route('prescriptions.show', $p->id) }}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-print me-1"></i>In toa thuốc
+                                </a>
+                            </div>
+                            
+                            <table class="table table-hover table-bordered align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tên thuốc / Vật tư</th>
+                                        <th class="text-center" width="80">SL</th>
+                                        <th width="100">Đơn vị</th>
+                                        <th>Liều dùng</th>
+                                        <th>Cách dùng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($p->details as $d)
+                                        <tr>
+                                            <td class="fw-bold">{{ $d->medicine->medicine_name }}</td>
+                                            <td class="text-center fw-bold text-primary">{{ $d->quantity }}</td>
+                                            <td>{{ $d->unit }}</td>
+                                            <td>{{ $d->dosage }}</td>
+                                            <td>{{ $d->usage_instructions }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            @if($p->doctor_advice)
+                                <div class="bg-light p-2 small border-start border-4 border-info">
+                                    <strong>Lời dặn của bác sĩ:</strong> {!! nl2br(e($p->doctor_advice)) !!}
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+        <div class="card-footer bg-white py-3">
+            @if(request()->has('reuse_mode') && $consultation->prescriptions->count() > 0)
+                <button type="button" class="btn btn-warning shadow-sm me-2 fw-bold text-dark px-4" id="btn-reuse">
+                    <i class="fas fa-copy me-1"></i> Sử dụng lại cho phiên hiện tại
+                </button>
             @endif
 
             <a href="{{ route('consultations.doctor') }}" class="btn btn-secondary">
@@ -77,5 +122,45 @@
             </a>
         </div>
     </div>
+
+    @if(request()->has('reuse_mode'))
+    @php
+        $medicinesArr = [];
+        foreach($consultation->prescriptions as $pres) {
+            foreach($pres->details as $det) {
+                $medicinesArr[] = [
+                    'id' => $det->medicine_id,
+                    'name' => $det->medicine->medicine_name,
+                    'quantity' => $det->quantity,
+                    'unit' => $det->unit,
+                    'dosage' => $det->dosage,
+                    'usage_instructions' => $det->usage_instructions,
+                    'duration_days' => $det->duration_days,
+                ];
+            }
+        }
+        $adviceData = $consultation->prescriptions->first()->doctor_advice ?? '';
+    @endphp
+    <script>
+        document.getElementById('btn-reuse')?.addEventListener('click', function() {
+            if (window.opener && !window.opener.closed) {
+                if (confirm('Bạn có muốn sao chép toàn bộ danh sách thuốc này vào phiên khám hiện tại không?')) {
+                    const medicines = {!! json_encode($medicinesArr) !!};
+                    const advice = {!! json_encode($adviceData) !!};
+
+                    window.opener.postMessage({ 
+                        type: 'REUSE_PRESCRIPTION', 
+                        medicines: medicines,
+                        advice: advice
+                    }, '*');
+                    
+                    window.close();
+                }
+            } else {
+                alert('Không tìm thấy cửa sổ phiên khám đang hoạt động.');
+            }
+        });
+    </script>
+    @endif
 
 @endsection

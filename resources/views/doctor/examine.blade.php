@@ -53,7 +53,7 @@
 
             {{-- Toa thuốc hiện tại nếu đã có --}}
             @if($consultation->prescriptions && $consultation->prescriptions->count() > 0)
-                <div class="card shadow-sm border-0 border-top border-success border-3">
+                <div class="card shadow-sm border-0 border-top border-success border-3 mb-3">
                     <div class="card-header bg-white fw-bold py-3 text-success">
                         <i class="fas fa-prescription-bottle me-2"></i>Toa thuốc đã kê
                     </div>
@@ -77,6 +77,62 @@
                     </div>
                 </div>
             @endif
+
+            {{-- LỊCH SỬ KHÁM BỆNH --}}
+            <div class="card shadow-sm border-0 border-top border-secondary border-3">
+                <div class="card-header bg-white fw-bold py-3">
+                    <i class="fas fa-history text-secondary me-2"></i>Lịch sử khám bệnh
+                </div>
+                <div class="card-body p-0">
+                    @if($history->isEmpty())
+                        <div class="p-4 text-center text-muted">
+                            <i class="fas fa-folder-open d-block mb-2 fs-4 opacity-50"></i>
+                            <span class="small">Chưa có lịch sử khám cũ.</span>
+                        </div>
+                    @else
+                        <div class="list-group list-group-flush" style="max-height: 500px; overflow-y: auto;">
+                            @foreach($history as $h)
+                                <div class="list-group-item p-3 history-item hover-bg-light transition">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div>
+                                            <a href="{{ route('consultations.show', $h->id) }}?reuse_mode=1" target="_blank" class="fw-bold text-primary text-decoration-none" title="Xem chi tiết phiên khám">
+                                                <i class="fas fa-file-medical me-1"></i>#{{ $h->id }}
+                                            </a>
+                                            <span class="ms-2 badge bg-light text-dark border small">{{ $h->consultation_date->format('d/m/Y') }}</span>
+                                        </div>
+                                        <a href="{{ route('consultations.show', $h->id) }}?reuse_mode=1" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 0.7rem;">
+                                            Xem <i class="fas fa-external-link-alt ms-1"></i>
+                                        </a>
+                                    </div>
+                                    <div class="small mb-2 text-dark bg-light p-2 rounded border-start border-3 border-warning">
+                                        <strong>Chẩn đoán:</strong> {{ $h->diagnosis_notes ?? ($h->diagnosis->diagnosis_name ?? 'Không rõ') }}
+                                    </div>
+                                    
+                                    @if($h->prescriptions->count() > 0)
+                                        <div class="mt-2 pt-2 border-top border-light">
+                                            @foreach($h->prescriptions as $p)
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span class="text-success fw-bold" style="font-size: 0.75rem;">
+                                                        <i class="fas fa-pills me-1"></i>Toa thuốc:
+                                                    </span>
+                                                    <a href="{{ route('prescriptions.show', $p->id) }}" target="_blank" class="text-decoration-none small text-success hover-underline" style="font-size: 0.7rem;">
+                                                        Xem toa <i class="fas fa-chevron-right ms-1"></i>
+                                                    </a>
+                                                </div>
+                                                <ul class="ps-3 mb-1 text-muted" style="font-size: 0.75rem;">
+                                                    @foreach($p->details as $d)
+                                                        <li>{{ $d->medicine->medicine_name }} ({{ $d->quantity }} {{ $d->unit }})</li>
+                                                    @endforeach
+                                                </ul>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
 
         {{-- ====== CỘT PHẢI: KẾT LUẬN + KÊ ĐƠN ====== --}}
@@ -226,6 +282,14 @@
 </div>
 @endsection
 
+@push('styles')
+<style>
+    .history-item:hover { background-color: #f8f9fa; }
+    .transition { transition: all 0.2s ease-in-out; }
+    .hover-underline:hover { text-decoration: underline !important; }
+</style>
+@endpush
+
 @push('scripts')
 <script>
 $(document).ready(function () {
@@ -305,6 +369,45 @@ $(document).ready(function () {
             btn.disabled = (rows.length === 1);
         });
     }
+
+    // 🔥 Xử lý tin nhắn "Sử dụng lại toa thuốc" từ cửa sổ con
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'REUSE_PRESCRIPTION') {
+            const medicinesData = event.data.medicines;
+            const advice = event.data.advice;
+
+            // Điền lời dặn
+            const adviceTextarea = document.querySelector('textarea[name="doctor_advice"]');
+            if (adviceTextarea) adviceTextarea.value = advice;
+
+            // Xóa sạch các dòng hiện tại
+            tableBody.innerHTML = '';
+
+            medicinesData.forEach((med, index) => {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>
+                        <select name="medicines[]" class="form-select form-select-sm medicine-select" required>
+                            <option value="">-- Chọn thuốc --</option>
+                            @foreach($medicines as $m)
+                                <option value="{{ $m->id }}" data-unit="{{ $m->details->first()?->unit ?? 'Viên' }}" ${med.id == {{ $m->id }} ? 'selected' : ''}>
+                                    {{ $m->medicine_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td><input type="number" name="quantities[]" class="form-control form-control-sm" min="1" value="${med.quantity}" required></td>
+                    <td><input type="text" name="units[]" class="form-control form-control-sm unit-input" readonly value="${med.unit || ''}"></td>
+                    <td><input type="text" name="dosages[]" class="form-control form-control-sm" value="${med.dosage}" required></td>
+                    <td><input type="text" name="usage_instructions[]" class="form-control form-control-sm" value="${med.usage_instructions || ''}"></td>
+                    <td><input type="number" name="duration_days[]" class="form-control form-control-sm" min="1" value="${med.duration_days || ''}"></td>
+                    <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-row"><i class="fas fa-times"></i></button></td>
+                `;
+                tableBody.appendChild(newRow);
+            });
+            updateRemoveButtons();
+        }
+    });
 });
 </script>
 @endpush

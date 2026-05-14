@@ -116,7 +116,7 @@ class ConsultationController extends Controller
      */
     public function show($id)
     {
-        $consultation = Consultation::with(['patient', 'invoice'])->findOrFail($id);
+        $consultation = Consultation::with(['patient', 'invoice', 'prescriptions.details.medicine'])->findOrFail($id);
 
         return view('consultations.show', compact('consultation'));
     }
@@ -275,12 +275,19 @@ class ConsultationController extends Controller
     {
         $consultation = Consultation::with(['patient', 'rooms', 'prescriptions'])->findOrFail($id);
 
+        // Lấy lịch sử phiên khám của bệnh nhân (trừ phiên hiện tại)
+        $history = Consultation::with(['prescriptions.details.medicine', 'diagnosis'])
+            ->where('patient_id', $consultation->patient_id)
+            ->where('id', '!=', $id)
+            ->latest()
+            ->get();
+
         $medicines = \App\Models\Medicine::with([
             'details' => function ($q) {
                 $q->where('status', 1);
             }
         ])->where('status', 1)->get();
 
-        return view('doctor.examine', compact('consultation', 'medicines'));
+        return view('doctor.examine', compact('consultation', 'medicines', 'history'));
     }
 }
