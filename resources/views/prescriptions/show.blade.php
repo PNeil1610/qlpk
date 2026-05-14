@@ -5,20 +5,12 @@
     <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
         <h3 class="mb-0 text-primary"><i class="fas fa-receipt me-2"></i>Chi Tiết Toa Thuốc #{{ $prescription->id }}</h3>
         <div>
-            @if($prescription->status == 1)
-                <form action="{{ route('prescriptions.destroy', $prescription->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa toa thuốc này không? Thao tác này không thể hoàn tác.')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-outline-danger shadow-sm me-2">
-                        <i class="fas fa-times me-1"></i> Xóa Toa
-                    </button>
-                </form>
-            @endif
+
             <button onclick="window.print()" class="btn btn-secondary shadow-sm me-2">
                 <i class="fas fa-print me-1"></i> In Toa
             </button>
-            <a href="{{ route('consultations.doctor') }}" class="btn btn-outline-secondary shadow-sm">
-                <i class="fas fa-arrow-left me-1"></i> Trở về danh sách phiếu khám
+            <a href="javascript:history.back()" class="btn btn-outline-secondary shadow-sm">
+                <i class="fas fa-arrow-left me-1"></i> Quay lại
             </a>
         </div>
     </div>

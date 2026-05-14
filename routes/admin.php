@@ -45,7 +45,6 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/', [ConsultationController::class, 'index'])->name('index');
             Route::get('/create', [ConsultationController::class, 'create'])->name('create');
             Route::post('/', [ConsultationController::class, 'store'])->name('store');
-            Route::get('/{id}', [ConsultationController::class, 'show'])->name('show');
             Route::get('/{id}/edit', [ConsultationController::class, 'edit'])->name('edit');
             Route::put('/{id}', [ConsultationController::class, 'update'])->name('update');
             Route::delete('/{id}', [ConsultationController::class, 'destroy'])->name('destroy');
@@ -164,6 +163,12 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/{id}', [PrescriptionController::class, 'update'])->name('update');
             Route::delete('/{id}', [PrescriptionController::class, 'destroy'])->name('destroy');
         });
+    });
+
+    // ===== ADMIN, RECEPTIONIST & DOCTOR =====
+    Route::middleware(['role:ADMIN,RECEPTIONIST,DOCTOR'])->group(function () {
+        // Cho phép bác sĩ xem chi tiết phiên khám cũ
+        Route::get('/consultations/{id}', [ConsultationController::class, 'show'])->name('consultations.show');
     });
 
 });

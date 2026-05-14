@@ -16,7 +16,8 @@
                     <thead class="bg-light">
                         <tr>
                             <th scope="col" class="ps-4">Mã Thuốc</th>
-                            <th scope="col">Tên Thuốc & Hoạt chất</th>
+                            <th scope="col">Tên thương mại</th>
+                            <th scope="col">Hoạt chất</th>
                             <th scope="col">Nhóm Thuốc</th>
                             <th scope="col" class="text-end">Đơn giá</th>
                             <th scope="col" class="text-center">Trạng thái</th>
@@ -28,8 +29,10 @@
                             <tr>
                                 <td class="ps-4 fw-bold text-secondary">{{ $item->medicine_code ?? '---' }}</td>
                                 <td>
-                                    <span class="fw-bold text-dark fs-6">{{ $item->medicine_name }}</span><br>
-                                    <small class="text-muted"><i class="fas fa-flask"></i> {{ $item->details->first()->active_ingredient ?? 'Chưa cập nhật' }}</small>
+                                    <span class="fw-bold text-dark fs-6">{{ $item->medicine_name }}</span>
+                                </td>
+                                <td>
+                                    <span class="text-muted"><i class="fas fa-flask"></i> {{ $item->details->first()->active_ingredient ?? 'Chưa cập nhật' }}</span>
                                 </td>
                                 <td>
                                     <span class="badge bg-info text-dark">{{ $item->category->category_name ?? 'Không rõ' }}</span>
@@ -76,7 +79,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">
+                                <td colspan="7" class="text-center py-5 text-muted">
                                     <i class="fas fa-prescription-bottle-alt fs-2 mb-3 mt-2 d-block text-black-50"></i>
                                     Chưa có loại thuốc nào trong kho.<br>Hãy bấm <strong>"Thêm Thuốc Mới"</strong> để bắt đầu nhập kho!
                                 </td>
