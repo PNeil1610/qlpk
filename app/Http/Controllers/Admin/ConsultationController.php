@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Consultation;
 use App\Models\Patient;
 use Illuminate\Http\Request;
@@ -59,15 +60,6 @@ class ConsultationController extends Controller
      */
     public function store(Request $request)
     {
-        // $validated = $request->validate([
-        //     'patient_id' => 'required|exists:patient,id',
-        //     'consultation_date' => 'required|date',
-        //     'symptoms' => 'nullable|string',
-        //     'temperature' => 'nullable|numeric|min:30|max:45',
-        //     'blood_pressure' => 'nullable|string|max:20',
-        //     'chief_complaint' => 'nullable|string|max:500',
-        // ]);
-
         $validated = $request->validate([
 
             'patient_id' => 'required|exists:patient,id',
@@ -234,68 +226,5 @@ class ConsultationController extends Controller
             ->get();
 
         return response()->json($consultations);
-    }
-    public function doctorConsultations(Request $request)
-    {
-        $user = auth()->user();
-        if (!$user || !$user->staff || !$user->staff->room_id) {
-            return redirect()->back()->with('error', 'Bạn không có phòng khám được chỉ định. Vui lòng liên hệ quản trị viên cập nhật phòng khám cho bạn.');
-        }
-
-        $roomId = $user->staff->room_id;
-        $roomName = $user->staff->room->room_name ?? 'Phòng khám';
-
-        $consultations = Consultation::with('patient')->whereHas('rooms', function ($q) use ($roomId) {
-            $q->where('id', $roomId);
-        })->latest()->paginate(10);
-
-        return view('doctor.doctor_index', compact('consultations', 'roomName'));
-    }
-
-    public function doctorAjaxSearch(Request $request)
-    {
-        $user = auth()->user();
-        if (!$user || !$user->staff || !$user->staff->room_id) {
-            return response()->json([]);
-        }
-
-        $roomId = $user->staff->room_id;
-        $keyword = $request->keyword;
-
-        $consultations = Consultation::with('patient')
-            ->whereHas('rooms', function ($q) use ($roomId) {
-                $q->where('id', $roomId);
-            })
-            ->when($keyword, function ($query) use ($keyword) {
-                $query->whereHas('patient', function ($q) use ($keyword) {
-                    $q->where('full_name', 'like', "%$keyword%")
-                        ->orWhere('patient_code', 'like', "%$keyword%")
-                        ->orWhere('phone_number', 'like', "%$keyword%");
-                });
-            })
-            ->latest()
-            ->get();
-
-        return response()->json($consultations);
-    }
-    public function examineConsultation($id)
-    {
-        $consultation = Consultation::with(['patient', 'rooms', 'prescriptions'])->findOrFail($id);
-
-        // Lấy lịch sử phiên khám của bệnh nhân (chỉ các phiên đã hoàn thành, trừ phiên hiện tại)
-        $history = Consultation::with(['prescriptions.details.medicine', 'diagnosis'])
-            ->where('patient_id', $consultation->patient_id)
-            ->where('id', '!=', $id)
-            ->where('status', Consultation::STATUS_COMPLETED)
-            ->latest()
-            ->get();
-
-        $medicines = \App\Models\Medicine::with([
-            'details' => function ($q) {
-                $q->where('status', 1);
-            }
-        ])->where('status', 1)->get();
-
-        return view('doctor.examine', compact('consultation', 'medicines', 'history'));
     }
 }

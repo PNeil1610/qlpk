@@ -12,31 +12,56 @@
 
     <h4 class="p-3">MENU</h4>
 
-    <a href="{{ route('patients.index') }}">👤 Bệnh nhân</a>
-    <a href="{{ route('staff.index') }}">👩‍⚕️ Nhân viên</a>
-    <a data-bs-toggle="collapse" href="#consultationsMenu" role="button" aria-expanded="false" aria-controls="consultationsMenu" class="d-flex justify-content-between align-items-center">
-        <span>🩺 Phiên khám</span>
-        <i class="fas fa-chevron-down ms-2" style="font-size: 0.75rem;"></i>
-    </a>
-    <div class="collapse" id="consultationsMenu">
-        <a href="{{ route('consultations.index') }}" class="ps-4 py-2 text-white-50" style="font-size: 0.9rem; border-left: 2px solid #555; margin-left: 15px;">
-            Phiên khám tổng
-        </a>
-        <a href="{{ route('consultations.index', ['filter' => 'no_room']) }}" class="ps-4 py-2 text-warning" style="font-size: 0.9rem; border-left: 2px solid #ffc107; margin-left: 15px;">
-            Phiên khám chờ
-        </a>
-    </div>
-    <a href="{{ route('consultations.doctor') }}">👨‍⚕️ Ca khám của tôi</a>
-    <a href="{{ route('diagnoses.index') }}">📖 Danh mục mã bệnh</a>
-    <a href="{{ route('prescriptions.index') }}">💊 Đơn thuốc</a>
-    <a href="{{ route('medicine_categories.index') }}">💊 Danh mục loại thuốc</a>
-    <a href="{{ route('medicines.index') }}">💊 Danh mục thuốc</a>
-    <a href="{{ route('departments.index') }}">🗂️ Danh mục khoa</a>
-    <a href="{{ route('rooms.index') }}">🏥 Quản lý phòng</a>
-    <a href="{{ route('consultation_rooms.index') }}">🏥 Sắp xếp phòng khám</a>
-    <a href="{{ route('room_details.index') }}">🏥 Chi tiết phòng</a>
+    {{-- ===== SUPERADMIN & RECEPTIONIST: Quản lý bệnh nhân, phiên khám, xếp phòng ===== --}}
+    @if(auth()->check() && (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('RECEPTIONIST')))
+        <a href="{{ route('patients.index') }}">👤 Bệnh nhân</a>
 
-    <a href="{{ route('invoices.index') }}">💰 Hóa đơn</a>
+        <a data-bs-toggle="collapse" href="#consultationsMenu" role="button" aria-expanded="false" aria-controls="consultationsMenu" class="d-flex justify-content-between align-items-center">
+            <span>🩺 Phiên khám</span>
+            <i class="fas fa-chevron-down ms-2" style="font-size: 0.75rem;"></i>
+        </a>
+        <div class="collapse" id="consultationsMenu">
+            <a href="{{ route('consultations.index') }}" class="ps-4 py-2 text-white-50" style="font-size: 0.9rem; border-left: 2px solid #555; margin-left: 15px;">
+                Phiên khám tổng
+            </a>
+            <a href="{{ route('consultations.index', ['filter' => 'no_room']) }}" class="ps-4 py-2 text-warning" style="font-size: 0.9rem; border-left: 2px solid #ffc107; margin-left: 15px;">
+                Phiên khám chờ
+            </a>
+        </div>
+
+        <a href="{{ route('consultation_rooms.index') }}">🏥 Sắp xếp phòng khám</a>
+    @endif
+
+    {{-- ===== SUPERADMIN & DOCTOR: Ca khám của tôi ===== --}}
+    @if(auth()->check() && (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('DOCTOR')))
+        <a href="{{ route('consultations.doctor') }}">👨‍⚕️ Ca khám của tôi</a>
+    @endif
+
+    {{-- ===== SUPERADMIN: Quản lý nhân sự ===== --}}
+    @if(auth()->check() && auth()->user()->hasRole('ADMIN'))
+        <a href="{{ route('staff.index') }}">👩‍⚕️ Nhân viên</a>
+    @endif
+
+    {{-- ===== SUPERADMIN: Danh mục hệ thống ===== --}}
+    @if(auth()->check() && auth()->user()->hasRole('ADMIN'))
+        <a href="{{ route('diagnoses.index') }}">📖 Danh mục mã bệnh</a>
+        <a href="{{ route('prescriptions.index') }}">💊 Đơn thuốc</a>
+        <a href="{{ route('medicine_categories.index') }}">💊 Danh mục loại thuốc</a>
+        <a href="{{ route('medicines.index') }}">💊 Danh mục thuốc</a>
+        <a href="{{ route('departments.index') }}">🗂️ Danh mục khoa</a>
+        <a href="{{ route('rooms.index') }}">🏥 Quản lý phòng</a>
+        <a href="{{ route('room_details.index') }}">🏥 Chi tiết phòng</a>
+    @endif
+
+    {{-- ===== SUPERADMIN & CASHIER: Hóa đơn ===== --}}
+    @if(auth()->check() && (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('CASHIER')))
+        <a href="{{ route('invoices.index') }}">💰 Hóa đơn</a>
+    @endif
+
+    {{-- ===== PATIENT: Hồ sơ bệnh án ===== --}}
+    @if(auth()->check() && auth()->user()->hasRole('PATIENT'))
+        <a href="{{ route('patients.my_record') }}">📋 Hồ sơ bệnh án</a>
+    @endif
 
     <div class="mt-auto clinic-contact-info p-3 border-top border-secondary">
         <div style="font-size: 0.85rem; color: #adb5bd; line-height: 1.5; text-align: left;">

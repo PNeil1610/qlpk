@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Medicine;
 use App\Models\MedicineCategory;
@@ -25,7 +26,6 @@ class MedicineController extends Controller
     public function create()
     {
         $categories = MedicineCategory::where('status', 1)->get();
-        
         return view('medicines.create', compact('categories'));
     }
 
@@ -62,7 +62,6 @@ class MedicineController extends Controller
     {
         $medicine = Medicine::with('details')->findOrFail($id);
         $categories = MedicineCategory::where('status', 1)->get();
-        
         $currentDetail = $medicine->details()->where('status', 1)->first();
 
         return view('medicines.edit', compact('medicine', 'categories', 'currentDetail'));
@@ -104,7 +103,6 @@ class MedicineController extends Controller
     public function details($id)
     {
         $medicine = Medicine::findOrFail($id);
-        
         $details = $medicine->details()
                             ->orderBy('status', 'desc')
                             ->orderBy('created_at', 'desc')
@@ -164,17 +162,15 @@ class MedicineController extends Controller
         ]);
 
         DB::transaction(function() use ($medicine, $request) {
-            // Hủy áp dụng các bản cũ
             MedicineDetail::where('medicine_id', $medicine->id)->update(['status' => 0]);
 
-            // Tạo bản mới và đặt làm mặc định
             MedicineDetail::create([
                 'medicine_id'       => $medicine->id,
                 'unit'              => $request->unit,
                 'price'             => $request->price,
                 'active_ingredient' => $request->active_ingredient,
                 'storage_condition' => $request->storage_condition,
-                'status'            => 1, // Mặc định áp dụng bản mới nhất
+                'status'            => 1,
             ]);
         });
 

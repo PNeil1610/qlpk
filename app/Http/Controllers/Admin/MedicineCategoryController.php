@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MedicineCategory;
 
@@ -10,7 +11,6 @@ class MedicineCategoryController extends Controller
     public function index()
     {
         $categories = MedicineCategory::latest()->paginate(10);
-
         return view('medicine_categories.index', compact('categories'));
     }
 
@@ -37,7 +37,6 @@ class MedicineCategoryController extends Controller
         ]);
 
         $code = 'LT' . str_pad($category->id, 3, '0', STR_PAD_LEFT);
-        
         $category->update(['category_code' => $code]);
 
         return redirect()->route('medicine_categories.index')
@@ -83,7 +82,6 @@ class MedicineCategoryController extends Controller
     {
         $category = MedicineCategory::findOrFail($id);
         $categoryName = $category->category_name;
-        
         $category->delete();
 
         return redirect()->route('medicine_categories.index')

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Patient;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class PatientController extends Controller
 {
@@ -13,7 +13,6 @@ class PatientController extends Controller
     {
         $query = Patient::query();
 
-        // 🔍 nếu có keyword
         if ($request->keyword) {
             $keyword = $request->keyword;
 
@@ -52,7 +51,6 @@ class PatientController extends Controller
         $patient = new Patient();
         $patient->fill($validated);
 
-        // Tạo mã bệnh nhân tạm hoặc dựa trên ID tiếp theo để tránh lỗi thiếu patient_code khi save lần đầu
         $nextId = Patient::max('id') + 1;
         $patient->patient_code = 'BN' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
         $patient->status = Patient::STATUS_ACTIVE;
@@ -95,7 +93,6 @@ class PatientController extends Controller
 
         $patient->update($validated);
 
-        // Đồng bộ thông tin nếu bệnh nhân này có tài khoản User (user_id)
         if ($patient->user) {
             $patient->user->email = $validated['email'] ?? $patient->user->email;
             $patient->user->phone_number = $validated['phone_number'] ?? $patient->user->phone_number;
@@ -114,14 +111,9 @@ class PatientController extends Controller
     {
         $patient = Patient::findOrFail($id);
 
-        // 🔥 kiểm tra đã có phiên khám chưa
         if ($patient->consultations()->exists()) {
-
             return redirect()->route('patients.index')
-                ->with(
-                    'error',
-                    'Không thể xóa bệnh nhân vì đã có phiên khám.'
-                );
+                ->with('error', 'Không thể xóa bệnh nhân vì đã có phiên khám.');
         }
 
         $patient->delete();
@@ -148,44 +140,14 @@ class PatientController extends Controller
         $keyword = $request->keyword;
 
         $patients = Patient::query()
-
             ->when($keyword, function ($query) use ($keyword) {
-
                 $query->where('full_name', 'like', "%$keyword%")
                     ->orWhere('patient_code', 'like', "%$keyword%")
                     ->orWhere('phone_number', 'like', "%$keyword%");
             })
-
             ->latest()
             ->get();
 
         return response()->json($patients);
-    }
-    public function showMyMedicalRecord()
-    {
-        $user = Auth::user();
-
-        if ($user->hasRole('PATIENT')) {
-            $myPatientRecord = $user->patient;
-
-            if (!$myPatientRecord) {
-                return redirect()->home()->with('error', 'Bạn chưa có hồ sơ bệnh án trên hệ thống.');
-            }
-
-            return view('patients.my_record', ['patient' => $myPatientRecord]);
-        }
-
-        return redirect()->route('patients.index');
-    }
-    public function myRecord()
-    {
-        $user = \Illuminate\Support\Facades\Auth::user();
-
-        $myPatientRecord = $user->patient;
-
-        if (!$myPatientRecord) {
-            return redirect()->back()->with('error', 'Hệ thống chưa ghi nhận hồ sơ bệnh án của bạn.');
-        }
-        return view('patients.my_record', compact('myPatientRecord'));
     }
 }

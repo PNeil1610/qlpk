@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Cashier;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Invoice;
 use App\Models\InvoiceDetail;
@@ -19,7 +20,6 @@ class InvoiceController extends Controller
     {
         $query = Invoice::with(['consultation.patient', 'cashier']);
 
-        // 🔍 Tìm kiếm
         if ($request->keyword) {
             $keyword = $request->keyword;
             $query->where(function ($q) use ($keyword) {
@@ -32,7 +32,6 @@ class InvoiceController extends Controller
             });
         }
 
-        // Lọc theo trạng thái
         if ($request->has('status') && $request->status !== '') {
             $query->where('status', $request->status);
         }
@@ -43,7 +42,7 @@ class InvoiceController extends Controller
     }
 
     /**
-     * 🔍 Tra cứu phiên khám để tạo hóa đơn (từ mã BN hoặc mã phiên khám)
+     * 🔍 Tra cứu phiên khám để tạo hóa đơn
      */
     public function lookup(Request $request)
     {
@@ -55,7 +54,6 @@ class InvoiceController extends Controller
 
         $keyword = trim($request->lookup_keyword);
 
-        // Thử tìm theo mã phiên khám (số nguyên)
         if (is_numeric($keyword)) {
             $consultation = Consultation::with('patient')
                 ->where('id', $keyword)
@@ -66,8 +64,7 @@ class InvoiceController extends Controller
                 ->first();
 
             if ($consultation) {
-                // Kiểm tra đã có hóa đơn chưa
-                $existingInvoice = \App\Models\Invoice::where('consultation_id', $consultation->id)->first();
+                $existingInvoice = Invoice::where('consultation_id', $consultation->id)->first();
                 if ($existingInvoice) {
                     return redirect()->route('invoices.show', $existingInvoice->id)
                                      ->with('error', 'Phiên khám #' . $keyword . ' đã có hóa đơn!');
@@ -76,7 +73,6 @@ class InvoiceController extends Controller
             }
         }
 
-        // Tìm theo mã bệnh nhân hoặc tên
         $patient = \App\Models\Patient::where('patient_code', $keyword)
             ->orWhere('phone_number', $keyword)
             ->first();
@@ -87,7 +83,6 @@ class InvoiceController extends Controller
                 ->withInput();
         }
 
-        // Tìm phiên khám đang chờ thanh toán của bệnh nhân
         $consultations = Consultation::where('patient_id', $patient->id)
             ->whereIn('status', [
                 Consultation::STATUS_WAIT_PAYMENT,
@@ -107,7 +102,6 @@ class InvoiceController extends Controller
             return redirect()->route('invoices.create', ['consultation_id' => $consultations->first()->id]);
         }
 
-        // Nhiều phiên khám: truyền về view để nhân viên chọn
         return redirect()->back()
             ->with('lookup_patient', $patient)
             ->with('lookup_consultations', $consultations)
@@ -130,25 +124,21 @@ class InvoiceController extends Controller
             }
         ])->findOrFail($request->consultation_id);
 
-        // Kiểm tra đã có hóa đơn chưa
         $existingInvoice = Invoice::where('consultation_id', $consultation->id)->first();
         if ($existingInvoice) {
             return redirect()->route('invoices.show', $existingInvoice->id)
                              ->with('error', 'Phiên khám này đã có hóa đơn!');
         }
 
-        // Tính tiền thuốc từ đơn thuốc
         $medicineItems = [];
         $totalMedicineFee = 0;
 
         foreach ($consultation->prescriptions as $prescription) {
             foreach ($prescription->details as $detail) {
-                // Tìm giá thuốc từ medicine_detail (lấy giá đầu tiên active)
                 $medicinePrice = 0;
                 $medicineUnit = $detail->unit ?? 'Viên';
 
                 if ($detail->medicine && $detail->medicine->details->isNotEmpty()) {
-                    // Tìm medicine_detail có unit khớp, nếu không thì lấy cái đầu tiên
                     $matchingDetail = $detail->medicine->details
                         ->where('unit', $detail->unit)
                         ->first();
@@ -201,7 +191,6 @@ class InvoiceController extends Controller
             'payment_method' => 'nullable|in:Cash,Card,Transfer,Insurance,Other',
         ]);
 
-        // Kiểm tra đã có hóa đơn chưa
         $existingInvoice = Invoice::where('consultation_id', $request->consultation_id)->first();
         if ($existingInvoice) {
             return redirect()->route('invoices.show', $existingInvoice->id)
@@ -219,7 +208,6 @@ class InvoiceController extends Controller
                 $totalAmount = $consultationFee + $medicineFee + $labTestFee + $otherFee - $discount;
                 if ($totalAmount < 0) $totalAmount = 0;
 
-                // Tạo hóa đơn
                 $invoice = Invoice::create([
                     'invoice_code' => Invoice::generateInvoiceCode(),
                     'consultation_id' => $request->consultation_id,
@@ -234,7 +222,6 @@ class InvoiceController extends Controller
                     'status' => Invoice::STATUS_PENDING,
                 ]);
 
-                // Tạo chi tiết: Chi phí khám bệnh
                 if ($consultationFee > 0) {
                     InvoiceDetail::create([
                         'invoice_id' => $invoice->id,
@@ -249,7 +236,6 @@ class InvoiceController extends Controller
                     ]);
                 }
 
-                // Tạo chi tiết: Từng loại thuốc
                 $consultation = Consultation::with([
                     'prescriptions.details.medicine.details' => function ($q) {
                         $q->where('status', 1);
@@ -293,7 +279,6 @@ class InvoiceController extends Controller
                     }
                 }
 
-                // Tạo chi tiết: Chi phí khác
                 if ($otherFee > 0) {
                     InvoiceDetail::create([
                         'invoice_id' => $invoice->id,
@@ -354,7 +339,6 @@ class InvoiceController extends Controller
                     'status' => Invoice::STATUS_PAID,
                 ]);
 
-                // Cập nhật trạng thái phiên khám → Hoàn thành
                 if ($invoice->consultation) {
                     $invoice->consultation->update([
                         'status' => Consultation::STATUS_COMPLETED,

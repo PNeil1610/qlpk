@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Room;
 use App\Models\Department;
 use Illuminate\Http\Request;
@@ -10,19 +11,13 @@ class RoomController extends Controller
 {
     public function index()
     {
-        $rooms = Room::with('department')
-            ->latest()
-            ->paginate(10);
-
+        $rooms = Room::with('department')->latest()->paginate(10);
         return view('rooms.index', compact('rooms'));
     }
 
     public function create()
     {
-        $departments = Department::where('status', 1)
-            ->orderBy('dept_name')
-            ->get();
-
+        $departments = Department::where('status', 1)->orderBy('dept_name')->get();
         return view('rooms.create', compact('departments'));
     }
 
@@ -38,26 +33,19 @@ class RoomController extends Controller
 
         Room::create($request->all());
 
-        return redirect()
-            ->route('rooms.index')
-            ->with('success', 'Thêm phòng thành công');
+        return redirect()->route('rooms.index')->with('success', 'Thêm phòng thành công');
     }
 
     public function show($id)
     {
         $room = Room::with('department')->findOrFail($id);
-
         return view('rooms.show', compact('room'));
     }
 
     public function edit($id)
     {
         $room = Room::findOrFail($id);
-
-        $departments = Department::where('status', 1)
-            ->orderBy('dept_name')
-            ->get();
-
+        $departments = Department::where('status', 1)->orderBy('dept_name')->get();
         return view('rooms.edit', compact('room', 'departments'));
     }
 
@@ -75,20 +63,14 @@ class RoomController extends Controller
 
         $room->update($request->all());
 
-        return redirect()
-            ->route('rooms.index')
-            ->with('success', 'Cập nhật phòng thành công');
+        return redirect()->route('rooms.index')->with('success', 'Cập nhật phòng thành công');
     }
 
     public function destroy($id)
     {
         $room = Room::findOrFail($id);
-
         $room->delete();
-
-        return redirect()
-            ->route('rooms.index')
-            ->with('success', 'Xóa phòng thành công');
+        return redirect()->route('rooms.index')->with('success', 'Xóa phòng thành công');
     }
 
     public function ajaxSearch(Request $request)

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Prescription;
 use App\Models\PrescriptionDetail;
@@ -108,12 +109,10 @@ class PrescriptionController extends Controller
                 $prescription = Prescription::findOrFail($id);
                 $consultationId = $prescription->consultation_id;
 
-                // Kiểm tra nếu toa thuốc đã được phát thì không cho xóa
                 if ($prescription->status == 2) {
                     return redirect()->back()->with('error', 'Không thể xóa toa thuốc đã được phát thuốc!');
                 }
 
-                // Kiểm tra nếu đã thanh toán hóa đơn thì không cho xóa (nếu có tính năng hóa đơn)
                 $invoice = \App\Models\Invoice::where('consultation_id', $consultationId)
                     ->where('status', \App\Models\Invoice::STATUS_PAID)
                     ->first();
@@ -122,16 +121,11 @@ class PrescriptionController extends Controller
                     return redirect()->back()->with('error', 'Không thể xóa toa thuốc vì hóa đơn đã được thanh toán!');
                 }
 
-                // Xóa chi tiết toa thuốc
                 PrescriptionDetail::where('prescription_id', $id)->delete();
-
-                // Xóa toa thuốc
                 $prescription->delete();
 
-                // Cập nhật lại trạng thái phiên khám
                 $consultation = Consultation::find($consultationId);
                 if ($consultation) {
-                    // Kiểm tra xem còn toa thuốc nào khác không
                     $remainingPrescriptions = Prescription::where('consultation_id', $consultationId)
                         ->where('id', '!=', $id)
                         ->count();

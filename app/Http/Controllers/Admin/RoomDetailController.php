@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\RoomDetail;
 use App\Models\Room;
 use Illuminate\Http\Request;
@@ -73,7 +74,6 @@ class RoomDetailController extends Controller
     {
         $roomDetail = RoomDetail::findOrFail($id);
         $roomDetail->delete();
-
         return redirect()->route('room_details.index')->with('success', 'Xóa chi tiết phòng thành công');
     }
 

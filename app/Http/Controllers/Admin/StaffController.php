@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Staff;
 use App\Models\Department;
@@ -11,13 +12,11 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
-
 class StaffController extends Controller
 {
     public function index()
     {
         $staffs = Staff::with(['department', 'room'])->orderBy('id', 'desc')->paginate(10);
-        
         return view('staff.index', compact('staffs'));
     }
 
@@ -25,7 +24,6 @@ class StaffController extends Controller
     {
         $departments = Department::all();
         $rooms = Room::all();
-
         return view('staff.create', compact('departments', 'rooms'));
     }
 
@@ -62,7 +60,6 @@ class StaffController extends Controller
 
             $data = $request->all();
             $data['user_id'] = $user->id;
-            
             $data['full_name'] = $user->full_name;
             $data['email'] = $user->email;
 
@@ -85,7 +82,6 @@ class StaffController extends Controller
         $staff = Staff::findOrFail($id);
         $departments = Department::all();
         $rooms = Room::all();
-
         return view('staff.edit', compact('staff', 'departments', 'rooms'));
     }
 
@@ -126,7 +122,6 @@ class StaffController extends Controller
     public function show($id)
     {
         $staff = Staff::with(['department', 'room'])->findOrFail($id);
-        
         return view('staff.show', compact('staff'));
     }
 
@@ -134,9 +129,7 @@ class StaffController extends Controller
     {
         $staff = Staff::findOrFail($id);
         $name = $staff->full_name;
-        
         $staff->delete();
-
         return redirect()->route('staff.index')->with('success', 'Đã xóa hồ sơ nhân viên: ' . $name);
     }
 
