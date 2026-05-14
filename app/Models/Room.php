@@ -77,6 +77,11 @@ class Room extends Model
     {
         return $this->hasOne(RoomDetail::class);
     }
+
+    public function staff()
+    {
+        return $this->hasMany(Staff::class, 'room_id', 'id');
+    }
     // =========================
     // ACCESSOR
     // =========================

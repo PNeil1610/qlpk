@@ -116,7 +116,14 @@ class ConsultationController extends Controller
      */
     public function show($id)
     {
-        $consultation = Consultation::with(['patient', 'invoice', 'prescriptions.details.medicine'])->findOrFail($id);
+        $consultation = Consultation::with([
+            'patient',
+            'invoice',
+            'prescriptions.details.medicine',
+            'prescriptions.dispenser',
+            'rooms.staff',
+            'diagnosis',
+        ])->findOrFail($id);
 
         return view('consultations.show', compact('consultation'));
     }
