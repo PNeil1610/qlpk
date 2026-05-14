@@ -12,7 +12,7 @@
 
     <h4 class="p-3">MENU</h4>
 
-    {{-- ===== SUPERADMIN & RECEPTIONIST: Quản lý bệnh nhân, phiên khám, xếp phòng ===== --}}
+    {{-- ===== ADMIN & RECEPTIONIST: Quản lý bệnh nhân, phiên khám, xếp phòng ===== --}}
     @if(auth()->check() && (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('RECEPTIONIST')))
         <a href="{{ route('patients.index') }}">👤 Bệnh nhân</a>
 
@@ -32,17 +32,17 @@
         <a href="{{ route('consultation_rooms.index') }}">🏥 Sắp xếp phòng khám</a>
     @endif
 
-    {{-- ===== SUPERADMIN & DOCTOR: Ca khám của tôi ===== --}}
+    {{-- ===== ADMIN & DOCTOR: Ca khám của tôi ===== --}}
     @if(auth()->check() && (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('DOCTOR')))
         <a href="{{ route('consultations.doctor') }}">👨‍⚕️ Ca khám của tôi</a>
     @endif
 
-    {{-- ===== SUPERADMIN: Quản lý nhân sự ===== --}}
+    {{-- ===== ADMIN: Quản lý nhân sự ===== --}}
     @if(auth()->check() && auth()->user()->hasRole('ADMIN'))
         <a href="{{ route('staff.index') }}">👩‍⚕️ Nhân viên</a>
     @endif
 
-    {{-- ===== SUPERADMIN: Danh mục hệ thống ===== --}}
+    {{-- ===== ADMIN: Danh mục hệ thống ===== --}}
     @if(auth()->check() && auth()->user()->hasRole('ADMIN'))
         <a href="{{ route('diagnoses.index') }}">📖 Danh mục mã bệnh</a>
         <a href="{{ route('prescriptions.index') }}">💊 Đơn thuốc</a>
@@ -53,7 +53,7 @@
         <a href="{{ route('room_details.index') }}">🏥 Chi tiết phòng</a>
     @endif
 
-    {{-- ===== SUPERADMIN & CASHIER: Hóa đơn ===== --}}
+    {{-- ===== ADMIN & CASHIER: Hóa đơn ===== --}}
     @if(auth()->check() && (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('CASHIER')))
         <a href="{{ route('invoices.index') }}">💰 Hóa đơn</a>
     @endif

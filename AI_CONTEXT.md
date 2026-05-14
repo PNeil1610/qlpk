@@ -35,7 +35,7 @@ Hệ thống sử dụng cơ sở dữ liệu quan hệ (RDBMS) với các thự
 
 # 4. Phân Quyền Hệ Thống (RBAC)
 Hệ thống quản lý quyền qua bảng `roles` và `permissions` thông qua Middleware:
-- **SUPERADMIN:** Toàn quyền hệ thống.
+- **ADMIN:** Toàn quyền hệ thống.
 - **DOCTOR:** Xem danh sách chờ tại phòng được chỉ định, thực hiện khám bệnh, kê đơn thuốc.
 - **RECEPTIONIST:** Tiếp đón bệnh nhân, tạo mới phiếu khám, xếp phòng.
 - **CASHIER:** Tra cứu và thu phí hóa đơn.
