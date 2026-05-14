@@ -16,6 +16,7 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
     <style>
@@ -109,21 +110,32 @@
                 <main class="p-4">
                     <h3>@yield('page_title')</h3>
 
-                    {{-- THÔNG BÁO --}}
-                    @if(session('error'))
-
-                        <div class="alert alert-danger">
-                            {{ session('error') }}
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0">
+                            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-
                     @endif
 
-                    @if(session('success'))
-
-                        <div class="alert alert-success">
-                            {{ session('success') }}
+                    @if(session('resent'))
+                        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0">
+                            <i class="fas fa-check-circle me-2"></i>{{ __('A fresh verification link has been sent to your email address.') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
+                    @endif
 
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if(session('status'))
+                        <div class="alert alert-info alert-dismissible fade show shadow-sm border-0">
+                            <i class="fas fa-info-circle me-2"></i>{{ session('status') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                     @endif
 
                     @yield('content')
