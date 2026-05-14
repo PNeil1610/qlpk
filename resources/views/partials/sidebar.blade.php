@@ -33,7 +33,7 @@
     @endif
 
     {{-- ===== ADMIN & DOCTOR: Ca khám của tôi ===== --}}
-    @if(auth()->check() && (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('DOCTOR')))
+    @if(auth()->check() && auth()->user()->hasRole('DOCTOR'))
         <a href="{{ route('consultations.doctor') }}">👨‍⚕️ Ca khám của tôi</a>
     @endif
 
