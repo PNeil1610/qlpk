@@ -28,8 +28,8 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Ghi chú chuyên môn</label>
-                            <textarea name="note" class="form-control" rows="3"></textarea>
+                            <label class="form-label fw-bold">Hướng dẫn sử dụng</label>
+                            <textarea name="note" class="form-control" rows="3" placeholder="Nhập hướng dẫn sử dụng cụ thể..."></textarea>
                         </div>
                         <div class="mb-4">
                             <label class="form-label fw-bold">Trạng thái kho</label>

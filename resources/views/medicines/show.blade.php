@@ -89,9 +89,9 @@
                     @endif
 
                     <div class="row mt-4">
-                        <div class="col-12 text-muted mb-2">Ghi chú chuyên môn / Hướng dẫn:</div>
-                        <div class="col-12 bg-light p-3 rounded border">
-                            {!! nl2br(e($medicine->note)) ?: '<span class="fst-italic text-muted">Không có ghi chú nào thêm.</span>' !!}
+                        <div class="col-12 text-muted fw-bold mb-2"><i class="fas fa-info-circle me-1"></i> Hướng dẫn sử dụng:</div>
+                        <div class="col-12 bg-light p-3 rounded border text-dark">
+                            {!! nl2br(e($medicine->note)) ?: '<span class="fst-italic text-muted">Chưa cập nhật hướng dẫn sử dụng.</span>' !!}
                         </div>
                     </div>
                 </div>
