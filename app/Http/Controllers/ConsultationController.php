@@ -275,10 +275,11 @@ class ConsultationController extends Controller
     {
         $consultation = Consultation::with(['patient', 'rooms', 'prescriptions'])->findOrFail($id);
 
-        // Lấy lịch sử phiên khám của bệnh nhân (trừ phiên hiện tại)
+        // Lấy lịch sử phiên khám của bệnh nhân (chỉ các phiên đã hoàn thành, trừ phiên hiện tại)
         $history = Consultation::with(['prescriptions.details.medicine', 'diagnosis'])
             ->where('patient_id', $consultation->patient_id)
             ->where('id', '!=', $id)
+            ->where('status', Consultation::STATUS_COMPLETED)
             ->latest()
             ->get();
 

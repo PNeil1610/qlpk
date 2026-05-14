@@ -71,13 +71,14 @@
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
                                     <span class="badge bg-success py-2 px-3">Toa thuốc #{{ $p->id }}</span>
-                                    <small class="text-muted ms-2">{{ $p->prescribed_at->format('d/m/Y H:i') }}</small>
+                                    <small
+                                        class="text-muted ms-2">{{ \Carbon\Carbon::parse($p->prescribed_at)->format('d/m/Y H:i') }}</small>
                                 </div>
                                 <a href="{{ route('prescriptions.show', $p->id) }}" class="btn btn-sm btn-outline-success">
                                     <i class="fas fa-print me-1"></i>In toa thuốc
                                 </a>
                             </div>
-                            
+
                             <table class="table table-hover table-bordered align-middle">
                                 <thead class="table-light">
                                     <tr>
@@ -124,43 +125,57 @@
     </div>
 
     @if(request()->has('reuse_mode'))
-    @php
-        $medicinesArr = [];
-        foreach($consultation->prescriptions as $pres) {
-            foreach($pres->details as $det) {
-                $medicinesArr[] = [
-                    'id' => $det->medicine_id,
-                    'name' => $det->medicine->medicine_name,
-                    'quantity' => $det->quantity,
-                    'unit' => $det->unit,
-                    'dosage' => $det->dosage,
-                    'usage_instructions' => $det->usage_instructions,
-                    'duration_days' => $det->duration_days,
-                ];
-            }
-        }
-        $adviceData = $consultation->prescriptions->first()->doctor_advice ?? '';
-    @endphp
-    <script>
-        document.getElementById('btn-reuse')?.addEventListener('click', function() {
-            if (window.opener && !window.opener.closed) {
-                if (confirm('Bạn có muốn sao chép toàn bộ danh sách thuốc này vào phiên khám hiện tại không?')) {
-                    const medicines = {!! json_encode($medicinesArr) !!};
-                    const advice = {!! json_encode($adviceData) !!};
-
-                    window.opener.postMessage({ 
-                        type: 'REUSE_PRESCRIPTION', 
-                        medicines: medicines,
-                        advice: advice
-                    }, '*');
-                    
-                    window.close();
+        @php
+            $medicinesArr = [];
+            foreach ($consultation->prescriptions as $pres) {
+                foreach ($pres->details as $det) {
+                    $medicinesArr[] = [
+                        'id' => $det->medicine_id,
+                        'name' => $det->medicine->medicine_name,
+                        'quantity' => $det->quantity,
+                        'unit' => $det->unit,
+                        'dosage' => $det->dosage,
+                        'usage_instructions' => $det->usage_instructions,
+                        'duration_days' => $det->duration_days,
+                    ];
                 }
-            } else {
-                alert('Không tìm thấy cửa sổ phiên khám đang hoạt động.');
             }
-        });
-    </script>
+            $adviceData = $consultation->prescriptions->first()->doctor_advice ?? '';
+        @endphp
+        <script>
+            document.getElementById('btn-reuse')?.addEventListener('click', function () {
+                const medicines = {!! json_encode($medicinesArr) !!};
+                const advice = {!! json_encode($adviceData) !!};
+
+                if (window.opener && !window.opener.closed) {
+                    if (confirm('Bạn có muốn sao chép toàn bộ danh sách thuốc này vào phiên khám hiện tại không?')) {
+                        window.opener.postMessage({
+                            type: 'REUSE_PRESCRIPTION',
+                            medicines: medicines,
+                            advice: advice
+                        }, '*');
+                        window.close();
+                    }
+                } else {
+                    // Trường hợp mở cùng một tab (không có opener)
+                    if (confirm('Hệ thống sẽ chuyển bạn về trang khám bệnh và điền dữ liệu thuốc này. Bạn đồng ý chứ?')) {
+                        // Lưu vào localStorage
+                        localStorage.setItem('reuse_prescription_data', JSON.stringify({
+                            medicines: medicines,
+                            advice: advice,
+                            timestamp: Date.now()
+                        }));
+
+                        // Quay lại trang trước (trang khám bệnh)
+                        if (document.referrer && document.referrer.includes('/examine')) {
+                            window.location.href = document.referrer;
+                        } else {
+                            window.history.back();
+                        }
+                    }
+                }
+            });
+        </script>
     @endif
 
 @endsection

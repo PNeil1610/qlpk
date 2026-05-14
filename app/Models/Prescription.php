@@ -20,6 +20,13 @@ class Prescription extends Model
         'status',
     ];
 
+    protected $casts = [
+        'prescribed_at' => 'datetime',
+        'dispensed_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     public function consultation()
     {
 

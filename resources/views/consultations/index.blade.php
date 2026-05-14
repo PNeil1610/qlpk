@@ -62,7 +62,7 @@
             <td class="ps-4 fw-bold text-secondary">{{ $c->id }}</td>
             <td class="fw-bold text-secondary">{{ $c->patient->patient_code ?? 'N/A' }}</td>
             <td class="fw-bold text-dark">{{ $c->patient->full_name ?? 'N/A' }}</td>
-            <td>{{ $c->consultation_date ? $c->consultation_date->format('d/m/Y H:i') : '' }}</td>
+            <td>{{ $c->consultation_date ? \Carbon\Carbon::parse($c->consultation_date)->format('d/m/Y H:i') : '' }}</td>
             <td class="text-center text-primary fw-bold">
                 @if($c->rooms->isNotEmpty())
                     {{ $c->rooms->pluck('room_name')->join(', ') }}

@@ -66,7 +66,7 @@ qlpk/
 - **app/Models/User.php:** Quản lý Auth và RBAC (hàm `hasRole`, `hasPermission`).
 - **app/Http/Controllers/ConsultationController.php:** 
     - `doctorConsultations()`: Lọc bệnh nhân theo `room_id` của bác sĩ đang login.
-    - `examineConsultation()`: Logic tích hợp cho phép bác sĩ vừa xem bệnh án vừa kê đơn thuốc trên cùng một view.
+    - `examineConsultation()`: Logic tích hợp cho phép bác sĩ vừa xem bệnh án vừa kê đơn thuốc trên cùng một view. Hiển thị lịch sử khám cũ của bệnh nhân ở cột trái, trong đó có thể nhấn "Xem" để chuyển sang trang chi tiết phiên khám đó (cùng tab). Tại trang chi tiết, bác sĩ có thể xem lại danh sách thuốc đã kê và nhấn **"Sử dụng lại toa thuốc"** để sao chép toàn bộ danh sách thuốc + lời dặn vào phiên khám hiện tại đang mở.
 - **app/Http/Controllers/InvoiceController.php:** 
     - `lookup()`: Logic tra cứu đa năng (theo mã bệnh nhân, mã phiên khám hoặc SĐT).
     - `store()`: Tự động tính toán phí khám và phí thuốc dựa trên dữ liệu từ `Consultation`.
@@ -81,9 +81,17 @@ qlpk/
 
 ### B. Luồng Khám bệnh & Kê đơn
 1. Bác sĩ đăng nhập, vào Dashboard phòng mình (`doctor/my-consultations`).
-2. Chọn bệnh nhân đang chờ -> Vào giao diện Khám bệnh.
-3. Nhập triệu chứng, chẩn đoán và chọn thuốc từ danh mục (`PrescriptionController@store`).
-4. Kết thúc khám: Phiên khám chuyển trạng thái sang "Chờ thanh toán" (`WAIT_PAYMENT`).
+2. Chọn bệnh nhân đang chờ -> Vào giao diện Khám bệnh (`doctor/examine.blade.php`).
+3. Giao diện chia 2 cột:
+    - **Cột trái:** Thông tin hành chính + Toa thuốc hiện tại đã kê + **Lịch sử khám bệnh** (danh sách phiên cũ của BN).
+    - **Cột phải:** Form kết luận chuyên môn + Form kê đơn thuốc mới.
+4. **Xem lịch sử & Sử dụng lại toa thuốc:**
+    - Ở cột lịch sử, hệ thống chỉ hiển thị **các phiên khám đã hoàn thành** của bệnh nhân đó. Bác sĩ nhấn "Xem" tại một phiên khám cũ -> Hệ thống chuyển trang sang `consultations/show.blade.php` (cùng tab) với tham số `?reuse_mode=1`.
+    - Trang chi tiết hiển thị đầy đủ thông tin phiên khám cũ bao gồm danh sách thuốc đã kê.
+    - Bác sĩ nhấn **"Sử dụng lại toa thuốc"** -> Dữ liệu thuốc và lời dặn được lưu vào `localStorage` -> Hệ thống tự động quay lại trang khám bệnh.
+    - Trang khám bệnh khi load phát hiện dữ liệu trong `localStorage`, tự động điền vào form kê đơn và cuộn xuống phần kê đơn.
+5. Nhập triệu chứng, chẩn đoán và lưu (`ConsultationController@update`).
+6. Kết thúc khám: Phiên khám chuyển trạng thái sang "Chờ thanh toán" (`WAIT_PAYMENT`).
 
 ### C. Luồng Thanh toán & Hoàn thành
 1. Thu ngân tra cứu phiên khám/bệnh nhân (`InvoiceController@lookup`).
@@ -102,6 +110,16 @@ qlpk/
     - `DB_DATABASE=qlpk`
     - `APP_KEY`: Khóa bảo mật Laravel.
     - `VITE_*`: Các biến cấu hình cho frontend build.
+
+# 9. Lưu ý Kỹ thuật & Các lỗi thường gặp (Troubleshooting)
+
+- **Định dạng Ngày tháng:** Luôn đảm bảo các trường ngày tháng (`consultation_date`, `prescribed_at`, `invoice_date`) được khai báo trong thuộc tính `$casts` của Model là `datetime` hoặc `date`.
+- **Lỗi format() trên String:** Khi hiển thị ngày tháng ở View, nếu không chắc chắn Model đã cast dữ liệu, hãy sử dụng `\Carbon\Carbon::parse($date)->format(...)` để tránh lỗi "Call to a member function format() on string".
+- **Xem lịch sử & Tái sử dụng (Reuse):** Hệ thống hỗ trợ xem lịch sử trong cùng tab (điều hướng chuẩn) để đảm bảo trải nghiệm liền mạch. Khi bác sĩ chọn "Sử dụng lại", dữ liệu được lưu tạm vào `localStorage` và tự động điền vào form khi quay lại trang khám.
+    - View liên quan: `doctor/examine.blade.php` (trang chính), `consultations/show.blade.php?reuse_mode=1` (trang chi tiết).
+    - Dữ liệu lưu: `localStorage['reuse_prescription_data']` gồm `medicines[]`, `advice`, `timestamp`.
+    - Dữ liệu tự xóa sau khi được áp dụng hoặc sau 5 phút nếu không được dùng đến.
+- **Tích hợp Select2:** Hệ thống sử dụng Select2 AJAX cho việc tìm kiếm Mã bệnh (ICD-10) và Thuốc để tối ưu hiệu năng khi danh mục lớn.
 
 ---
 *Ghi chú: Luôn kiểm tra `routes/web.php` để nắm bắt các URL mới và `app/Models` để cập nhật các thay đổi về schema.*
