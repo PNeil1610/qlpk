@@ -12,7 +12,7 @@ use App\Http\Controllers\Doctor\ExaminationController;
 |
 */
 
-Route::middleware(['auth', 'role:DOCTOR,SUPERADMIN'])->group(function () {
+Route::middleware(['auth', 'role:DOCTOR,ADMIN'])->group(function () {
 
     // Danh sách ca khám của bác sĩ
     Route::get('/consultations/doctor/my-consultations', [ExaminationController::class, 'index'])
