@@ -12,7 +12,7 @@ use App\Http\Controllers\Cashier\InvoiceController;
 |
 */
 
-Route::middleware(['auth', 'role:SUPERADMIN,CASHIER'])->group(function () {
+Route::middleware(['auth', 'role:ADMIN,CASHIER'])->group(function () {
 
     Route::prefix('invoices')->name('invoices.')->group(function () {
         Route::get('/', [InvoiceController::class, 'index'])->name('index');
