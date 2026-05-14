@@ -19,14 +19,14 @@ use App\Http\Controllers\Admin\PrescriptionController;
 |--------------------------------------------------------------------------
 |
 | Các route quản trị hệ thống: CRUD bệnh nhân, phiên khám, thuốc,
-| nhân sự, phòng ban, v.v. Chỉ dành cho SUPERADMIN và RECEPTIONIST.
+| nhân sự, phòng ban, v.v. Chỉ dành cho ADMIN và RECEPTIONIST.
 |
 */
 
 Route::middleware(['auth'])->group(function () {
 
-    // ===== SUPERADMIN & RECEPTIONIST =====
-    Route::middleware(['role:SUPERADMIN,RECEPTIONIST'])->group(function () {
+    // ===== ADMIN & RECEPTIONIST =====
+    Route::middleware(['role:ADMIN,RECEPTIONIST'])->group(function () {
         // Bệnh nhân
         Route::prefix('patients')->name('patients.')->group(function () {
             Route::get('/search', [PatientController::class, 'search'])->name('search');
@@ -67,8 +67,8 @@ Route::middleware(['auth'])->group(function () {
             });
     });
 
-    // ===== SUPERADMIN ONLY =====
-    Route::middleware(['role:SUPERADMIN'])->group(function () {
+    // ===== ADMIN ONLY =====
+    Route::middleware(['role:ADMIN'])->group(function () {
         // Mã bệnh
         Route::prefix('diagnoses')->name('diagnoses.')->group(function () {
             Route::get('/', [DiagnosisController::class, 'index'])->name('index');
@@ -152,8 +152,8 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
-    // ===== SUPERADMIN & DOCTOR =====
-    Route::middleware(['role:SUPERADMIN,DOCTOR'])->group(function () {
+    // ===== ADMIN & DOCTOR =====
+    Route::middleware(['role:ADMIN,DOCTOR'])->group(function () {
         // Đơn thuốc
         Route::prefix('prescriptions')->name('prescriptions.')->group(function () {
             Route::get('/', [PrescriptionController::class, 'index'])->name('index');
