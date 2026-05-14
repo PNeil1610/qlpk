@@ -57,16 +57,21 @@ qlpk/
 │   ├── views/              # Giao diện Blade (Doctor dashboard, Billing, Admin).
 │   └── js/css/             # Assets quản lý bởi Vite.
 ├── routes/
-│   └── web.php             # Khai báo toàn bộ luồng URL và gán Controller/Middleware.
+│   ├── web.php             # Các route chung (Auth, Home, Profile).
+│   ├── admin.php           # Quản trị (CRUD) cho ADMIN và RECEPTIONIST.
+│   ├── doctor.php          # Nghiệp vụ khám bệnh của DOCTOR.
+│   ├── cashier.php         # Nghiệp vụ thanh toán của CASHIER.
+│   └── patient.php         # Tự phục vụ cho PATIENT.
 └── docker-compose.yml      # Cấu hình các dịch vụ Docker (Sail).
 ```
 
 # 6. Breakdown Code Cốt Lõi (Core File Analysis)
 
 - **app/Models/User.php:** Quản lý Auth và RBAC (hàm `hasRole`, `hasPermission`).
-- **app/Http/Controllers/ConsultationController.php:** 
-    - `doctorConsultations()`: Lọc bệnh nhân theo `room_id` của bác sĩ đang login.
-    - `examineConsultation()`: Logic tích hợp cho phép bác sĩ vừa xem bệnh án vừa kê đơn thuốc trên cùng một view. Hiển thị lịch sử khám cũ của bệnh nhân ở cột trái, trong đó có thể nhấn "Xem" để chuyển sang trang chi tiết phiên khám đó (cùng tab). Tại trang chi tiết, bác sĩ có thể xem lại danh sách thuốc đã kê và nhấn **"Sử dụng lại toa thuốc"** để sao chép toàn bộ danh sách thuốc + lời dặn vào phiên khám hiện tại đang mở.
+- **app/Http/Controllers/Admin/ConsultationController.php:** Quản lý phiên khám (CRUD) cho Admin.
+- **app/Http/Controllers/Doctor/ExaminationController.php:** 
+    - `index()`: Lọc bệnh nhân theo `room_id` của bác sĩ đang login.
+    - `examine()`: Logic tích hợp cho phép bác sĩ vừa xem bệnh án vừa kê đơn thuốc trên cùng một view. Hiển thị lịch sử khám cũ của bệnh nhân ở cột trái, trong đó có thể nhấn "Xem" để chuyển sang trang chi tiết phiên khám đó (cùng tab). Tại trang chi tiết, bác sĩ có thể xem lại danh sách thuốc đã kê và nhấn **"Sử dụng lại toa thuốc"** để sao chép toàn bộ danh sách thuốc + lời dặn vào phiên khám hiện tại đang mở.
 - **app/Http/Controllers/InvoiceController.php:** 
     - `lookup()`: Logic tra cứu đa năng (theo mã bệnh nhân, mã phiên khám hoặc SĐT).
     - `store()`: Tự động tính toán phí khám và phí thuốc dựa trên dữ liệu từ `Consultation`.
@@ -87,7 +92,7 @@ qlpk/
     - **Cột phải:** Form kết luận chuyên môn + Form kê đơn thuốc mới.
 4. **Xem lịch sử & Sử dụng lại toa thuốc:**
     - Ở cột lịch sử, hệ thống chỉ hiển thị **các phiên khám đã hoàn thành** của bệnh nhân đó. Bác sĩ nhấn "Xem" tại một phiên khám cũ -> Hệ thống chuyển trang sang `consultations/show.blade.php` (cùng tab) với tham số `?reuse_mode=1`.
-    - Trang chi tiết hiển thị đầy đủ thông tin phiên khám cũ bao gồm danh sách thuốc đã kê.
+    - Trang chi tiết hiển thị đầy đủ thông tin phiên khám cũ bao gồm danh sách thuốc đã kê, chẩn đoán và tên bác sĩ thực hiện để cung cấp ngữ cảnh rõ ràng.
     - Bác sĩ nhấn **"Sử dụng lại toa thuốc"** -> Dữ liệu thuốc và lời dặn được lưu vào `localStorage` -> Hệ thống tự động quay lại trang khám bệnh.
     - Trang khám bệnh khi load phát hiện dữ liệu trong `localStorage`, tự động điền vào form kê đơn và cuộn xuống phần kê đơn.
 5. Nhập triệu chứng, chẩn đoán và lưu (`ConsultationController@update`).
@@ -115,6 +120,7 @@ qlpk/
 
 - **Định dạng Ngày tháng:** Luôn đảm bảo các trường ngày tháng (`consultation_date`, `prescribed_at`, `invoice_date`) được khai báo trong thuộc tính `$casts` của Model là `datetime` hoặc `date`.
 - **Lỗi format() trên String:** Khi hiển thị ngày tháng ở View, nếu không chắc chắn Model đã cast dữ liệu, hãy sử dụng `\Carbon\Carbon::parse($date)->format(...)` để tránh lỗi "Call to a member function format() on string".
+- **Routing Domain-driven:** Routing đã được tách thành `web.php` (chung), `admin.php`, `doctor.php`, `cashier.php`, và `patient.php` để dễ bảo trì và áp dụng middleware riêng theo vai trò, giải quyết lỗi liên quan đến phân quyền.
 - **Xem lịch sử & Tái sử dụng (Reuse):** Hệ thống hỗ trợ xem lịch sử trong cùng tab (điều hướng chuẩn) để đảm bảo trải nghiệm liền mạch. Khi bác sĩ chọn "Sử dụng lại", dữ liệu được lưu tạm vào `localStorage` và tự động điền vào form khi quay lại trang khám.
     - View liên quan: `doctor/examine.blade.php` (trang chính), `consultations/show.blade.php?reuse_mode=1` (trang chi tiết).
     - Dữ liệu lưu: `localStorage['reuse_prescription_data']` gồm `medicines[]`, `advice`, `timestamp`.
