@@ -99,9 +99,15 @@
                     <a href="{{ route('consultations.show', $c->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
                         <i class="fas fa-eye me-1"></i> Xem
                     </a>
-                    <a href="{{ route('consultations.edit', $c->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
-                        <i class="fas fa-edit me-1"></i> Sửa
-                    </a>
+                    @if($c->rooms->isEmpty())
+                        <a href="{{ route('consultations.edit', $c->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Thêm phòng">
+                            <i class="fas fa-plus-circle me-1"></i> Thêm phòng
+                        </a>
+                    @else
+                        <a href="{{ route('consultations.edit', $c->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
+                            <i class="fas fa-edit me-1"></i> Sửa
+                        </a>
+                    @endif
                     <form action="{{ route('consultations.destroy', $c->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa không?');">
                         @csrf
                         @method('DELETE')
@@ -196,8 +202,15 @@ $(document).ready(function () {
                         }
 
                         let roomNames = '--';
+                        let editBtnHtml = `<a href="/consultations/${c.id}/edit" class="btn btn-sm btn-primary shadow-sm" title="Thêm phòng">
+                                                <i class="fas fa-plus-circle me-1"></i> Thêm phòng
+                                           </a>`;
+                        
                         if (c.rooms && c.rooms.length > 0) {
                             roomNames = c.rooms.map(r => r.room_name).join(', ');
+                            editBtnHtml = `<a href="/consultations/${c.id}/edit" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
+                                                <i class="fas fa-edit me-1"></i> Sửa
+                                           </a>`;
                         }
 
                         html += `
@@ -216,9 +229,7 @@ $(document).ready(function () {
                                         <a href="/consultations/${c.id}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
                                             <i class="fas fa-eye me-1"></i> Xem
                                         </a>
-                                        <a href="/consultations/${c.id}/edit" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
-                                            <i class="fas fa-edit me-1"></i> Sửa
-                                        </a>
+                                        ${editBtnHtml}
                                         <form action="/consultations/${c.id}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa không?');">
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                             <input type="hidden" name="_method" value="DELETE">

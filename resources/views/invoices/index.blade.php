@@ -78,13 +78,13 @@
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body py-3">
             <div class="row g-3 align-items-end">
-                <div class="col-md-5">
+                <div class="col-md-8">
                     <label class="form-label fw-semibold small text-muted">Tìm kiếm hóa đơn</label>
                     <input type="text" id="search-keyword" class="form-control"
                         placeholder="Mã hóa đơn, tên bệnh nhân, mã BN..."
                         value="{{ request('keyword') }}">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="form-label fw-semibold small text-muted">Trạng thái</label>
                     <select id="search-status" class="form-select">
                         <option value="">-- Tất cả --</option>
@@ -92,11 +92,6 @@
                         <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Đã thanh toán</option>
                         <option value="2" {{ request('status') === '2' ? 'selected' : '' }}>Đã hủy</option>
                     </select>
-                </div>
-                <div class="col-md-2">
-                    <button id="btn-search" class="btn btn-primary w-100">
-                        <i class="fas fa-search me-1"></i> Tìm
-                    </button>
                 </div>
             </div>
         </div>
@@ -168,27 +163,93 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    $('#btn-search').on('click', function() {
+    let searchTimeout;
+
+    function loadInvoices() {
         let keyword = $('#search-keyword').val();
         let status = $('#search-status').val();
-        let url = '{{ route("invoices.index") }}';
-        let params = [];
 
-        if (keyword) params.push('keyword=' + encodeURIComponent(keyword));
-        if (status !== '') params.push('status=' + status);
+        $.ajax({
+            url: '{{ route("invoices.ajax.search") }}',
+            type: 'GET',
+            data: { keyword: keyword, status: status },
+            success: function(response) {
+                let tbody = $('#invoice-table-body');
+                tbody.empty();
 
-        if (params.length > 0) {
-            url += '?' + params.join('&');
-        }
+                if (response.length === 0) {
+                    tbody.append(`
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                Chưa có hóa đơn nào trên hệ thống.
+                            </td>
+                        </tr>
+                    `);
+                    return;
+                }
 
-        window.location.href = url;
+                $.each(response, function(index, item) {
+                    let dateStr = '---';
+                    if (item.invoice_date) {
+                        let d = new Date(item.invoice_date);
+                        let day = ('0' + d.getDate()).slice(-2);
+                        let month = ('0' + (d.getMonth() + 1)).slice(-2);
+                        let year = d.getFullYear();
+                        let hours = ('0' + d.getHours()).slice(-2);
+                        let minutes = ('0' + d.getMinutes()).slice(-2);
+                        dateStr = `${day}/${month}/${year} ${hours}:${minutes}`;
+                    }
+
+                    let patientName = item.consultation && item.consultation.patient ? item.consultation.patient.full_name : 'Không rõ';
+                    let patientCode = item.consultation && item.consultation.patient ? item.consultation.patient.patient_code : '';
+
+                    let amountStr = new Intl.NumberFormat('vi-VN').format(item.total_amount) + ' đ';
+
+                    let statusHtml = '';
+                    if (item.status == 0) {
+                        statusHtml = '<span class="badge bg-warning text-dark">Chờ thanh toán</span>';
+                    } else if (item.status == 1) {
+                        statusHtml = '<span class="badge bg-success">Đã thanh toán</span>';
+                    } else if (item.status == 2) {
+                        statusHtml = '<span class="badge bg-danger">Đã hủy</span>';
+                    }
+
+                    let showUrl = '{{ route("invoices.show", ":id") }}'.replace(':id', item.id);
+
+                    let row = `
+                        <tr>
+                            <td class="ps-4 fw-bold text-secondary">${item.invoice_code}</td>
+                            <td>${dateStr}</td>
+                            <td>
+                                <span class="fw-bold text-dark">${patientName}</span>
+                                <div class="small text-muted">${patientCode}</div>
+                            </td>
+                            <td class="text-end fw-bold text-danger fs-6">${amountStr}</td>
+                            <td class="text-center">${statusHtml}</td>
+                            <td class="text-center">
+                                <a href="${showUrl}" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i> Xem
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(row);
+                });
+            },
+            error: function(err) {
+                console.error("Lỗi khi tìm kiếm AJAX", err);
+            }
+        });
+    }
+
+    $('#search-keyword').on('keyup', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(loadInvoices, 300); // 300ms debounce
     });
 
-    // Enter key search
-    $('#search-keyword').on('keypress', function(e) {
-        if (e.which === 13) {
-            $('#btn-search').click();
-        }
+    $('#search-status').on('change', function() {
+        loadInvoices();
     });
 });
 </script>
