@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\MedicineCategoryController;
 use App\Http\Controllers\Admin\MedicineController;
 use App\Http\Controllers\Admin\PrescriptionController;
+use App\Http\Controllers\Admin\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -148,6 +149,19 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/details/{detail_id}/edit', [MedicineController::class, 'editDetail'])->name('details.edit');
             Route::put('/details/{detail_id}', [MedicineController::class, 'updateDetail'])->name('details.update');
             Route::delete('/details/{detail_id}', [MedicineController::class, 'destroyDetail'])->name('details.destroy');
+        });
+
+        // Quản lý tài khoản người dùng
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/ajax/search', [UserController::class, 'ajaxSearch'])->name('ajax.search');
+            Route::get('/', [UserController::class, 'index'])->name('index');
+            Route::get('/create', [UserController::class, 'create'])->name('create');
+            Route::post('/', [UserController::class, 'store'])->name('store');
+            Route::get('/{id}', [UserController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [UserController::class, 'update'])->name('update');
+            Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+            Route::post('/{id}/reset-password', [UserController::class, 'resetPassword'])->name('reset_password');
         });
     });
 

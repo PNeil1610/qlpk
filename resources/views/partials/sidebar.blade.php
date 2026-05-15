@@ -43,6 +43,7 @@
     {{-- ===== ADMIN: Quản lý nhân sự ===== --}}
     @if(auth()->check() && auth()->user()->hasRole('ADMIN'))
         <a href="{{ route('staff.index') }}">👩‍⚕️ Nhân viên</a>
+        <a href="{{ route('users.index') }}">🔑 Quản lý tài khoản</a>
     @endif
 
     {{-- ===== ADMIN: Danh mục hệ thống ===== --}}

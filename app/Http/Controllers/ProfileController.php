@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
@@ -51,5 +52,37 @@ class ProfileController extends Controller
         }
 
         return back()->with('success', 'Thông tin cá nhân đã được cập nhật thành công!');
+    }
+
+    public function changePassword()
+    {
+        $user = Auth::user();
+        return view('auth.change_password', compact('user'));
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'current_password' => 'required',
+            'new_password'     => 'required|string|min:6|confirmed',
+        ], [
+            'current_password.required' => 'Vui lòng nhập mật khẩu hiện tại.',
+            'new_password.required'     => 'Vui lòng nhập mật khẩu mới.',
+            'new_password.min'          => 'Mật khẩu mới phải có ít nhất 6 ký tự.',
+            'new_password.confirmed'    => 'Xác nhận mật khẩu không khớp.',
+        ]);
+
+        // Kiểm tra mật khẩu hiện tại
+        if (!Hash::check($request->current_password, $user->password_hash)) {
+            return back()->withErrors(['current_password' => 'Mật khẩu hiện tại không đúng.'])->withInput();
+        }
+
+        $user->password_hash = Hash::make($request->new_password);
+        $user->save();
+
+        return redirect()->route('profile')
+            ->with('success', 'Đổi mật khẩu thành công! Hãy đăng nhập lại nếu cần.');
     }
 }
