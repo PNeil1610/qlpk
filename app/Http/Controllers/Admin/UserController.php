@@ -69,8 +69,8 @@ class UserController extends Controller
 
             return redirect()
                 ->route('users.index')
-                ->with('success', "Tạo tài khoản <strong>{$user->username}</strong> thành công!")
-                ->with('temp_password_info', "Mật khẩu tạm thời: <strong>{$request->temp_password}</strong>. Hãy thông báo cho người dùng để họ đổi mật khẩu ngay.");
+                ->with('success', "Tạo tài khoản {$user->username} thành công!")
+                ->with('temp_password_info', "Mật khẩu tạm thời: {$request->temp_password}. Hãy thông báo cho người dùng để họ đổi mật khẩu ngay.");
         });
     }
 
