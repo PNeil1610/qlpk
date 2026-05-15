@@ -13,7 +13,6 @@ use App\Http\Controllers\Cashier\InvoiceController;
 */
 
 Route::middleware(['auth', 'role:ADMIN,CASHIER'])->group(function () {
-
     Route::prefix('invoices')->name('invoices.')->group(function () {
         Route::get('/', [InvoiceController::class, 'index'])->name('index');
         Route::get('/ajax/search', [InvoiceController::class, 'ajaxSearch'])->name('ajax.search');
@@ -23,5 +22,4 @@ Route::middleware(['auth', 'role:ADMIN,CASHIER'])->group(function () {
         Route::get('/{id}/show', [InvoiceController::class, 'show'])->name('show');
         Route::put('/{id}/pay', [InvoiceController::class, 'pay'])->name('pay');
     });
-
 });
