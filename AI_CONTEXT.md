@@ -89,7 +89,7 @@ qlpk/
 2. Chọn bệnh nhân đang chờ -> Vào giao diện Khám bệnh (`doctor/examine.blade.php`).
 3. Giao diện chia 2 cột:
     - **Cột trái:** Thông tin hành chính + Toa thuốc hiện tại đã kê + **Lịch sử khám bệnh** (danh sách phiên cũ của BN).
-    - **Cột phải:** Form kết luận chuyên môn + Form kê đơn thuốc mới.
+    - **Cột phải:** Form kết luận chuyên môn + Form kê đơn thuốc mới. (Kê đơn: Bác sĩ nhập liều dùng theo "số lượng/lần", "số lần/ngày" và "số ngày uống", hệ thống sẽ tự động tính toán ra tổng số lượng thuốc).
 4. **Xem lịch sử & Sử dụng lại toa thuốc:**
     - Ở cột lịch sử, hệ thống chỉ hiển thị **các phiên khám đã hoàn thành** của bệnh nhân đó. Bác sĩ nhấn "Xem" tại một phiên khám cũ -> Hệ thống chuyển trang sang `consultations/show.blade.php` (cùng tab) với tham số `?reuse_mode=1`.
     - Trang chi tiết hiển thị đầy đủ thông tin phiên khám cũ bao gồm danh sách thuốc đã kê, chẩn đoán và tên bác sĩ thực hiện để cung cấp ngữ cảnh rõ ràng.

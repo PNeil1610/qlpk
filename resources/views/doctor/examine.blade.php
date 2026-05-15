@@ -260,12 +260,13 @@
                                     <table class="table table-hover table-bordered mb-3 align-middle" style="min-width: 700px;">
                                         <thead class="table-light">
                                             <tr>
-                                                <th style="width:28%">Tên Thuốc *</th>
-                                                <th style="width:8%">SL *</th>
-                                                <th style="width:10%">Đơn vị</th>
-                                                <th style="width:18%">Liều dùng *</th>
-                                                <th style="width:20%">Cách dùng</th>
-                                                <th style="width:8%">Số ngày</th>
+                                                <th style="width:25%">Tên Thuốc *</th>
+                                                <th style="width:8%">Đơn vị</th>
+                                                <th style="width:10%">SL/lần *</th>
+                                                <th style="width:10%">Lần/ngày *</th>
+                                                <th style="width:10%">Số ngày *</th>
+                                                <th style="width:10%">Tổng SL *</th>
+                                                <th style="width:19%">Cách dùng</th>
                                                 <th style="width:8%" class="text-center">Xóa</th>
                                             </tr>
                                         </thead>
@@ -283,21 +284,16 @@
                                                         @endforeach
                                                     </select>
                                                 </td>
-                                                <td><input type="number" name="quantities[]"
-                                                        class="form-control form-control-sm" min="1" placeholder="0" required>
+                                                <td><input type="text" name="units[]" class="form-control form-control-sm unit-input" readonly placeholder="---"></td>
+                                                <td><input type="number" class="form-control form-control-sm qty-per-time" min="0.1" step="0.1" placeholder="Vd: 1" required></td>
+                                                <td><input type="number" class="form-control form-control-sm times-per-day" min="1" step="1" placeholder="Vd: 2" required></td>
+                                                <td><input type="number" name="duration_days[]" class="form-control form-control-sm duration-days" min="1" step="1" placeholder="Vd: 5" required></td>
+                                                <td>
+                                                    <input type="number" name="quantities[]" class="form-control form-control-sm total-quantity" readonly required>
+                                                    <input type="hidden" name="dosages[]" class="dosage-input">
                                                 </td>
-                                                <td><input type="text" name="units[]"
-                                                        class="form-control form-control-sm unit-input" readonly
-                                                        placeholder="---"></td>
-                                                <td><input type="text" name="dosages[]" class="form-control form-control-sm"
-                                                        placeholder="1 viên/lần" required></td>
-                                                <td><input type="text" name="usage_instructions[]"
-                                                        class="form-control form-control-sm" placeholder="Sau ăn"></td>
-                                                <td><input type="number" name="duration_days[]"
-                                                        class="form-control form-control-sm" min="1" placeholder="Ngày"></td>
-                                                <td class="text-center"><button type="button"
-                                                        class="btn btn-sm btn-danger remove-row" disabled><i
-                                                            class="fas fa-times"></i></button></td>
+                                                <td><input type="text" name="usage_instructions[]" class="form-control form-control-sm" placeholder="Sau ăn"></td>
+                                                <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-row" disabled><i class="fas fa-times"></i></button></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -390,6 +386,30 @@
                     const unit = selectedOption.getAttribute('data-unit');
                     const unitInput = e.target.closest('tr').querySelector('.unit-input');
                     unitInput.value = unit || '';
+                    unitInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            });
+
+            // Tự động tính toán tổng số lượng thuốc
+            tableBody.addEventListener('input', function (e) {
+                if (e.target.classList.contains('qty-per-time') || 
+                    e.target.classList.contains('times-per-day') || 
+                    e.target.classList.contains('duration-days') ||
+                    e.target.classList.contains('unit-input')) {
+                    
+                    const row = e.target.closest('tr');
+                    const qtyPerTime = parseFloat(row.querySelector('.qty-per-time').value) || 0;
+                    const timesPerDay = parseFloat(row.querySelector('.times-per-day').value) || 0;
+                    const durationDays = parseFloat(row.querySelector('.duration-days').value) || 0;
+                    const unit = row.querySelector('.unit-input').value || 'viên';
+
+                    if (qtyPerTime > 0 && timesPerDay > 0 && durationDays > 0) {
+                        const total = Math.ceil(qtyPerTime * timesPerDay * durationDays);
+                        row.querySelector('.total-quantity').value = total;
+                        row.querySelector('.dosage-input').value = `${qtyPerTime} ${unit}/lần, ${timesPerDay} lần/ngày`;
+                    } else {
+                        row.querySelector('.total-quantity').value = '';
+                    }
                 }
             });
 
@@ -462,11 +482,15 @@
                                 @endforeach
                             </select>
                         </td>
-                        <td><input type="number" name="quantities[]" class="form-control form-control-sm" min="1" value="${med.quantity}" required></td>
                         <td><input type="text" name="units[]" class="form-control form-control-sm unit-input" readonly value="${med.unit || ''}"></td>
-                        <td><input type="text" name="dosages[]" class="form-control form-control-sm" value="${med.dosage}" required></td>
+                        <td><input type="number" class="form-control form-control-sm qty-per-time" min="0.1" step="0.1" placeholder="Vd: 1" required></td>
+                        <td><input type="number" class="form-control form-control-sm times-per-day" min="1" step="1" placeholder="Vd: 2" required></td>
+                        <td><input type="number" name="duration_days[]" class="form-control form-control-sm duration-days" min="1" step="1" value="${med.duration_days || ''}" required></td>
+                        <td>
+                            <input type="number" name="quantities[]" class="form-control form-control-sm total-quantity" value="${med.quantity}" readonly required>
+                            <input type="hidden" name="dosages[]" class="dosage-input" value="${med.dosage}">
+                        </td>
                         <td><input type="text" name="usage_instructions[]" class="form-control form-control-sm" value="${med.usage_instructions || ''}"></td>
-                        <td><input type="number" name="duration_days[]" class="form-control form-control-sm" min="1" value="${med.duration_days || ''}"></td>
                         <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-row"><i class="fas fa-times"></i></button></td>
                     `;
                     tableBody.appendChild(newRow);
