@@ -9,6 +9,7 @@ use App\Models\InvoiceDetail;
 use App\Models\Consultation;
 use App\Models\Prescription;
 use App\Models\MedicineDetail;
+use App\Models\SystemSetting;
 use Illuminate\Support\Facades\DB;
 
 class InvoiceController extends Controller
@@ -311,7 +312,9 @@ class InvoiceController extends Controller
             'cashier'
         ])->findOrFail($id);
 
-        return view('invoices.show', compact('invoice'));
+        $clinicSetting = SystemSetting::active();
+
+        return view('invoices.show', compact('invoice', 'clinicSetting'));
     }
 
     /**
