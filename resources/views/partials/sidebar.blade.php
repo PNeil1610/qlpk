@@ -63,6 +63,14 @@
         <a href="{{ route('invoices.index') }}">💰 Hóa đơn</a>
     @endif
 
+    {{-- ===== TẤT CẢ (trừ PATIENT): Thông báo ===== --}}
+    @if(auth()->check() && !auth()->user()->hasRole('PATIENT'))
+        <a href="{{ route('notifications.index') }}" id="sidebar-notif-link" class="d-flex justify-content-between align-items-center">
+            <span>🔔 Thông báo</span>
+            <span class="badge bg-danger rounded-pill" id="notif-badge" style="display:none; font-size:0.7rem;"></span>
+        </a>
+    @endif
+
     {{-- ===== PATIENT: Hồ sơ bệnh án ===== --}}
     @if(auth()->check() && auth()->user()->hasRole('PATIENT'))
         <a href="{{ route('patients.my_record') }}">📋 Hồ sơ bệnh án</a>
@@ -80,3 +88,31 @@
         </div>
     </div>
 </div>
+
+@if(auth()->check() && !auth()->user()->hasRole('PATIENT'))
+<script>
+function refreshNotifBadge() {
+    $.getJSON('{{ route('notifications.ajax.unread') }}', function(data) {
+        var count = data.count || 0;
+        var badge = document.getElementById('notif-badge');
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    }).fail(function() {
+        // Silently ignore
+    });
+}
+// Gọi ngay khi load
+if (typeof $ !== 'undefined') {
+    $(document).ready(function() {
+        refreshNotifBadge();
+        setInterval(refreshNotifBadge, 60000); // Polling mỗi 60 giây
+    });
+}
+</script>
+@endif
