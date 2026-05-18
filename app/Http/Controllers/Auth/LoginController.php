@@ -69,4 +69,12 @@ class LoginController extends Controller
             $request->boolean('remember')
         );
     }
+
+    /**
+     * Sau khi đăng xuất, chuyển hướng về trang đăng nhập
+     */
+    protected function loggedOut(Request $request)
+    {
+        return redirect('/login');
+    }
 }

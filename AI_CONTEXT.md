@@ -68,6 +68,7 @@ qlpk/
 
 # 6. Breakdown Code Cốt Lõi (Core File Analysis)
 
+- **resources/views/auth/login.blade.php:** Giao diện đăng nhập được thiết kế lại độc lập với layout chính, mang phong cách hiện đại, trực quan và tối ưu cho UI/UX hệ thống phòng khám.
 - **app/Models/User.php:** Quản lý Auth và RBAC (hàm `hasRole`, `hasPermission`).
 - **app/Http/Controllers/Admin/ConsultationController.php:** Quản lý phiên khám (CRUD) cho Admin.
 - **app/Http/Controllers/Doctor/ExaminationController.php:** 
