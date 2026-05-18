@@ -8,6 +8,7 @@ use App\Models\Prescription;
 use App\Models\PrescriptionDetail;
 use App\Models\Medicine;
 use App\Models\Consultation;
+use App\Models\SystemSetting;
 use Illuminate\Support\Facades\DB;
 
 class PrescriptionController extends Controller
@@ -139,12 +140,16 @@ class PrescriptionController extends Controller
     public function show($id)
     {
         $prescription = Prescription::with([
-            'consultation.patient', 
-            'details.medicine', 
-            'dispenser'
+            'consultation.patient',
+            'consultation.doctor',
+            'details.medicine',
+            'dispenser',
+            'prescriber',
         ])->findOrFail($id);
 
-        return view('prescriptions.show', compact('prescription'));
+        $setting = SystemSetting::active();
+
+        return view('prescriptions.show', compact('prescription', 'setting'));
     }
 
     public function destroy($id)
