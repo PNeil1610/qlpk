@@ -46,6 +46,7 @@ class PrescriptionTemplateController extends Controller
         $request->validate([
             'template_name' => 'required|string|max:150',
             'disease_name' => 'nullable|string|max:150',
+            'diagnosis_code' => 'nullable|string|max:20',
             'description' => 'nullable|string',
             'medicines' => 'required|array|min:1',
             'medicines.*' => 'required|exists:medicine,id',
@@ -63,6 +64,7 @@ class PrescriptionTemplateController extends Controller
             $template = PrescriptionTemplate::create([
                 'template_name' => $request->template_name,
                 'disease_name' => $request->disease_name,
+                'diagnosis_code' => $request->diagnosis_code,
                 'doctor_id' => $doctorId,
                 'description' => $request->description,
                 'status' => 1,
@@ -113,6 +115,7 @@ class PrescriptionTemplateController extends Controller
         $request->validate([
             'template_name' => 'required|string|max:150',
             'disease_name' => 'nullable|string|max:150',
+            'diagnosis_code' => 'nullable|string|max:20',
             'description' => 'nullable|string',
             'medicines' => 'required|array|min:1',
             'medicines.*' => 'required|exists:medicine,id',
@@ -124,6 +127,7 @@ class PrescriptionTemplateController extends Controller
             $template->update([
                 'template_name' => $request->template_name,
                 'disease_name' => $request->disease_name,
+                'diagnosis_code' => $request->diagnosis_code,
                 'description' => $request->description,
             ]);
 

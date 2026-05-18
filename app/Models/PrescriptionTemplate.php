@@ -14,6 +14,7 @@ class PrescriptionTemplate extends Model
     protected $fillable = [
         'template_name',
         'disease_name',
+        'diagnosis_code',
         'doctor_id',
         'description',
         'status',
@@ -22,6 +23,11 @@ class PrescriptionTemplate extends Model
     public function doctor()
     {
         return $this->belongsTo(Staff::class, 'doctor_id', 'id');
+    }
+
+    public function diagnosis()
+    {
+        return $this->belongsTo(Diagnosis::class, 'diagnosis_code', 'diagnosis_code');
     }
 
     public function details()

@@ -563,6 +563,21 @@
                         <td><input type="text" name="usage_instructions[]" class="form-control form-control-sm" value="${med.usage_instructions || ''}"></td>
                         <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-row"><i class="fas fa-times"></i></button></td>
                     `;
+                    
+                    // Thử bóc tách "lần/ngày" và "viên/lần" từ dosage nếu có
+                    if (med.dosage) {
+                        let timesMatch = med.dosage.match(/Ngày\s+(\d+)\s+lần/i);
+                        let doseMatch = med.dosage.match(/mỗi lần\s+([\d.]+)/i);
+                        if(timesMatch) {
+                            let el = newRow.querySelector('.times-per-day');
+                            if (el) el.value = timesMatch[1];
+                        }
+                        if(doseMatch) {
+                            let el = newRow.querySelector('.qty-per-time');
+                            if (el) el.value = doseMatch[1];
+                        }
+                    }
+                    
                     tableBody.appendChild(newRow);
                 });
                 
@@ -575,24 +590,26 @@
 
             // --- TEMPLATE LOGIC ---
             let templateLoaded = false;
+            let currentTemplates = [];
             $('#templateModal').on('show.bs.modal', function () {
                 if (!templateLoaded) {
                     $.ajax({
                         url: '{{ route("doctor.templates.ajax") }}',
                         method: 'GET',
                         success: function(res) {
+                            currentTemplates = res;
                             let html = '';
                             if (res.length === 0) {
                                 html = `<tr><td colspan="4" class="text-center py-4 text-muted">Bạn chưa có toa mẫu nào. <a href="{{ route('doctor.templates.create') }}">Tạo ngay</a></td></tr>`;
                             } else {
-                                res.forEach(t => {
+                                res.forEach((t, index) => {
                                     html += `
-                                    <tr>
+                                    <tr class="template-row">
                                         <td class="ps-3 fw-bold text-primary">${t.template_name}</td>
-                                        <td>${t.disease_name || '--'}</td>
+                                        <td>${t.diagnosis_code ? `<span class="badge bg-success me-1">${t.diagnosis_code}</span>` : ''} ${t.disease_name || '--'}</td>
                                         <td><span class="badge bg-secondary">${t.details.length} thuốc</span></td>
                                         <td class="text-center pe-3">
-                                            <button type="button" class="btn btn-sm btn-success btn-apply-template shadow-sm" data-template='${JSON.stringify(t.details)}'>
+                                            <button type="button" class="btn btn-sm btn-success btn-apply-template shadow-sm" data-index='${index}'>
                                                 <i class="fas fa-check"></i> Chọn
                                             </button>
                                         </td>
@@ -601,6 +618,15 @@
                             }
                             $('#templateListBody').html(html);
                             templateLoaded = true;
+                            
+                            // Initialize search
+                            $('#templateSearchInput').on('input', function() {
+                                let keyword = $(this).val().toLowerCase().trim();
+                                $('#templateListBody tr.template-row').each(function() {
+                                    let text = $(this).text().toLowerCase();
+                                    $(this).toggle(text.includes(keyword));
+                                });
+                            });
                         },
                         error: function() {
                             $('#templateListBody').html(`<tr><td colspan="4" class="text-center py-4 text-danger">Lỗi tải dữ liệu toa mẫu.</td></tr>`);
@@ -610,10 +636,18 @@
             });
 
             $(document).on('click', '.btn-apply-template', function() {
-                let details = $(this).data('template');
-                $('#templateModal').modal('hide');
+                let index = $(this).data('index');
+                let details = currentTemplates[index].details;
                 
                 if (confirm('Áp dụng toa mẫu sẽ ghi đè lên các thuốc hiện tại. Bạn có chắc chắn?')) {
+                    
+                    // Xóa hoàn toàn modal và backdrop để tránh lỗi treo màn hình
+                    $('#templateModal').modal('hide');
+                    setTimeout(() => {
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open').css('overflow', '').css('padding-right', '');
+                    }, 100);
+                    
                     const mappedData = {
                         advice: '',
                         medicines: details.map(d => ({
@@ -648,6 +682,12 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-0">
+                <div class="p-3 bg-light border-bottom">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" id="templateSearchInput" class="form-control border-start-0" placeholder="Tìm kiếm tên toa mẫu, mã bệnh, tên bệnh...">
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-hover mb-0 align-middle" id="templateTable">
                         <thead class="bg-light">

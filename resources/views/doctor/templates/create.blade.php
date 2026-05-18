@@ -37,6 +37,14 @@
                             <input type="text" name="disease_name" class="form-control" placeholder="VD: Viêm họng cấp" value="{{ old('disease_name') }}">
                         </div>
                         <div class="mb-3">
+                            <label class="form-label fw-semibold">Mã bệnh chuẩn (ICD)</label>
+                            <select name="diagnosis_code" id="diagnosis_code" class="form-select" data-placeholder="Nhập mã hoặc tên bệnh...">
+                                @if(old('diagnosis_code'))
+                                    <option value="{{ old('diagnosis_code') }}" selected>{{ old('diagnosis_code') }}</option>
+                                @endif
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label fw-semibold">Mô Tả / Ghi chú</label>
                             <textarea name="description" class="form-control" rows="3" placeholder="Ghi chú thêm về toa thuốc này...">{{ old('description') }}</textarea>
                         </div>
@@ -83,7 +91,7 @@
                                 </div>
                                 <div class="col-md-2 form-group-custom mt-2">
                                     <label>Số ngày <span class="text-danger">*</span></label>
-                                    <input type="number" name="duration_days[]" class="form-control calc-days" min="1" required placeholder="Số ngày">
+                                    <input type="number" name="duration_days[]" class="form-control calc-days" min="1" required placeholder="Số ngày" disabled>
                                 </div>
                                 <div class="col-md-2 form-group-custom mt-2">
                                     <label>Viên/lần</label>
@@ -92,16 +100,16 @@
                                 <div class="col-md-2 form-group-custom mt-2">
                                     <label>Tổng SL <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="number" name="quantities[]" class="form-control calc-total fw-bold text-primary" required min="0.1" step="0.1" readonly>
-                                        <input type="hidden" name="units[]" class="unit-input">
+                                        <input type="number" name="quantities[]" class="form-control calc-total fw-bold text-primary" required min="0.1" step="0.1" readonly disabled>
+                                        <input type="hidden" name="units[]" class="unit-input" disabled>
                                         <span class="input-group-text unit-display" style="font-size: 0.8rem; background: #e9ecef;">Viên</span>
                                     </div>
                                 </div>
                                 <div class="col-md-4 form-group-custom mt-2">
                                     <label>Ghi chú (Cách dùng)</label>
-                                    <input type="text" name="usage_instructions[]" class="form-control usage-input" placeholder="VD: Uống sau ăn">
+                                    <input type="text" name="usage_instructions[]" class="form-control usage-input" placeholder="VD: Uống sau ăn" disabled>
                                 </div>
-                                <input type="hidden" name="dosages[]" class="dosage-input">
+                                <input type="hidden" name="dosages[]" class="dosage-input" disabled>
                             </div>
                         </div>
                         
@@ -126,6 +134,42 @@ $(document).ready(function() {
     
     let lastDays = '';
     let lastTimes = '';
+
+    $('#diagnosis_code').select2({
+        theme: 'bootstrap-5',
+        width: '100%',
+        placeholder: 'Nhập mã hoặc tên bệnh...',
+        allowClear: true,
+        ajax: {
+            url: "{{ route('diagnoses.ajax.search') }}",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) { return { keyword: params.term }; },
+            processResults: function (data) {
+                return {
+                    results: data.map(item => ({
+                        id: item.diagnosis_code,
+                        text: item.diagnosis_code + ' - ' + item.diagnosis_name,
+                        code: item.diagnosis_code,
+                        name: item.diagnosis_name
+                    }))
+                };
+            }
+        },
+        templateResult: function (item) {
+            if (item.loading) return item.text;
+            let code = item.code || item.id;
+            let name = item.name;
+            if (!name && item.text && item.text.includes(' - ')) {
+                name = item.text.split(' - ').slice(1).join(' - ');
+            }
+            if (!code) return item.text;
+            return $(`<div class="d-flex align-items-center border-bottom pb-2 mb-1">
+                <span class="badge bg-success me-3" style="min-width:60px;font-size:0.9em;">${code}</span>
+                <span class="text-dark fw-medium">${name || item.text}</span>
+            </div>`);
+        }
+    });
 
     function initRow($row) {
         let $catSelect = $row.find('.category-select');
@@ -204,6 +248,17 @@ $(document).ready(function() {
 
     function addRow() {
         let $newRow = $template.clone().removeAttr('id').css('display', 'flex');
+        
+        $newRow.find('input[name="duration_days[]"]').prop('disabled', false);
+        $newRow.find('input[name="quantities[]"]').prop('disabled', false);
+        $newRow.find('input[name="units[]"]').prop('disabled', false);
+        $newRow.find('input[name="usage_instructions[]"]').prop('disabled', false);
+        $newRow.find('input[name="dosages[]"]').prop('disabled', false);
+        $newRow.find('.calc-times, .calc-dose').prop('disabled', false);
+
+        if (lastDays) $newRow.find('.calc-days').val(lastDays);
+        if (lastTimes) $newRow.find('.calc-times').val(lastTimes);
+
         $container.append($newRow);
         initRow($newRow);
     }
