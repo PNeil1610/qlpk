@@ -22,110 +22,33 @@ class UserController extends Controller
         return view('users.index', compact('users'));
     }
 
-    public function create()
-    {
-        $roles = Role::where('status', 1)->get();
-        return view('users.create', compact('roles'));
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'username'     => 'required|string|max:100|unique:users,username',
-            'full_name'    => 'required|string|max:150',
-            'email'        => 'nullable|email|max:150|unique:users,email',
-            'phone_number' => 'nullable|string|max:15|unique:users,phone_number',
-            'address'      => 'nullable|string|max:255',
-            'national_id'  => 'nullable|string|max:50|unique:users,national_id',
-            'role_id'      => 'required|exists:roles,id',
-            'temp_password'=> 'required|string|min:6',
-        ], [
-            'username.required'     => 'Tên đăng nhập không được để trống.',
-            'username.unique'       => 'Tên đăng nhập đã tồn tại.',
-            'full_name.required'    => 'Họ và tên không được để trống.',
-            'email.email'           => 'Địa chỉ email không hợp lệ.',
-            'email.unique'          => 'Email đã được sử dụng bởi tài khoản khác.',
-            'phone_number.unique'   => 'Số điện thoại đã được sử dụng bởi tài khoản khác.',
-            'national_id.unique'    => 'Số CCCD/CMND đã tồn tại trên hệ thống.',
-            'role_id.required'      => 'Vui lòng chọn vai trò cho tài khoản.',
-            'role_id.exists'        => 'Vai trò không hợp lệ.',
-            'temp_password.required'=> 'Mật khẩu tạm không được để trống.',
-            'temp_password.min'     => 'Mật khẩu tạm phải có ít nhất 6 ký tự.',
-        ]);
-
-        return DB::transaction(function () use ($request) {
-            $user = User::create([
-                'username'      => $request->username,
-                'full_name'     => $request->full_name,
-                'email'         => $request->email,
-                'phone_number'  => $request->phone_number,
-                'address'       => $request->address,
-                'national_id'   => $request->national_id,
-                'password_hash' => Hash::make($request->temp_password),
-                'status'        => 1,
-            ]);
-
-            $user->roles()->attach($request->role_id, ['status' => 1]);
-
-            return redirect()
-                ->route('users.index')
-                ->with('success', "Tạo tài khoản {$user->username} thành công!")
-                ->with('temp_password_info', "Mật khẩu tạm thời: {$request->temp_password}. Hãy thông báo cho người dùng để họ đổi mật khẩu ngay.");
-        });
-    }
-
     public function show($id)
     {
         $user = User::with('roles')->findOrFail($id);
         return view('users.show', compact('user'));
     }
 
-    public function edit($id)
-    {
-        $user = User::with('roles')->findOrFail($id);
-        $roles = Role::where('status', 1)->get();
-        $userRoleId = $user->roles->first()?->id;
-        return view('users.edit', compact('user', 'roles', 'userRoleId'));
-    }
-
-    public function update(Request $request, $id)
+    public function toggleStatus($id)
     {
         $user = User::findOrFail($id);
 
-        $request->validate([
-            'full_name'    => 'required|string|max:150',
-            'email'        => ['nullable', 'email', 'max:150', Rule::unique('users', 'email')->ignore($user->id)],
-            'phone_number' => ['nullable', 'string', 'max:15', Rule::unique('users', 'phone_number')->ignore($user->id)],
-            'address'      => 'nullable|string|max:255',
-            'national_id'  => ['nullable', 'string', 'max:50', Rule::unique('users', 'national_id')->ignore($user->id)],
-            'status'       => 'required|in:0,1',
-            'role_id'      => 'required|exists:roles,id',
-        ], [
-            'full_name.required'  => 'Họ và tên không được để trống.',
-            'email.email'         => 'Địa chỉ email không hợp lệ.',
-            'email.unique'        => 'Email đã được sử dụng bởi tài khoản khác.',
-            'phone_number.unique' => 'Số điện thoại đã được sử dụng bởi tài khoản khác.',
-            'national_id.unique'  => 'Số CCCD/CMND đã tồn tại trên hệ thống.',
-            'status.required'     => 'Vui lòng chọn trạng thái tài khoản.',
-            'role_id.required'    => 'Vui lòng chọn vai trò.',
+        if ($user->id === auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không thể thay đổi trạng thái tài khoản của chính mình!'
+            ], 403);
+        }
+
+        $user->status = $user->status == 1 ? 0 : 1;
+        $user->save();
+
+        $statusText = $user->status == 1 ? 'mở khóa' : 'khóa';
+
+        return response()->json([
+            'success' => true,
+            'message' => "Tài khoản {$user->username} đã được {$statusText}.",
+            'new_status' => $user->status
         ]);
-
-        $user->update([
-            'full_name'    => $request->full_name,
-            'email'        => $request->email,
-            'phone_number' => $request->phone_number,
-            'address'      => $request->address,
-            'national_id'  => $request->national_id,
-            'status'       => $request->status,
-        ]);
-
-        // Cập nhật role (sync: xóa cũ, thêm mới)
-        $user->roles()->detach();
-        $user->roles()->attach($request->role_id, ['status' => 1]);
-
-        return redirect()
-            ->route('users.index')
-            ->with('success', "Tài khoản <strong>{$user->username}</strong> đã được cập nhật thành công!");
     }
 
     public function destroy($id)

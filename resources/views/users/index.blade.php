@@ -12,11 +12,8 @@
             <h3 class="mb-0 fw-bold" style="color: #2d3748;">
                 <i class="fas fa-users-cog me-2 text-primary"></i> Quản lý Tài khoản
             </h3>
-            <p class="text-muted mb-0 small">Quản lý toàn bộ tài khoản người dùng trong hệ thống</p>
+            <p class="text-muted mb-0 small">Giám sát tài khoản (Thêm mới tài khoản qua Quản lý nhân viên)</p>
         </div>
-        <a href="{{ route('users.create') }}" class="btn btn-primary shadow-sm">
-            <i class="fas fa-user-plus me-1"></i> Tạo tài khoản mới
-        </a>
     </div>
 
     {{-- Alerts --}}
@@ -132,9 +129,15 @@
                                     <a href="{{ route('users.show', $user->id) }}" class="btn btn-outline-info btn-sm" title="Xem">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-outline-warning btn-sm" title="Sửa">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
+                                    @if($user->id !== auth()->id())
+                                    <button type="button" class="btn btn-outline-warning btn-sm btn-toggle-status" data-id="{{ $user->id }}" title="{{ $user->status == 1 ? 'Khóa tài khoản' : 'Mở khóa tài khoản' }}">
+                                        <i class="fas {{ $user->status == 1 ? 'fa-lock' : 'fa-unlock' }}"></i>
+                                    </button>
+                                    @else
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" disabled title="Không thể khóa tài khoản của chính mình">
+                                        <i class="fas fa-lock"></i>
+                                    </button>
+                                    @endif
                                     @if($user->id !== auth()->id())
                                     <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline"
                                           onsubmit="return confirm('Xóa tài khoản {{ $user->username }}? Hành động này không thể hoàn tác!')">
@@ -155,7 +158,7 @@
                         <tr>
                             <td colspan="6" class="text-center py-5 text-muted">
                                 <i class="fas fa-users-slash fs-1 mb-3 d-block text-black-50"></i>
-                                Chưa có tài khoản nào. <a href="{{ route('users.create') }}">Tạo tài khoản đầu tiên</a>
+                                Chưa có tài khoản nào. Vui lòng thêm nhân viên mới để tự động tạo tài khoản.
                             </td>
                         </tr>
                         @endforelse
@@ -221,6 +224,17 @@ $(document).ready(function () {
                                </form>`
                             : `<button class="btn btn-outline-secondary btn-sm" disabled title="Đây là tài khoản của bạn"><i class="fas fa-trash"></i></button>`;
 
+                        let statusIcon = user.status == 1 ? 'fa-lock' : 'fa-unlock';
+                        let statusTitle = user.status == 1 ? 'Khóa tài khoản' : 'Mở khóa tài khoản';
+                        
+                        const toggleBtn = user.id !== currentUserId
+                            ? `<button type="button" class="btn btn-outline-warning btn-sm btn-toggle-status" data-id="${user.id}" title="${statusTitle}">
+                                <i class="fas ${statusIcon}"></i>
+                               </button>`
+                            : `<button type="button" class="btn btn-outline-secondary btn-sm" disabled title="Không thể khóa tài khoản của chính mình">
+                                <i class="fas fa-lock"></i>
+                               </button>`;
+
                         html += `<tr>
                             <td class="ps-4 text-muted small">${index + 1}</td>
                             <td>
@@ -234,11 +248,11 @@ $(document).ready(function () {
                             </td>
                             <td><div class="small">${contactHtml}</div></td>
                             <td class="text-center">${rolesHtml}</td>
-                            <td class="text-center">${statusHtml}</td>
+                            <td class="text-center status-col">${statusHtml}</td>
                             <td class="text-center pe-4">
-                                <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                <div class="d-flex gap-1 justify-content-center flex-wrap action-col">
                                     <a href="/users/${user.id}" class="btn btn-outline-info btn-sm" title="Xem"><i class="fas fa-eye"></i></a>
-                                    <a href="/users/${user.id}/edit" class="btn btn-outline-warning btn-sm" title="Sửa"><i class="fas fa-edit"></i></a>
+                                    ${toggleBtn}
                                     ${deleteBtn}
                                 </div>
                             </td>
@@ -256,6 +270,43 @@ $(document).ready(function () {
         $('#search').val('');
         $('#roleFilter').val('');
         location.reload();
+    });
+
+    // Handle toggle status
+    $(document).on('click', '.btn-toggle-status', function() {
+        const btn = $(this);
+        const userId = btn.data('id');
+        const icon = btn.find('i');
+        const isLocking = icon.hasClass('fa-lock');
+        
+        if (confirm(`Bạn có chắc chắn muốn ${isLocking ? 'khóa' : 'mở khóa'} tài khoản này?`)) {
+            // Add loading state
+            const originalIcon = icon.attr('class');
+            icon.attr('class', 'fas fa-spinner fa-spin');
+            btn.prop('disabled', true);
+
+            $.ajax({
+                url: `/users/${userId}/toggle-status`,
+                type: 'PATCH',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // We could just reload or update the DOM. Reloading is safer for simplicity,
+                        // but let's just trigger a search to refresh the table.
+                        doSearch();
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON?.message || 'Có lỗi xảy ra, vui lòng thử lại.');
+                    // Restore button
+                    icon.attr('class', originalIcon);
+                    btn.prop('disabled', false);
+                }
+            });
+        }
     });
 });
 </script>

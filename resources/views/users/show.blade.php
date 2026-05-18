@@ -15,12 +15,8 @@
             </h3>
             <p class="text-muted mb-0 small">Thông tin đầy đủ của tài khoản <strong>{{ $user->username }}</strong></p>
         </div>
-        <div class="ms-auto d-flex gap-2">
-            <a href="{{ route('users.edit', $user->id) }}" class="btn btn-warning">
-                <i class="fas fa-edit me-1"></i> Sửa
-            </a>
-        </div>
     </div>
+
 
     @if(session('temp_password_info'))
         <div class="alert alert-warning alert-dismissible fade show shadow-sm border-start border-warning border-4" role="alert">
