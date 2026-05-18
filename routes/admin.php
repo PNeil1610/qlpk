@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\MedicineCategoryController;
 use App\Http\Controllers\Admin\MedicineController;
 use App\Http\Controllers\Admin\PrescriptionController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\SystemSettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -153,6 +154,18 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/{id}', [UserController::class, 'update'])->name('update');
             Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
             Route::post('/{id}/reset-password', [UserController::class, 'resetPassword'])->name('reset_password');
+        });
+
+        // Cấu hình phòng khám (chỉ ADMIN)
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', [SystemSettingController::class, 'index'])->name('index');
+            Route::get('/create', [SystemSettingController::class, 'create'])->name('create');
+            Route::post('/', [SystemSettingController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [SystemSettingController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [SystemSettingController::class, 'update'])->name('update');
+            Route::delete('/{id}', [SystemSettingController::class, 'destroy'])->name('destroy');
+            Route::post('/{id}/activate', [SystemSettingController::class, 'activate'])->name('activate');
+            Route::post('/{id}/deactivate', [SystemSettingController::class, 'deactivate'])->name('deactivate');
         });
     });
 

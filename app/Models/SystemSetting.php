@@ -6,10 +6,38 @@ use Illuminate\Database\Eloquent\Model;
 
 class SystemSetting extends Model
 {
-    protected $table = 'system_settings';
+    // Tên bảng theo schema mới
+    protected $table = 'system_setting';
 
     protected $fillable = [
-        'clinic_name', 'address', 'phone_number', 'email', 
-        'logo_url', 'working_hours', 'description'
+        'created_by',
+        'clinic_name',
+        'phone_number',
+        'email',
+        'address',
+        'additional_info',
+        'status',
     ];
+
+    protected $casts = [
+        'status'     => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    /**
+     * Người tạo/cập nhật cấu hình
+     */
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by', 'id');
+    }
+
+    /**
+     * Lấy cấu hình đang áp dụng (status=1, mới nhất)
+     */
+    public static function active(): ?self
+    {
+        return static::where('status', 1)->latest()->first();
+    }
 }
