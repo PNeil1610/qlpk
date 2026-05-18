@@ -35,6 +35,7 @@
     {{-- ===== ADMIN & DOCTOR: Ca khám của tôi ===== --}}
     @if(auth()->check() && auth()->user()->hasRole('DOCTOR'))
         <a href="{{ route('consultations.doctor') }}">👨‍⚕️ Ca khám của tôi</a>
+        <a href="{{ route('doctor.templates.index') }}">📋 Toa thuốc mẫu</a>
         <a href="{{ route('diagnoses.index') }}">📖 Danh mục mã bệnh</a>
         <a href="{{ route('medicine_categories.index') }}">💊 Danh mục loại thuốc</a>
         <a href="{{ route('medicines.index') }}">💊 Danh mục thuốc</a>

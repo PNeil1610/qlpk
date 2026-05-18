@@ -246,9 +246,14 @@
                     <div class="card shadow-sm border-0 border-top border-success border-3">
                         <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center">
                             <span><i class="fas fa-pills text-success me-2"></i>Kê đơn thuốc</span>
-                            <button type="button" class="btn btn-sm btn-success shadow-sm" id="btn-add-medicine">
-                                <i class="fas fa-plus me-1"></i> Thêm thuốc
-                            </button>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-primary shadow-sm me-2" id="btn-use-template" data-bs-toggle="modal" data-bs-target="#templateModal">
+                                    <i class="fas fa-file-prescription me-1"></i> Sử dụng toa mẫu
+                                </button>
+                                <button type="button" class="btn btn-sm btn-success shadow-sm" id="btn-add-medicine">
+                                    <i class="fas fa-plus me-1"></i> Thêm thuốc
+                                </button>
+                            </div>
                         </div>
                         <div class="card-body">
                             <form action="{{ route('prescriptions.store') }}" method="POST" id="prescriptionForm">
@@ -567,9 +572,105 @@
                 // Cuộn xuống phần kê đơn
                 document.getElementById('prescriptionForm').scrollIntoView({ behavior: 'smooth' });
             }
+
+            // --- TEMPLATE LOGIC ---
+            let templateLoaded = false;
+            $('#templateModal').on('show.bs.modal', function () {
+                if (!templateLoaded) {
+                    $.ajax({
+                        url: '{{ route("doctor.templates.ajax") }}',
+                        method: 'GET',
+                        success: function(res) {
+                            let html = '';
+                            if (res.length === 0) {
+                                html = `<tr><td colspan="4" class="text-center py-4 text-muted">Bạn chưa có toa mẫu nào. <a href="{{ route('doctor.templates.create') }}">Tạo ngay</a></td></tr>`;
+                            } else {
+                                res.forEach(t => {
+                                    html += `
+                                    <tr>
+                                        <td class="ps-3 fw-bold text-primary">${t.template_name}</td>
+                                        <td>${t.disease_name || '--'}</td>
+                                        <td><span class="badge bg-secondary">${t.details.length} thuốc</span></td>
+                                        <td class="text-center pe-3">
+                                            <button type="button" class="btn btn-sm btn-success btn-apply-template shadow-sm" data-template='${JSON.stringify(t.details)}'>
+                                                <i class="fas fa-check"></i> Chọn
+                                            </button>
+                                        </td>
+                                    </tr>`;
+                                });
+                            }
+                            $('#templateListBody').html(html);
+                            templateLoaded = true;
+                        },
+                        error: function() {
+                            $('#templateListBody').html(`<tr><td colspan="4" class="text-center py-4 text-danger">Lỗi tải dữ liệu toa mẫu.</td></tr>`);
+                        }
+                    });
+                }
+            });
+
+            $(document).on('click', '.btn-apply-template', function() {
+                let details = $(this).data('template');
+                $('#templateModal').modal('hide');
+                
+                if (confirm('Áp dụng toa mẫu sẽ ghi đè lên các thuốc hiện tại. Bạn có chắc chắn?')) {
+                    const mappedData = {
+                        advice: '',
+                        medicines: details.map(d => ({
+                            id: d.medicine.id,
+                            name: d.medicine.medicine_name + ' (' + (d.medicine.trade_name||'') + ')',
+                            unit: d.unit,
+                            quantity: d.quantity,
+                            duration_days: d.duration_days,
+                            dosage: d.dosage,
+                            usage_instructions: d.usage_instructions
+                        }))
+                    };
+                    applyReuseData(mappedData);
+                    
+                    let htmlAlert = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-1"></i> Đã áp dụng toa thuốc mẫu!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>`;
+                    $('#prescriptionForm').prepend(htmlAlert);
+                }
+            });
         });
     </script>
 @endpush
+
+<!-- Modal Toa Mẫu -->
+<div class="modal fade" id="templateModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title"><i class="fas fa-file-prescription me-2"></i>Chọn Toa Thuốc Mẫu</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle" id="templateTable">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-3">Tên Toa Mẫu</th>
+                                <th>Tên Bệnh</th>
+                                <th>Số thuốc</th>
+                                <th class="text-center pe-3">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="templateListBody">
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Đang tải dữ liệu...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @push('scripts')
 <script>
 // ===== Doctor History Search =====
