@@ -20,6 +20,7 @@ class Consultation extends Model
     // ========================
     protected $fillable = [
         'patient_id',
+        'doctor_id',
         'order_number',
         'consultation_date',
         'symptoms',
@@ -75,6 +76,12 @@ class Consultation extends Model
     public function patient()
     {
         return $this->belongsTo(Patient::class, 'patient_id');
+    }
+
+    // 🔥 1 consultation thuộc 1 doctor (Staff)
+    public function doctor()
+    {
+        return $this->belongsTo(Staff::class, 'doctor_id');
     }
 
     // 🔥 1 consultation có 1diagnosis

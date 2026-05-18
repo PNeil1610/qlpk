@@ -141,7 +141,7 @@ class ConsultationController extends Controller
 
         // 🔒 Không cho sửa nếu phiên khám đã hoàn thành thanh toán
         if ($consultation->status === Consultation::STATUS_COMPLETED) {
-            return redirect()->route('consultations.doctor')
+            return redirect()->route('consultations.index')
                 ->with('error', 'Phiên khám #' . $id . ' đã hoàn thành. Không thể chỉnh sửa nội dung.');
         }
 
@@ -182,11 +182,7 @@ class ConsultationController extends Controller
             }
         }
 
-        if ($request->redirect_to === 'doctor') {
-            return redirect()->route('consultations.doctor')
-                ->with('success', 'Đã lưu kết luận thành công!');
-        }
-
+        // Redirect sau khi update (Admin/Receptionist)
         return redirect()->route('consultations.index')
             ->with('success', 'Cập nhật thành công');
     }

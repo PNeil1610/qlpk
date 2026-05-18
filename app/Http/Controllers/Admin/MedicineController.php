@@ -177,4 +177,33 @@ class MedicineController extends Controller
         return redirect()->route('medicines.details', $medicine->id)
                          ->with('success', 'Đã thêm phiên bản đơn giá mới và áp dụng thành công.');
     }
+
+    /**
+     * AJAX: Tìm kiếm thuốc theo keyword và/hoặc category_id
+     */
+    public function ajaxSearch(Request $request)
+    {
+        $keyword    = $request->keyword;
+        $categoryId = $request->category_id;
+
+        $medicines = Medicine::with(['details' => fn($q) => $q->where('status', 1)])
+            ->where('status', 1)
+            ->when($categoryId, fn($q) => $q->where('medicine_category_id', $categoryId))
+            ->when($keyword, fn($q) => $q->where('medicine_name', 'like', "%$keyword%"))
+            ->orderBy('medicine_name')
+            ->limit(50)
+            ->get()
+            ->map(function ($m) {
+                $detail = $m->details->first();
+                return [
+                    'id'            => $m->id,
+                    'medicine_name' => $m->medicine_name,
+                    'medicine_code' => $m->medicine_code,
+                    'unit'          => $detail?->unit ?? '',
+                    'price'         => $detail?->price ?? 0,
+                ];
+            });
+
+        return response()->json($medicines);
+    }
 }

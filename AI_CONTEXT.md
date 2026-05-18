@@ -26,8 +26,9 @@ Hệ thống sử dụng cơ sở dữ liệu quan hệ (RDBMS) với các thự
 - **Users:** Lưu thông tin tài khoản đăng nhập và phân quyền.
 - **Staff:** Thông tin chi tiết nhân viên (Bác sĩ, Y tá...), liên kết 1-1 với `Users`. Có `room_id` để xác định vị trí làm việc.
 - **Patient:** Hồ sơ bệnh nhân, liên kết với `Users` (nếu bệnh nhân có tài khoản).
-- **Consultation (Phiên khám):** Thực thể trung tâm, liên kết `Patient`, `Diagnosis` (Mã bệnh), và `Room` (Phòng khám). 
+- **Consultation (Phiên khám):** Thực thể trung tâm, liên kết `Patient`, `Diagnosis` (Mã bệnh), `Room` (Phòng khám), và `Staff` (Bác sĩ thực hiện qua `doctor_id`). 
     - *Mối quan hệ:* 1 Bệnh nhân có nhiều Phiên khám; 1 Phiên khám có 1 Đơn thuốc; 1 Phiên khám có 1 Hóa đơn.
+    - *Lưu ý:* `doctor_id` được tự động set vào bảng `consultation` khi bác sĩ nhấn "Lưu Kết Luận" từ giao diện khám bệnh.
 - **Room & Department:** Quản lý cơ cấu tổ chức phòng ban và phòng khám.
 - **Prescription & PrescriptionDetail:** Thông tin đơn thuốc và chi tiết từng loại thuốc (số lượng, liều dùng).
 - **Invoice & InvoiceDetail:** Thông tin thanh toán, tự động tổng hợp chi phí từ Phiên khám và Đơn thuốc.
@@ -71,7 +72,7 @@ qlpk/
 - **app/Http/Controllers/Admin/ConsultationController.php:** Quản lý phiên khám (CRUD) cho Admin.
 - **app/Http/Controllers/Doctor/ExaminationController.php:** 
     - `index()`: Lọc bệnh nhân theo `room_id` của bác sĩ đang login.
-    - `examine()`: Logic tích hợp cho phép bác sĩ vừa xem bệnh án vừa kê đơn thuốc trên cùng một view. Hiển thị lịch sử khám cũ của bệnh nhân ở cột trái, trong đó có thể nhấn "Xem" để chuyển sang trang chi tiết phiên khám đó (cùng tab). Tại trang chi tiết, bác sĩ có thể xem lại danh sách thuốc đã kê và nhấn **"Sử dụng lại toa thuốc"** để sao chép toàn bộ danh sách thuốc + lời dặn vào phiên khám hiện tại đang mở.
+    - `examine()`: Logic tích hợp cho phép bác sĩ vừa xem bệnh án vừa kê đơn thuốc trên cùng một view. Truyền `$history` (lịch sử khám của bệnh nhân) và `$doctorHistory` (lịch sử khám của bác sĩ) sang view. Lịch sử được hiển thị dạng 2 tab ở cột trái. Bác sĩ có thể nhấn "Xem" để chuyển sang trang chi tiết và sử dụng lại toa thuốc.
 - **app/Http/Controllers/InvoiceController.php:** 
     - `lookup()`: Logic tra cứu đa năng (theo mã bệnh nhân, mã phiên khám hoặc SĐT).
     - `store()`: Tự động tính toán phí khám và phí thuốc dựa trên dữ liệu từ `Consultation`.
@@ -91,7 +92,10 @@ qlpk/
     - **Cột trái:** Thông tin hành chính + Toa thuốc hiện tại đã kê + **Lịch sử khám bệnh** (danh sách phiên cũ của BN).
     - **Cột phải:** Form kết luận chuyên môn + Form kê đơn thuốc mới. (Kê đơn: Bác sĩ nhập liều dùng theo "số lượng/lần", "số lần/ngày" và "số ngày uống", hệ thống sẽ tự động tính toán ra tổng số lượng thuốc).
 4. **Xem lịch sử & Sử dụng lại toa thuốc:**
-    - Ở cột lịch sử, hệ thống chỉ hiển thị **các phiên khám đã hoàn thành** của bệnh nhân đó. Bác sĩ nhấn "Xem" tại một phiên khám cũ -> Hệ thống chuyển trang sang `consultations/show.blade.php` (cùng tab) với tham số `?reuse_mode=1`.
+    - Ở cột lịch sử, hệ thống hiển thị **2 tab**:
+        - **Tab "Lịch sử BN"**: Tất cả các phiếu khám đã hoàn thành của bệnh nhân hiện tại ở MỌI phòng, kèm tên bác sĩ đã khám.
+        - **Tab "Lịch sử của tôi"**: Tất cả các phiếu khám mà bác sĩ đang login đã thực hiện (theo `doctor_id`) ở mọi phòng khác nhau, kèm thông tin bệnh nhân.
+    - Bác sĩ nhấn link "Phiếu #xxx" tại một phiếu khám cũ -> Hệ thống chuyển trang sang `consultations/show.blade.php` (cùng tab) với tham số `?reuse_mode=1`.
     - Trang chi tiết hiển thị đầy đủ thông tin phiên khám cũ bao gồm danh sách thuốc đã kê, chẩn đoán và tên bác sĩ thực hiện để cung cấp ngữ cảnh rõ ràng.
     - Bác sĩ nhấn **"Sử dụng lại toa thuốc"** -> Dữ liệu thuốc và lời dặn được lưu vào `localStorage` -> Hệ thống tự động quay lại trang khám bệnh.
     - Trang khám bệnh khi load phát hiện dữ liệu trong `localStorage`, tự động điền vào form kê đơn và cuộn xuống phần kê đơn.

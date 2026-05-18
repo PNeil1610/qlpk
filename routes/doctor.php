@@ -29,6 +29,18 @@ Route::middleware(['auth', 'role:DOCTOR'])->group(function () {
     Route::get('/consultations/doctor/{id}/examine', [ExaminationController::class, 'examine'])
         ->name('consultations.doctor.examine');
 
+    // ✅ Lưu kết luận chuyên môn (route riêng cho Doctor, tránh lỗi 403 từ admin route)
+    Route::put('/doctor/consultations/{id}/conclusion', [ExaminationController::class, 'saveConclusion'])
+        ->name('doctor.consultation.save_conclusion');
+
+    // Lịch sử khám bệnh của bác sĩ
+    Route::get('/doctor/my-history', [ExaminationController::class, 'myHistory'])
+        ->name('doctor.my_history');
+
+    // Lịch sử khám bệnh của bệnh nhân
+    Route::get('/doctor/patient-history', [ExaminationController::class, 'patientHistory'])
+        ->name('doctor.patient_history');
+
     // Danh sách bệnh nhân phòng của tôi
     Route::get('/my-clinic', [ExaminationController::class, 'myRoomPatients'])
         ->name('doctor.my_room');

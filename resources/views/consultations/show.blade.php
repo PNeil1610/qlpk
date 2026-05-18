@@ -351,30 +351,37 @@
                             <td>Ngày tái khám</td>
                             <td>{{ $consultation->follow_up_date ? \Carbon\Carbon::parse($consultation->follow_up_date)->format('d/m/Y') : '--' }}</td>
                         </tr>
-                    </table>
-
-                    @if($consultation->diagnosis_notes)
-                        <div class="mt-3 p-3 rounded-3" style="background:#fffbeb; border-left: 3px solid #d97706;">
-                            <div class="fw-bold text-muted mb-1" style="font-size:.78rem; text-transform:uppercase; letter-spacing:.06em;">
+                        <tr>
+                            <td class="fw-semibold" style="color:#92400e;">
                                 <i class="fas fa-notes-medical me-1 text-warning"></i>Chẩn đoán
-                            </div>
-                            <div class="fw-semibold" style="color:#1c1917; font-size:.9rem;">
-                                {{ $consultation->diagnosis_notes }}
-                            </div>
-                        </div>
-                    @endif
-
-                    @if($consultation->diagnosis_code)
-                        <div class="mt-2">
-                            <span class="diag-chip">
-                                <i class="fas fa-tag"></i>
-                                ICD: {{ $consultation->diagnosis_code }}
-                                @if($consultation->diagnosis)
-                                    — {{ $consultation->diagnosis->diagnosis_name }}
+                            </td>
+                            <td>
+                                @if($consultation->diagnosis_notes)
+                                    <span class="fw-semibold" style="color:#1c1917;">{{ $consultation->diagnosis_notes }}</span>
+                                @else
+                                    <span class="text-muted fst-italic">Chưa có kết luận</span>
                                 @endif
-                            </span>
-                        </div>
-                    @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-semibold" style="color:#1e40af;">
+                                <i class="fas fa-tag me-1 text-primary"></i>Mã ICD
+                            </td>
+                            <td>
+                                @if($consultation->diagnosis_code)
+                                    <span class="diag-chip">
+                                        <i class="fas fa-tag"></i>
+                                        {{ $consultation->diagnosis_code }}
+                                        @if($consultation->diagnosis)
+                                            — {{ $consultation->diagnosis->diagnosis_name }}
+                                        @endif
+                                    </span>
+                                @else
+                                    <span class="text-muted fst-italic">--</span>
+                                @endif
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </div>
 

@@ -53,8 +53,15 @@ class PrescriptionController extends Controller
 
         try {
             return DB::transaction(function () use ($request) {
+                $prescribedBy = null;
+                $user = auth()->user();
+                if ($user && $user->staff) {
+                    $prescribedBy = $user->staff->id;
+                }
+
                 $prescription = Prescription::create([
                     'consultation_id' => $request->consultation_id,
+                    'prescribed_by'   => $prescribedBy,
                     'doctor_advice'   => $request->doctor_advice,
                     'prescribed_at'   => now(),
                     'status'          => 1,

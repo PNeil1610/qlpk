@@ -104,42 +104,20 @@
                     </div>
                 @endif
 
-                {{-- LỊCH SỬ KHÁM BỆNH --}}
-                <div class="card shadow-sm border-0 border-top border-secondary border-3">
-                    <div class="card-header bg-white fw-bold py-3">
-                        <i class="fas fa-history text-secondary me-2"></i>Lịch sử khám bệnh
-                    </div>
-                    <div class="card-body p-0">
-                        @if($history->isEmpty())
-                            <div class="p-4 text-center text-muted">
-                                <i class="fas fa-folder-open d-block mb-2 fs-4 opacity-50"></i>
-                                <span class="small">Chưa có lịch sử khám cũ.</span>
-                            </div>
-                        @else
-                            <div class="list-group list-group-flush" style="max-height: 500px; overflow-y: auto;">
-                                @foreach($history as $h)
-                                    <div class="list-group-item p-3 history-item hover-bg-light transition">
-                                        <div class="mb-2">
-                                            <a href="{{ route('consultations.show', $h->id) }}?reuse_mode=1"
-                                                class="d-inline-flex align-items-center fw-bold text-primary text-decoration-none bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded-pill px-3 py-1 transition"
-                                                style="font-size: 0.85rem;" title="Xem chi tiết phiên khám">
-                                                <i class="fas fa-file-medical me-2"></i>Phiên khám #{{ $h->id }}
-                                                <i class="fas fa-arrow-right ms-2 opacity-75"></i>
-                                            </a>
-                                            <span class="ms-2 text-muted small"><i
-                                                    class="far fa-calendar-alt me-1"></i>{{ \Carbon\Carbon::parse($h->consultation_date)->format('d/m/Y') }}</span>
-                                        </div>
-                                        <div class="small mb-2 text-dark bg-light p-2 rounded border-start border-3 border-warning">
-                                            <strong>Chẩn đoán:</strong>
-                                            {{ $h->diagnosis_notes ?? ($h->diagnosis->diagnosis_name ?? 'Không rõ') }}
-                                        </div>
+                {{-- NÚT LỊCH SỬ CỦA BÁC SĨ --}}
+                <a href="{{ route('doctor.my_history', ['from_consultation' => $consultation->id]) }}"
+                   class="btn btn-outline-primary w-100 mb-2 fw-semibold shadow-sm">
+                    <i class="fas fa-user-md me-2"></i>Lịch sử khám của tôi
+                    <i class="fas fa-arrow-right ms-2 opacity-75" style="font-size:0.8rem;"></i>
+                </a>
 
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
-                    </div>
-                </div>
+                {{-- NÚT LỊCH SỬ BỆNH NHÂN --}}
+                <a href="{{ route('doctor.patient_history', ['from_consultation' => $consultation->id, 'patient_id' => $consultation->patient_id]) }}"
+                   class="btn btn-outline-secondary w-100 fw-semibold shadow-sm">
+                    <i class="fas fa-user-injured me-2"></i>Lịch sử khám của BN
+                    <i class="fas fa-arrow-right ms-2 opacity-75" style="font-size:0.8rem;"></i>
+                </a>
+
             </div>
 
             {{-- ====== CỘT PHẢI: KẾT LUẬN + KÊ ĐƠN ====== --}}
@@ -153,27 +131,49 @@
                     <div class="card-body">
                         @if($consultation->status === \App\Models\Consultation::STATUS_COMPLETED)
                             {{-- CHẾ ĐỘ CHỈ ĐỌC --}}
-                            <table class="table table-borderless table-sm">
+                            <table class="table table-borderless table-sm mb-0">
                                 <tr>
-                                    <td class="text-muted" width="200">Chẩn đoán chi tiết:</td>
-                                    <td class="fw-bold">{{ $consultation->diagnosis_notes ?? '---' }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Mã bệnh chuẩn (ICD):</td>
-                                    <td>{{ $consultation->diagnosis_code ?? '---' }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Ngày tái khám:</td>
-                                    <td>{{ $consultation->follow_up_date ? \Carbon\Carbon::parse($consultation->follow_up_date)->format('d/m/Y') : '---' }}
-                                    </td>
+                                    <td class="text-muted" width="180">Ngày tái khám:</td>
+                                    <td>{{ $consultation->follow_up_date ? \Carbon\Carbon::parse($consultation->follow_up_date)->format('d/m/Y') : '---' }}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-muted">Trạng thái:</td>
                                     <td><span class="badge bg-success">Hoàn thành</span></td>
                                 </tr>
                             </table>
+
+                            {{-- Chẩn đoán nổi bật --}}
+                            <div class="mt-3 p-3 rounded-3 border-start border-4 border-warning" style="background:#fffbeb;">
+                                <div class="fw-bold mb-1 text-warning-emphasis" style="font-size:.8rem; text-transform:uppercase; letter-spacing:.05em;">
+                                    <i class="fas fa-notes-medical me-1"></i>Chẩn đoán chi tiết
+                                </div>
+                                <div class="fw-semibold text-dark" style="font-size:.95rem; line-height:1.5;">
+                                    {{ $consultation->diagnosis_notes ?: '---' }}
+                                </div>
+                            </div>
+
+                            @if($consultation->diagnosis_code)
+                                <div class="mt-2">
+                                    <span class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill border border-primary bg-primary bg-opacity-10 text-primary fw-semibold" style="font-size:.85rem;">
+                                        <i class="fas fa-tag"></i>
+                                        ICD: {{ $consultation->diagnosis_code }}
+                                        @if($consultation->diagnosis)
+                                            — {{ $consultation->diagnosis->diagnosis_name }}
+                                        @endif
+                                    </span>
+                                </div>
+                            @endif
+
+                            @if($consultation->prescriptions->count() > 0)
+                                @php $bs = $consultation->prescriptions->first()?->prescriber; @endphp
+                                @if($bs)
+                                    <div class="mt-2 text-muted small">
+                                        <i class="fas fa-user-md me-1 text-primary"></i>Bác sĩ kê đơn: <strong>{{ $bs->full_name }}</strong>
+                                    </div>
+                                @endif
+                            @endif
                         @else
-                            <form method="POST" action="{{ route('consultations.update', $consultation->id) }}"
+                            <form method="POST" action="{{ route('doctor.consultation.save_conclusion', $consultation->id) }}"
                                 id="examineForm">
                                 @csrf
                                 @method('PUT')
@@ -185,7 +185,6 @@
                                 <input type="hidden" name="symptoms" value="{{ $consultation->symptoms }}">
                                 <input type="hidden" name="temperature" value="{{ $consultation->temperature }}">
                                 <input type="hidden" name="blood_pressure" value="{{ $consultation->blood_pressure }}">
-                                <input type="hidden" name="redirect_to" value="doctor">
 
                                 <div class="row">
                                     <div class="col-md-8 mb-3">
@@ -260,28 +259,29 @@
                                     <table class="table table-hover table-bordered mb-3 align-middle" style="min-width: 700px;">
                                         <thead class="table-light">
                                             <tr>
-                                                <th style="width:25%">Tên Thuốc *</th>
+                                                <th style="width:15%">Nhóm Thuốc</th>
+                                                <th style="width:20%">Tên Thuốc *</th>
                                                 <th style="width:8%">Đơn vị</th>
-                                                <th style="width:10%">SL/lần *</th>
-                                                <th style="width:10%">Lần/ngày *</th>
-                                                <th style="width:10%">Số ngày *</th>
-                                                <th style="width:10%">Tổng SL *</th>
-                                                <th style="width:19%">Cách dùng</th>
-                                                <th style="width:8%" class="text-center">Xóa</th>
+                                                <th style="width:9%">SL/lần *</th>
+                                                <th style="width:9%">Lần/ngày *</th>
+                                                <th style="width:9%">Số ngày *</th>
+                                                <th style="width:9%">Tổng SL *</th>
+                                                <th style="width:15%">Cách dùng</th>
+                                                <th style="width:6%" class="text-center">Xóa</th>
                                             </tr>
                                         </thead>
                                         <tbody id="prescription-body">
                                             <tr>
                                                 <td>
-                                                    <select name="medicines[]"
-                                                        class="form-select form-select-sm medicine-select" required>
-                                                        <option value="">-- Chọn thuốc --</option>
-                                                        @foreach($medicines as $med)
-                                                            <option value="{{ $med->id }}"
-                                                                data-unit="{{ $med->details->first()->unit ?? 'Viên' }}">
-                                                                {{ $med->medicine_name }}
-                                                            </option>
+                                                    <select class="form-select form-select-sm category-select">
+                                                        <option value="">Tất cả</option>
+                                                        @foreach($categories as $cat)
+                                                            <option value="{{ $cat->id }}">{{ $cat->category_name }}</option>
                                                         @endforeach
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select name="medicines[]" class="form-select form-select-sm medicine-select" required>
                                                     </select>
                                                 </td>
                                                 <td><input type="text" name="units[]" class="form-control form-control-sm unit-input" readonly placeholder="---"></td>
@@ -376,17 +376,58 @@
                 }
             });
 
-            // Tự động điền đơn vị khi chọn thuốc
+            // ================= CẤU HÌNH AJAX SELECT2 CHO THUỐC =================
+            function initMedicineSelect(selector) {
+                $(selector).each(function() {
+                    var $el = $(this);
+                    $el.select2({
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        placeholder: '-- Chọn thuốc --',
+                        allowClear: true,
+                        ajax: {
+                            url: "{{ route('medicines.ajax.search') }}",
+                            dataType: 'json',
+                            delay: 250,
+                            data: function (params) { 
+                                var categoryId = $el.closest('tr').find('.category-select').val();
+                                return { 
+                                    keyword: params.term,
+                                    category_id: categoryId 
+                                }; 
+                            },
+                            processResults: function (data) {
+                                return {
+                                    results: data.map(item => ({
+                                        id: item.id,
+                                        text: item.medicine_name,
+                                        unit: item.unit
+                                    }))
+                                };
+                            }
+                        }
+                    }).on('select2:select', function (e) {
+                        var data = e.params.data;
+                        var row = $(this).closest('tr');
+                        var unitInput = row.find('.unit-input');
+                        unitInput.val(data.unit || '');
+                        unitInput[0].dispatchEvent(new Event('input', { bubbles: true }));
+                    });
+                });
+            }
+
+            // Khởi tạo dòng đầu tiên
+            initMedicineSelect('.medicine-select');
+
             const tableBody = document.getElementById('prescription-body');
             const btnAdd = document.getElementById('btn-add-medicine');
 
+            // Xóa thuốc đã chọn nếu đổi nhóm thuốc
             tableBody.addEventListener('change', function (e) {
-                if (e.target.classList.contains('medicine-select')) {
-                    const selectedOption = e.target.options[e.target.selectedIndex];
-                    const unit = selectedOption.getAttribute('data-unit');
-                    const unitInput = e.target.closest('tr').querySelector('.unit-input');
-                    unitInput.value = unit || '';
-                    unitInput.dispatchEvent(new Event('input', { bubbles: true }));
+                if (e.target.classList.contains('category-select')) {
+                    var $row = $(e.target).closest('tr');
+                    $row.find('.medicine-select').val(null).trigger('change');
+                    $row.find('.unit-input').val('');
                 }
             });
 
@@ -414,12 +455,33 @@
             });
 
             btnAdd.addEventListener('click', function () {
-                const firstRow = tableBody.querySelector('tr');
+                const rows = tableBody.querySelectorAll('tr');
+                const firstRow = rows[0];
+                const lastRow = rows[rows.length - 1]; // Lấy dòng cuối cùng để copy dữ liệu
+                
+                // Lấy dữ liệu từ dòng cuối cùng
+                const lastTimesPerDay = lastRow.querySelector('.times-per-day').value;
+                const lastDurationDays = lastRow.querySelector('.duration-days').value;
+                
+                // Phá hủy Select2 trước khi clone dòng đầu để tránh lỗi UI
+                $(firstRow).find('.medicine-select').select2('destroy');
+                
                 const newRow = firstRow.cloneNode(true);
                 newRow.querySelectorAll('input').forEach(input => input.value = '');
-                newRow.querySelector('select').selectedIndex = 0;
+                newRow.querySelector('.category-select').selectedIndex = 0; // Reset nhóm thuốc về Tất cả
+                newRow.querySelector('.medicine-select').innerHTML = ''; // Xóa option thuốc đã chọn
                 newRow.querySelector('.remove-row').disabled = false;
+                
+                // Kế thừa Lần/ngày và Số ngày từ dòng trước đó
+                newRow.querySelector('.times-per-day').value = lastTimesPerDay;
+                newRow.querySelector('.duration-days').value = lastDurationDays;
+                
                 tableBody.appendChild(newRow);
+                
+                // Khởi tạo lại cả dòng cũ và mới
+                initMedicineSelect($(firstRow).find('.medicine-select'));
+                initMedicineSelect($(newRow).find('.medicine-select'));
+                
                 updateRemoveButtons();
             });
 
@@ -473,13 +535,16 @@
                     const newRow = document.createElement('tr');
                     newRow.innerHTML = `
                         <td>
-                            <select name="medicines[]" class="form-select form-select-sm medicine-select" required>
-                                <option value="">-- Chọn thuốc --</option>
-                                @foreach($medicines as $m)
-                                    <option value="{{ $m->id }}" data-unit="{{ $m->details->first()?->unit ?? 'Viên' }}" ${med.id == {{ $m->id }} ? 'selected' : ''}>
-                                        {{ $m->medicine_name }}
-                                    </option>
+                            <select class="form-select form-select-sm category-select">
+                                <option value="">Tất cả</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->category_name }}</option>
                                 @endforeach
+                            </select>
+                        </td>
+                        <td>
+                            <select name="medicines[]" class="form-select form-select-sm medicine-select" required>
+                                <option value="${med.id}" selected>${med.name}</option>
                             </select>
                         </td>
                         <td><input type="text" name="units[]" class="form-control form-control-sm unit-input" readonly value="${med.unit || ''}"></td>
@@ -495,6 +560,8 @@
                     `;
                     tableBody.appendChild(newRow);
                 });
+                
+                initMedicineSelect('.medicine-select');
                 updateRemoveButtons();
 
                 // Cuộn xuống phần kê đơn
@@ -502,4 +569,33 @@
             }
         });
     </script>
+@endpush
+@push('scripts')
+<script>
+// ===== Doctor History Search =====
+document.addEventListener('DOMContentLoaded', function () {
+    const doctorSearchInput = document.getElementById('doctorHistorySearch');
+    if (doctorSearchInput) {
+        doctorSearchInput.addEventListener('input', function () {
+            const keyword = this.value.toLowerCase().trim();
+            const items = document.querySelectorAll('.doctor-hist-item');
+            const emptyMsg = document.getElementById('doctorHistoryEmpty');
+            let visibleCount = 0;
+            items.forEach(function (item) {
+                const searchData = (item.getAttribute('data-search') || '').toLowerCase();
+                const match = !keyword || searchData.includes(keyword);
+                item.style.display = match ? '' : 'none';
+                if (match) visibleCount++;
+            });
+            if (emptyMsg) emptyMsg.classList.toggle('d-none', visibleCount > 0);
+        });
+    }
+    const doctorPanel = document.getElementById('doctorHistoryPanel');
+    const chevron = document.getElementById('doctorHistoryChevron');
+    if (doctorPanel && chevron) {
+        doctorPanel.addEventListener('show.bs.collapse', () => chevron.style.transform = 'rotate(180deg)');
+        doctorPanel.addEventListener('hide.bs.collapse', () => chevron.style.transform = 'rotate(0deg)');
+    }
+});
+</script>
 @endpush

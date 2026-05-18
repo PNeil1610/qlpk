@@ -13,6 +13,7 @@ class Prescription extends Model
 
     protected $fillable = [
         'consultation_id',
+        'prescribed_by',
         'prescribed_at',
         'doctor_advice',
         'dispensed_at',
@@ -36,6 +37,11 @@ class Prescription extends Model
     public function dispenser()
     {
         return $this->belongsTo(Staff::class, 'dispensed_by', 'id');
+    }
+
+    public function prescriber()
+    {
+        return $this->belongsTo(Staff::class, 'prescribed_by', 'id');
     }
 
     public function details()
