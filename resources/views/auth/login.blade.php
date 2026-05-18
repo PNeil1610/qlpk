@@ -193,7 +193,10 @@
 
     <div class="login-wrapper">
         <div class="login-left">
-            <div class="logo-icon">
+            <a href="{{ url('/') }}" class="text-white text-decoration-none" style="position: absolute; top: 30px; left: 30px; font-weight: 600; z-index: 10;">
+                <i class="fas fa-arrow-left me-2"></i> Về trang chủ
+            </a>
+            <div class="logo-icon mt-4">
                 <i class="fas fa-heartbeat"></i>
             </div>
             <h2>QLPK SYSTEM</h2>

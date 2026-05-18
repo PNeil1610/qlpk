@@ -71,10 +71,10 @@ class LoginController extends Controller
     }
 
     /**
-     * Sau khi đăng xuất, chuyển hướng về trang đăng nhập
+     * Sau khi đăng xuất, chuyển hướng về trang chủ
      */
     protected function loggedOut(Request $request)
     {
-        return redirect('/login');
+        return redirect('/');
     }
 }
