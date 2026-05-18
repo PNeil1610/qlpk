@@ -88,6 +88,9 @@
                                         <i class="fas fa-file-prescription me-1"></i> Toa #{{ $pres->id }} &mdash;
                                         {{ $pres->prescribed_at ? \Carbon\Carbon::parse($pres->prescribed_at)->format('d/m H:i') : '' }}
                                     </a>
+                                    <button type="button" class="btn btn-sm btn-outline-primary ms-1" onclick="openSaveTemplateModal({{ $pres->id }})" title="Lưu làm toa mẫu">
+                                        <i class="fas fa-save"></i>
+                                    </button>
                                     @if($pres->status == 1 && $consultation->status !== \App\Models\Consultation::STATUS_COMPLETED)
                                         <form action="{{ route('prescriptions.destroy', $pres->id) }}" method="POST" class="ms-1"
                                             onsubmit="return confirm('Bạn có chắc chắn muốn xóa toa thuốc này không?')">
@@ -104,19 +107,58 @@
                     </div>
                 @endif
 
-                {{-- NÚT LỊCH SỬ CỦA BÁC SĨ --}}
-                <a href="{{ route('doctor.my_history', ['from_consultation' => $consultation->id]) }}"
-                   class="btn btn-outline-primary w-100 mb-2 fw-semibold shadow-sm">
-                    <i class="fas fa-user-md me-2"></i>Lịch sử khám của tôi
-                    <i class="fas fa-arrow-right ms-2 opacity-75" style="font-size:0.8rem;"></i>
-                </a>
+                {{-- LỊCH SỬ KHÁM BỆNH NHÂN --}}
+                <div class="card shadow-sm border-0 border-top border-secondary border-3 mb-3">
+                    <div class="card-header bg-white fw-bold py-3 text-secondary d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-history me-2"></i>Lịch sử BN ({{ isset($patientHistory) ? $patientHistory->count() : 0 }} lần)</span>
+                    </div>
+                    <div class="card-body p-2">
+                        @if(isset($patientHistory) && $patientHistory->count() > 0)
+                            @foreach($patientHistory->take(5) as $hist)
+                                <div class="mb-1">
+                                    <a href="{{ route('consultations.show', $hist->id) }}?reuse_mode=1&from_consultation={{ $consultation->id }}"
+                                        class="btn btn-sm btn-outline-secondary w-100 text-start overflow-hidden d-flex justify-content-between align-items-center" title="Xem chi tiết & Dùng lại toa">
+                                        <span>
+                                            <i class="fas fa-calendar-alt me-1"></i> {{ $hist->consultation_date ? \Carbon\Carbon::parse($hist->consultation_date)->format('d/m/Y') : '' }}
+                                        </span>
+                                        <span class="badge bg-secondary">
+                                            {{ $hist->diagnosis_code ?? 'KXĐ' }}
+                                        </span>
+                                    </a>
+                                </div>
+                            @endforeach
 
-                {{-- NÚT LỊCH SỬ BỆNH NHÂN --}}
-                <a href="{{ route('doctor.patient_history', ['from_consultation' => $consultation->id, 'patient_id' => $consultation->patient_id]) }}"
-                   class="btn btn-outline-secondary w-100 fw-semibold shadow-sm">
-                    <i class="fas fa-user-injured me-2"></i>Lịch sử khám của BN
-                    <i class="fas fa-arrow-right ms-2 opacity-75" style="font-size:0.8rem;"></i>
-                </a>
+                            @if($patientHistory->count() > 5)
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#moreHistoryCollapse" aria-expanded="false" aria-controls="moreHistoryCollapse">
+                                        <i class="fas fa-chevron-down me-1"></i> Sổ xuống tìm kiếm thêm
+                                    </button>
+                                </div>
+                                <div class="collapse mt-2" id="moreHistoryCollapse">
+                                    <input type="text" id="patientHistorySearch" class="form-control form-control-sm mb-2" placeholder="Tìm kiếm ngày, mã bệnh, tên bệnh...">
+                                    <div id="patientHistoryList" style="max-height: 250px; overflow-y: auto; overflow-x: hidden;">
+                                        @foreach($patientHistory->skip(5) as $hist)
+                                            <div class="mb-1 patient-history-item" data-search="{{ $hist->consultation_date ? \Carbon\Carbon::parse($hist->consultation_date)->format('d/m/Y') : '' }} {{ $hist->diagnosis_code ?? '' }} {{ $hist->diagnosis ? $hist->diagnosis->diagnosis_name : '' }}">
+                                                <a href="{{ route('consultations.show', $hist->id) }}?reuse_mode=1&from_consultation={{ $consultation->id }}"
+                                                    class="btn btn-sm btn-outline-secondary w-100 text-start overflow-hidden d-flex flex-column" title="Xem chi tiết & Dùng lại toa">
+                                                    <div class="d-flex justify-content-between w-100">
+                                                        <span><i class="fas fa-calendar-alt me-1"></i> {{ $hist->consultation_date ? \Carbon\Carbon::parse($hist->consultation_date)->format('d/m/Y') : '' }}</span>
+                                                        <span class="badge bg-secondary">{{ $hist->diagnosis_code ?? 'KXĐ' }}</span>
+                                                    </div>
+                                                    @if($hist->diagnosis)
+                                                        <div class="small text-truncate mt-1 text-muted" style="font-size: 0.75rem;">{{ $hist->diagnosis->diagnosis_name }}</div>
+                                                    @endif
+                                                </a>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+                        @else
+                            <div class="text-center text-muted small py-2">Chưa có lịch sử khám</div>
+                        @endif
+                    </div>
+                </div>
 
             </div>
 
@@ -737,6 +779,64 @@ document.addEventListener('DOMContentLoaded', function () {
         doctorPanel.addEventListener('show.bs.collapse', () => chevron.style.transform = 'rotate(180deg)');
         doctorPanel.addEventListener('hide.bs.collapse', () => chevron.style.transform = 'rotate(0deg)');
     }
+    // ===== Patient History Search =====
+    const patientSearchInput = document.getElementById('patientHistorySearch');
+    if (patientSearchInput) {
+        patientSearchInput.addEventListener('input', function () {
+            const keyword = this.value.toLowerCase().trim();
+            const items = document.querySelectorAll('.patient-history-item');
+            
+            items.forEach(function (item) {
+                const searchData = (item.getAttribute('data-search') || '').toLowerCase();
+                const match = !keyword || searchData.includes(keyword);
+                item.style.setProperty('display', match ? 'block' : 'none', 'important');
+            });
+        });
+    }
 });
+
+function openSaveTemplateModal(prescriptionId) {
+    let form = document.getElementById('saveTemplateForm');
+    form.action = '{{ route("doctor.templates.storeFromPrescription", "") }}/' + prescriptionId;
+    let modal = new bootstrap.Modal(document.getElementById('saveTemplateModal'));
+    modal.show();
+}
 </script>
 @endpush
+
+<!-- Modal Lưu Toa Mẫu -->
+<div class="modal fade" id="saveTemplateModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title"><i class="fas fa-save me-2"></i>Lưu Thành Toa Thuốc Mẫu</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="saveTemplateForm" method="POST" action="">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên Toa Mẫu <span class="text-danger">*</span></label>
+                        <input type="text" name="template_name" class="form-control" placeholder="VD: Toa Viêm Họng Người Lớn" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mã Bệnh (ICD-10)</label>
+                        <input type="text" name="diagnosis_code" class="form-control" value="{{ $consultation->diagnosis_code }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên Bệnh</label>
+                        <input type="text" name="disease_name" class="form-control" value="{{ $consultation->diagnosis ? $consultation->diagnosis->diagnosis_name : '' }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Ghi chú thêm</label>
+                        <textarea name="description" class="form-control" rows="2" placeholder="Tùy chọn..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Lưu Toa Mẫu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

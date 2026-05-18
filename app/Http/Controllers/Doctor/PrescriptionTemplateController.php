@@ -187,4 +187,53 @@ class PrescriptionTemplateController extends Controller
         
         return response()->json($templates);
     }
+
+    public function storeFromPrescription(Request $request, $prescriptionId)
+    {
+        $request->validate([
+            'template_name' => 'required|string|max:150',
+            'disease_name' => 'nullable|string|max:150',
+            'diagnosis_code' => 'nullable|string|max:20',
+            'description' => 'nullable|string',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $doctorId = auth()->user()->staff->id;
+            
+            // Lấy toa thuốc cũ
+            $prescription = \App\Models\Prescription::with('details')->findOrFail($prescriptionId);
+
+            // Tạo toa mẫu mới
+            $template = PrescriptionTemplate::create([
+                'template_name' => $request->template_name,
+                'disease_name' => $request->disease_name,
+                'diagnosis_code' => $request->diagnosis_code,
+                'doctor_id' => $doctorId,
+                'description' => $request->description,
+                'status' => 1,
+            ]);
+
+            // Copy chi tiết thuốc
+            foreach ($prescription->details as $detail) {
+                PrescriptionTemplateDetail::create([
+                    'template_id' => $template->id,
+                    'medicine_id' => $detail->medicine_id,
+                    'quantity' => $detail->quantity,
+                    'unit' => $detail->unit,
+                    'dosage' => $detail->dosage,
+                    'usage_instructions' => $detail->usage_instructions,
+                    'duration_days' => $detail->duration_days,
+                    'status' => 1,
+                ]);
+            }
+
+            DB::commit();
+            return back()->with('success', 'Đã lưu toa thuốc này làm toa mẫu thành công!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Lỗi lưu toa mẫu: ' . $e->getMessage());
+        }
+    }
 }

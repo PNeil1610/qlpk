@@ -38,13 +38,11 @@ Route::middleware(['auth', 'role:DOCTOR'])->group(function () {
     Route::get('/doctor/my-history', [ExaminationController::class, 'myHistory'])
         ->name('doctor.my_history');
 
-    // Lịch sử khám bệnh của bệnh nhân
-    Route::get('/doctor/patient-history', [ExaminationController::class, 'patientHistory'])
-        ->name('doctor.patient_history');
 
     // Quản lý toa thuốc mẫu
     Route::prefix('templates')->name('doctor.templates.')->group(function () {
         Route::get('/ajax/get-all', [PrescriptionTemplateController::class, 'ajaxGetTemplates'])->name('ajax');
+        Route::post('/from-prescription/{id}', [PrescriptionTemplateController::class, 'storeFromPrescription'])->name('storeFromPrescription');
         Route::get('/', [PrescriptionTemplateController::class, 'index'])->name('index');
         Route::get('/create', [PrescriptionTemplateController::class, 'create'])->name('create');
         Route::post('/', [PrescriptionTemplateController::class, 'store'])->name('store');

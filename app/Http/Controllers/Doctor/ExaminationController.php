@@ -69,7 +69,14 @@ class ExaminationController extends Controller
         // Thuốc sẽ được load qua AJAX trong view, giảm tải băng thông
         $categories = \App\Models\MedicineCategory::where('status', 1)->orderBy('category_name')->get();
 
-        return view('doctor.examine', compact('consultation', 'categories'));
+        $patientHistory = Consultation::with(['doctor', 'diagnosis', 'prescriptions'])
+            ->where('patient_id', $consultation->patient_id)
+            ->where('status', Consultation::STATUS_COMPLETED)
+            ->where('id', '!=', $id)
+            ->latest()
+            ->get();
+
+        return view('doctor.examine', compact('consultation', 'categories', 'patientHistory'));
     }
 
     /**
@@ -146,33 +153,7 @@ class ExaminationController extends Controller
         return view('doctor.my_history', compact('consultations', 'doctorName', 'keyword', 'fromConsultation'));
     }
 
-    /**
-     * 📄 Lịch sử khám bệnh của bệnh nhân (trang riêng)
-     */
-    public function patientHistory(Request $request)
-    {
-        $patientId       = $request->patient_id;
-        $fromConsultation = $request->from_consultation;
-        $keyword         = $request->keyword;
 
-        if (!$patientId) {
-            return redirect()->back()->with('error', 'Không tìm thấy thông tin bệnh nhân.');
-        }
-
-        $patient = \App\Models\Patient::findOrFail($patientId);
-
-        $query = Consultation::with(['doctor', 'diagnosis', 'prescriptions.prescriber', 'rooms'])
-            ->where('patient_id', $patientId)
-            ->where('status', Consultation::STATUS_COMPLETED);
-
-        if ($fromConsultation) {
-            $query->where('id', '!=', $fromConsultation);
-        }
-
-        $consultations = $query->latest()->paginate(18);
-
-        return view('doctor.patient_history', compact('consultations', 'patient', 'keyword', 'fromConsultation'));
-    }
 
     /**
      * 🏥 Danh sách bệnh nhân trong phòng của bác sĩ
