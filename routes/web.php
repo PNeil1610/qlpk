@@ -18,6 +18,9 @@ use App\Http\Controllers\NotificationController;
 */
 
 Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect()->route('home');
+    }
     return view('welcome');
 });
 
