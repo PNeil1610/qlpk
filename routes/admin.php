@@ -69,13 +69,10 @@ Route::middleware(['auth'])->group(function () {
 
     // ===== ADMIN ONLY =====
     Route::middleware(['role:ADMIN'])->group(function () {
-        // Mã bệnh
+        // Mã bệnh (CRUD)
         Route::prefix('diagnoses')->name('diagnoses.')->group(function () {
-            Route::get('/', [DiagnosisController::class, 'index'])->name('index');
             Route::get('/create', [DiagnosisController::class, 'create'])->name('create');
             Route::post('/', [DiagnosisController::class, 'store'])->name('store');
-            Route::get('/ajax/search', [DiagnosisController::class, 'ajaxSearch'])->name('ajax.search');
-            Route::get('/{id}', [DiagnosisController::class, 'show'])->name('show');
             Route::get('/{id}/edit', [DiagnosisController::class, 'edit'])->name('edit');
             Route::put('/{id}', [DiagnosisController::class, 'update'])->name('update');
             Route::delete('/{id}', [DiagnosisController::class, 'destroy'])->name('destroy');
@@ -121,25 +118,19 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{id}', [StaffController::class, 'destroy'])->name('destroy');
         });
 
-        // Loại thuốc
+        // Loại thuốc (CRUD)
         Route::prefix('medicine-categories')->name('medicine_categories.')->group(function () {
-            Route::get('/ajax/search', [MedicineCategoryController::class, 'ajaxSearch'])->name('ajax.search');
-            Route::get('/', [MedicineCategoryController::class, 'index'])->name('index');
             Route::get('/create', [MedicineCategoryController::class, 'create'])->name('create');
             Route::post('/', [MedicineCategoryController::class, 'store'])->name('store');
-            Route::get('/{id}', [MedicineCategoryController::class, 'show'])->name('show');
             Route::get('/{id}/edit', [MedicineCategoryController::class, 'edit'])->name('edit');
             Route::put('/{id}', [MedicineCategoryController::class, 'update'])->name('update');
             Route::delete('/{id}', [MedicineCategoryController::class, 'destroy'])->name('destroy');
         });
 
-        // Thuốc
+        // Thuốc (CRUD)
         Route::prefix('medicines')->name('medicines.')->group(function () {
-            Route::get('/', [MedicineController::class, 'index'])->name('index');
             Route::get('/create', [MedicineController::class, 'create'])->name('create');
             Route::post('/', [MedicineController::class, 'store'])->name('store');
-            Route::get('/{id}/show', [MedicineController::class, 'show'])->name('show');
-            Route::get('/{id}/details', [MedicineController::class, 'details'])->name('details');
             Route::get('/{id}/edit', [MedicineController::class, 'edit'])->name('edit');
             Route::put('/{id}', [MedicineController::class, 'update'])->name('update');
             Route::delete('/{id}', [MedicineController::class, 'destroy'])->name('destroy');
@@ -176,6 +167,29 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{id}/edit', [PrescriptionController::class, 'edit'])->name('edit');
             Route::put('/{id}', [PrescriptionController::class, 'update'])->name('update');
             Route::delete('/{id}', [PrescriptionController::class, 'destroy'])->name('destroy');
+        });
+
+        // ================= DANH MỤC DÙNG CHUNG (XEM) =================
+        // Mã bệnh (Xem)
+        Route::prefix('diagnoses')->name('diagnoses.')->group(function () {
+            Route::get('/', [DiagnosisController::class, 'index'])->name('index');
+            Route::get('/ajax/search', [DiagnosisController::class, 'ajaxSearch'])->name('ajax.search');
+            Route::get('/{id}', [DiagnosisController::class, 'show'])->name('show');
+        });
+
+        // Loại thuốc (Xem)
+        Route::prefix('medicine-categories')->name('medicine_categories.')->group(function () {
+            Route::get('/ajax/search', [MedicineCategoryController::class, 'ajaxSearch'])->name('ajax.search');
+            Route::get('/', [MedicineCategoryController::class, 'index'])->name('index');
+            Route::get('/{id}', [MedicineCategoryController::class, 'show'])->name('show');
+        });
+
+        // Thuốc (Xem)
+        Route::prefix('medicines')->name('medicines.')->group(function () {
+            Route::get('/ajax/search', [MedicineController::class, 'ajaxSearch'])->name('ajax.search');
+            Route::get('/', [MedicineController::class, 'index'])->name('index');
+            Route::get('/{id}/show', [MedicineController::class, 'show'])->name('show');
+            Route::get('/{id}/details', [MedicineController::class, 'details'])->name('details');
         });
     });
 

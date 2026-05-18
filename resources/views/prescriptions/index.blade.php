@@ -16,6 +16,7 @@
                                 <th scope="col">Ngày kê</th>
                                 <th scope="col">Bệnh nhân</th>
                                 <th scope="col">Trạng thái</th>
+                                <th scope="col" class="text-center">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -35,10 +36,15 @@
                                             <span class="badge bg-success">Đã phát thuốc</span>
                                         @endif
                                     </td>
+                                    <td class="text-center">
+                                        <a href="{{ route('prescriptions.show', $item->id) }}" class="btn btn-sm btn-outline-info" title="Xem toa thuốc">
+                                            <i class="fas fa-eye"></i> Xem
+                                        </a>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-5 text-muted">
+                                    <td colspan="5" class="text-center py-5 text-muted">
                                         Chưa có toa thuốc nào trên hệ thống.
                                     </td>
                                 </tr>
