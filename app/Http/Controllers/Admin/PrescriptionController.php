@@ -12,13 +12,51 @@ use Illuminate\Support\Facades\DB;
 
 class PrescriptionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $prescriptions = Prescription::with(['consultation.patient', 'dispenser'])
-                                     ->orderBy('id', 'desc')
-                                     ->paginate(10);
+        $keyword = $request->keyword;
+        $status = $request->status;
+
+        $query = Prescription::with(['consultation.patient', 'dispenser']);
         
-        return view('prescriptions.index', compact('prescriptions'));
+        if ($keyword) {
+            $query->whereHas('consultation.patient', function ($q) use ($keyword) {
+                $q->where('full_name', 'like', "%{$keyword}%")
+                  ->orWhere('patient_code', 'like', "%{$keyword}%")
+                  ->orWhere('phone_number', 'like', "%{$keyword}%");
+            });
+        }
+        
+        if ($status !== null && $status !== '') {
+            $query->where('status', $status);
+        }
+
+        $prescriptions = $query->orderBy('id', 'desc')->paginate(10);
+        
+        return view('prescriptions.index', compact('prescriptions', 'keyword', 'status'));
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $prescription = Prescription::findOrFail($id);
+        
+        if ($prescription->status == 1) {
+            $prescription->status = 2; // Đã phát thuốc
+            if (auth()->user() && auth()->user()->staff) {
+                $prescription->dispensed_by = auth()->user()->staff->id;
+            }
+            $prescription->dispensed_at = now();
+            $msg = 'Đã xác nhận lấy thuốc thành công!';
+        } else {
+            $prescription->status = 1; // Chưa phát thuốc
+            $prescription->dispensed_by = null;
+            $prescription->dispensed_at = null;
+            $msg = 'Đã hủy xác nhận lấy thuốc!';
+        }
+        
+        $prescription->save();
+        
+        return back()->with('success', $msg);
     }
 
     public function create(Request $request)

@@ -179,6 +179,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{id}/show', [PrescriptionController::class, 'show'])->name('show');
             Route::get('/{id}/edit', [PrescriptionController::class, 'edit'])->name('edit');
             Route::put('/{id}', [PrescriptionController::class, 'update'])->name('update');
+            Route::patch('/{id}/status', [PrescriptionController::class, 'updateStatus'])->name('update_status');
             Route::delete('/{id}', [PrescriptionController::class, 'destroy'])->name('destroy');
         });
 
