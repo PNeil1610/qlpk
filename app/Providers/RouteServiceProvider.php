@@ -44,6 +44,9 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/cashier.php'));
 
             Route::middleware('web')
+                ->group(base_path('routes/pharmacist.php'));
+
+            Route::middleware('web')
                 ->group(base_path('routes/patient.php'));
         });
     }

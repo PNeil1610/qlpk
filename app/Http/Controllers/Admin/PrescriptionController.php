@@ -37,28 +37,7 @@ class PrescriptionController extends Controller
         return view('prescriptions.index', compact('prescriptions', 'keyword', 'status'));
     }
 
-    public function updateStatus(Request $request, $id)
-    {
-        $prescription = Prescription::findOrFail($id);
-        
-        if ($prescription->status == 1) {
-            $prescription->status = 2; // Đã phát thuốc
-            if (auth()->user() && auth()->user()->staff) {
-                $prescription->dispensed_by = auth()->user()->staff->id;
-            }
-            $prescription->dispensed_at = now();
-            $msg = 'Đã xác nhận lấy thuốc thành công!';
-        } else {
-            $prescription->status = 1; // Chưa phát thuốc
-            $prescription->dispensed_by = null;
-            $prescription->dispensed_at = null;
-            $msg = 'Đã hủy xác nhận lấy thuốc!';
-        }
-        
-        $prescription->save();
-        
-        return back()->with('success', $msg);
-    }
+
 
     public function create(Request $request)
     {

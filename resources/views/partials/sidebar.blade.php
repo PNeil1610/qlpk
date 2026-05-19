@@ -184,6 +184,20 @@
             </a>
         @endif
 
+        {{-- ===== PHARMACIST: Kho Dược & Cấp Phát ===== --}}
+        @if(auth()->check() && auth()->user()->hasRole('PHARMACIST'))
+            <h6 class="sidebar-menu-title">Khu Vực Dược Sĩ</h6>
+            <a href="{{ route('prescriptions.index') }}">
+                <i class="fas fa-receipt menu-icon"></i> Cấp phát thuốc
+            </a>
+            <a href="{{ route('medicine_categories.index') }}">
+                <i class="fas fa-pills menu-icon"></i> Loại hình thuốc
+            </a>
+            <a href="{{ route('medicines.index') }}">
+                <i class="fas fa-capsules menu-icon"></i> Danh mục thuốc
+            </a>
+        @endif
+
         {{-- ===== TẤT CẢ (trừ PATIENT): Thông báo ===== --}}
         @if(auth()->check() && !auth()->user()->hasRole('PATIENT'))
             <h6 class="sidebar-menu-title">Khác</h6>

@@ -170,18 +170,12 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
-    // ===== ADMIN & DOCTOR =====
-    Route::middleware(['role:ADMIN,DOCTOR'])->group(function () {
-        // Đơn thuốc
+    // ===== ADMIN, DOCTOR & PHARMACIST =====
+    Route::middleware(['role:ADMIN,DOCTOR,PHARMACIST'])->group(function () {
+        // Đơn thuốc (Chỉ xem)
         Route::prefix('prescriptions')->name('prescriptions.')->group(function () {
             Route::get('/', [PrescriptionController::class, 'index'])->name('index');
-            Route::get('/create', [PrescriptionController::class, 'create'])->name('create');
-            Route::post('/', [PrescriptionController::class, 'store'])->name('store');
             Route::get('/{id}/show', [PrescriptionController::class, 'show'])->name('show');
-            Route::get('/{id}/edit', [PrescriptionController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [PrescriptionController::class, 'update'])->name('update');
-            Route::patch('/{id}/status', [PrescriptionController::class, 'updateStatus'])->name('update_status');
-            Route::delete('/{id}', [PrescriptionController::class, 'destroy'])->name('destroy');
         });
 
         // ================= DANH MỤC DÙNG CHUNG (XEM) =================
@@ -205,6 +199,26 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/', [MedicineController::class, 'index'])->name('index');
             Route::get('/{id}/show', [MedicineController::class, 'show'])->name('show');
             Route::get('/{id}/details', [MedicineController::class, 'details'])->name('details');
+        });
+    });
+
+    // ===== ADMIN & PHARMACIST =====
+    Route::middleware(['role:ADMIN,PHARMACIST'])->group(function () {
+        // Xác nhận cấp phát thuốc
+        Route::prefix('prescriptions')->name('prescriptions.')->group(function () {
+            Route::patch('/{id}/status', [PrescriptionController::class, 'updateStatus'])->name('update_status');
+        });
+    });
+
+    // ===== ADMIN & DOCTOR =====
+    Route::middleware(['role:ADMIN,DOCTOR'])->group(function () {
+        // Đơn thuốc (CRUD)
+        Route::prefix('prescriptions')->name('prescriptions.')->group(function () {
+            Route::get('/create', [PrescriptionController::class, 'create'])->name('create');
+            Route::post('/', [PrescriptionController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [PrescriptionController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [PrescriptionController::class, 'update'])->name('update');
+            Route::delete('/{id}', [PrescriptionController::class, 'destroy'])->name('destroy');
         });
     });
 
