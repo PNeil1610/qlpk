@@ -202,14 +202,6 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
-    // ===== ADMIN & PHARMACIST =====
-    Route::middleware(['role:ADMIN,PHARMACIST'])->group(function () {
-        // Xác nhận cấp phát thuốc
-        Route::prefix('prescriptions')->name('prescriptions.')->group(function () {
-            Route::patch('/{id}/status', [PrescriptionController::class, 'updateStatus'])->name('update_status');
-        });
-    });
-
     // ===== ADMIN & DOCTOR =====
     Route::middleware(['role:ADMIN,DOCTOR'])->group(function () {
         // Đơn thuốc (CRUD)
