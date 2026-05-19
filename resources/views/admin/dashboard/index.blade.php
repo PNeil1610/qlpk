@@ -37,7 +37,7 @@
             <div class="card shadow-sm border-0 h-100 dashboard-card">
                 <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                     <select class="form-select form-select-sm w-auto fw-bold text-primary border-primary" id="metric1" onchange="updateChart(1)">
-                        <option value="new_patients">Số bệnh nhân ĐK mới</option>
+                        <option value="new_patients">Số bệnh nhân đăng ký mới</option>
                         <option value="re_exam_patients">Số lượng bệnh nhân tái khám</option>
                     </select>
                     <select class="form-select form-select-sm w-auto bg-light" id="period1" onchange="updateChart(1)">

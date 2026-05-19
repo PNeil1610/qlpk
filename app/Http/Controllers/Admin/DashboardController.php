@@ -85,8 +85,12 @@ class DashboardController extends Controller
             case 're_exam_patients':
                 return Consultation::select(DB::raw("DATE_FORMAT(consultation.consultation_date, '{$groupByFormat}') as time_group"), DB::raw('count(DISTINCT consultation.patient_id) as aggregate'))
                     ->whereBetween('consultation.consultation_date', [$start, $end])
-                    ->whereHas('patient', function ($q) use ($start) {
-                        $q->where('created_at', '<', $start); // Bệnh nhân đã đăng ký từ trước
+                    ->whereExists(function ($query) {
+                        $query->select(DB::raw(1))
+                              ->from('consultation as past_consultation')
+                              ->whereColumn('past_consultation.patient_id', 'consultation.patient_id')
+                              ->whereColumn('past_consultation.id', '<', 'consultation.id')
+                              ->where('past_consultation.status', \App\Models\Consultation::STATUS_COMPLETED);
                     })
                     ->groupBy('time_group')
                     ->orderBy('time_group')
