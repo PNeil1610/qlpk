@@ -9,6 +9,8 @@ use App\Models\PrescriptionDetail;
 use App\Models\Medicine;
 use App\Models\Consultation;
 use App\Models\SystemSetting;
+use App\Models\Invoice;
+use App\Models\InvoiceDetail;
 use Illuminate\Support\Facades\DB;
 
 class PrescriptionController extends Controller
@@ -92,8 +94,11 @@ class PrescriptionController extends Controller
                 $instructions = $request->usage_instructions ?? [];
                 $durations = $request->duration_days ?? [];
 
+                $invoice = Invoice::where('consultation_id', $request->consultation_id)->first();
+                $additionalMedicineFee = 0;
+
                 foreach ($medicineIds as $index => $medicineId) {
-                    PrescriptionDetail::create([
+                    $prescriptionDetail = PrescriptionDetail::create([
                         'prescription_id'    => $prescription->id,
                         'medicine_id'        => $medicineId,
                         'quantity'           => $quantities[$index],
@@ -103,6 +108,45 @@ class PrescriptionController extends Controller
                         'duration_days'      => $durations[$index] ?? null,
                         'status'             => 1,
                     ]);
+
+                    // Đồng bộ InvoiceDetail
+                    if ($invoice) {
+                        $medicine = Medicine::with(['details' => function ($q) use ($prescriptionDetail) {
+                            $q->where('unit', $prescriptionDetail->unit);
+                        }])->find($medicineId);
+
+                        $medicinePrice = 0;
+                        if ($medicine && $medicine->details->isNotEmpty()) {
+                            $medicinePrice = $medicine->details->first()->price;
+                        } elseif ($medicine) {
+                            $firstDetail = $medicine->details()->first();
+                            if ($firstDetail) {
+                                $medicinePrice = $firstDetail->price;
+                            }
+                        }
+
+                        $lineTotal = $prescriptionDetail->quantity * $medicinePrice;
+                        $additionalMedicineFee += $lineTotal;
+
+                        InvoiceDetail::create([
+                            'invoice_id' => $invoice->id,
+                            'item_type' => InvoiceDetail::TYPE_MEDICINE,
+                            'item_name' => $medicine->medicine_name ?? 'Thuốc',
+                            'reference_id' => $medicineId,
+                            'quantity' => $prescriptionDetail->quantity,
+                            'unit_price' => $medicinePrice,
+                            'discount' => 0,
+                            'line_total' => $lineTotal,
+                            'notes' => $prescriptionDetail->dosage,
+                            'status' => 1,
+                        ]);
+                    }
+                }
+
+                if ($invoice) {
+                    $invoice->medicine_fee += $additionalMedicineFee;
+                    $invoice->total_amount += $additionalMedicineFee;
+                    $invoice->save();
                 }
 
                 $consultation = Consultation::find($request->consultation_id);
@@ -148,6 +192,39 @@ class PrescriptionController extends Controller
                 
                 if ($invoice) {
                     return redirect()->back()->with('error', 'Không thể xóa toa thuốc vì hóa đơn đã được thanh toán!');
+                }
+
+                $pendingInvoice = \App\Models\Invoice::where('consultation_id', $consultationId)
+                    ->where('status', \App\Models\Invoice::STATUS_PENDING)
+                    ->first();
+
+                if ($pendingInvoice) {
+                    $deductedMedicineFee = 0;
+                    foreach ($prescription->details as $detail) {
+                        $invoiceDetail = \App\Models\InvoiceDetail::where('invoice_id', $pendingInvoice->id)
+                            ->where('item_type', \App\Models\InvoiceDetail::TYPE_MEDICINE)
+                            ->where('reference_id', $detail->medicine_id)
+                            ->first();
+
+                        if ($invoiceDetail) {
+                            // Cần trừ bớt số lượng hoặc xóa nếu chỉ có 1
+                            if ($invoiceDetail->quantity > $detail->quantity) {
+                                $invoiceDetail->quantity -= $detail->quantity;
+                                $invoiceDetail->line_total -= ($detail->quantity * $invoiceDetail->unit_price);
+                                $invoiceDetail->save();
+                                $deductedMedicineFee += ($detail->quantity * $invoiceDetail->unit_price);
+                            } else {
+                                $deductedMedicineFee += $invoiceDetail->line_total;
+                                $invoiceDetail->delete();
+                            }
+                        }
+                    }
+
+                    $pendingInvoice->medicine_fee -= $deductedMedicineFee;
+                    $pendingInvoice->total_amount -= $deductedMedicineFee;
+                    if ($pendingInvoice->medicine_fee < 0) $pendingInvoice->medicine_fee = 0;
+                    if ($pendingInvoice->total_amount < 0) $pendingInvoice->total_amount = 0;
+                    $pendingInvoice->save();
                 }
 
                 PrescriptionDetail::where('prescription_id', $id)->delete();

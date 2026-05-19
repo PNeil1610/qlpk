@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Consultation;
 use App\Models\Patient;
+use App\Models\Invoice;
+use App\Models\InvoiceDetail;
 use Illuminate\Http\Request;
 
 class ConsultationController extends Controller
@@ -96,6 +98,35 @@ class ConsultationController extends Controller
                 'consultation_id' => $consultation->id,
                 'room_id' => $request->room_id,
                 'status' => 1, // Đang chờ
+            ]);
+        }
+
+        // Tự động tạo Hóa đơn (Invoice) cho phiên khám này
+        $consultationFee = Invoice::DEFAULT_CONSULTATION_FEE ?? 100000;
+        $invoice = Invoice::create([
+            'invoice_code' => Invoice::generateInvoiceCode(),
+            'consultation_id' => $consultation->id,
+            'invoice_date' => now(),
+            'consultation_fee' => $consultationFee,
+            'lab_test_fee' => 0,
+            'medicine_fee' => 0,
+            'other_fee' => 0,
+            'discount' => 0,
+            'total_amount' => $consultationFee,
+            'status' => Invoice::STATUS_PENDING,
+        ]);
+
+        if ($consultationFee > 0) {
+            InvoiceDetail::create([
+                'invoice_id' => $invoice->id,
+                'item_type' => InvoiceDetail::TYPE_CONSULTATION,
+                'item_name' => 'Chi phí khám bệnh',
+                'reference_id' => $consultation->id,
+                'quantity' => 1,
+                'unit_price' => $consultationFee,
+                'discount' => 0,
+                'line_total' => $consultationFee,
+                'status' => 1,
             ]);
         }
 
