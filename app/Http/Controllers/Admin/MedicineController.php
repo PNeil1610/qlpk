@@ -186,10 +186,13 @@ class MedicineController extends Controller
         $keyword    = $request->keyword;
         $categoryId = $request->category_id;
 
-        $medicines = Medicine::with(['details' => fn($q) => $q->where('status', 1)])
+        $medicines = Medicine::with([
+                'details' => fn($q) => $q->where('status', 1),
+                'category',
+            ])
             ->where('status', 1)
             ->when($categoryId, fn($q) => $q->where('medicine_category_id', $categoryId))
-            ->when($keyword, fn($q) => $q->where('medicine_name', 'like', "%$keyword%"))
+            ->when($keyword,    fn($q) => $q->where('medicine_name', 'like', "%$keyword%"))
             ->orderBy('medicine_name')
             ->limit(50)
             ->get()
@@ -199,7 +202,8 @@ class MedicineController extends Controller
                     'id'            => $m->id,
                     'medicine_name' => $m->medicine_name,
                     'medicine_code' => $m->medicine_code,
-                    'unit'          => $detail?->unit ?? '',
+                    'category_name' => $m->category?->category_name ?? '',
+                    'unit'          => $detail?->unit  ?? '',
                     'price'         => $detail?->price ?? 0,
                 ];
             });

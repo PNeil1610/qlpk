@@ -285,7 +285,7 @@
 
                 {{-- PHẦN 2: KÊ ĐƠN THUỐC --}}
                 @if($consultation->status !== \App\Models\Consultation::STATUS_COMPLETED)
-                    <div class="card shadow-sm border-0 border-top border-success border-3">
+                    <div class="card shadow-sm border-0 border-top border-success border-3" id="prescriptionSection">
                         <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center">
                             <span><i class="fas fa-pills text-success me-2"></i>Kê đơn thuốc</span>
                             <div>
@@ -302,52 +302,10 @@
                                 @csrf
                                 <input type="hidden" name="consultation_id" value="{{ $consultation->id }}">
 
-                                <div class="table-responsive">
-                                    <table class="table table-hover table-bordered mb-3 align-middle" style="min-width: 700px;">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th style="width:15%">Nhóm Thuốc</th>
-                                                <th style="width:20%">Tên Thuốc *</th>
-                                                <th style="width:8%">Đơn vị</th>
-                                                <th style="width:9%">SL/lần *</th>
-                                                <th style="width:9%">Lần/ngày *</th>
-                                                <th style="width:9%">Số ngày *</th>
-                                                <th style="width:9%">Tổng SL *</th>
-                                                <th style="width:15%">Cách dùng</th>
-                                                <th style="width:6%" class="text-center">Xóa</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="prescription-body">
-                                            <tr>
-                                                <td>
-                                                    <select class="form-select form-select-sm category-select">
-                                                        <option value="">Tất cả</option>
-                                                        @foreach($categories as $cat)
-                                                            <option value="{{ $cat->id }}">{{ $cat->category_name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </td>
-                                                <td>
-                                                    <select name="medicines[]" class="form-select form-select-sm medicine-select" required>
-                                                    </select>
-                                                </td>
-                                                <td><input type="text" name="units[]" class="form-control form-control-sm unit-input" readonly placeholder="---"></td>
-                                                <td><input type="number" class="form-control form-control-sm qty-per-time" min="0.1" step="0.1" placeholder="Vd: 1" required></td>
-                                                <td><input type="number" class="form-control form-control-sm times-per-day" min="1" step="1" placeholder="Vd: 2" required></td>
-                                                <td><input type="number" name="duration_days[]" class="form-control form-control-sm duration-days" min="1" step="1" placeholder="Vd: 5" required></td>
-                                                <td>
-                                                    <input type="number" name="quantities[]" class="form-control form-control-sm total-quantity" readonly required>
-                                                    <input type="hidden" name="dosages[]" class="dosage-input">
-                                                </td>
-                                                <td><input type="text" name="usage_instructions[]" class="form-control form-control-sm" placeholder="Sau ăn"></td>
-                                                <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-row" disabled><i class="fas fa-times"></i></button></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <div id="prescription-cards-container"></div>
 
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Lời dặn của Bác sĩ</label>
+                                <div class="mb-3 mt-3">
+                                    <label class="form-label fw-bold"><i class="fas fa-comment-medical me-1 text-muted"></i>Lời dặn của Bác sĩ</label>
                                     <textarea name="doctor_advice" class="form-control" rows="2"
                                         placeholder="Ghi chú chế độ ăn uống, kiêng cữ..."></textarea>
                                 </div>
@@ -369,351 +327,119 @@
 
 @push('styles')
     <style>
-        .history-item:hover {
-            background-color: #f8f9fa;
-        }
+        .history-item:hover { background-color: #f8f9fa; }
+        .transition { transition: all 0.2s ease-in-out; }
+        .hover-underline:hover { text-decoration: underline !important; }
 
-        .transition {
-            transition: all 0.2s ease-in-out;
-        }
-
-        .hover-underline:hover {
-            text-decoration: underline !important;
-        }
+        /* === COMPACT RX CARD === */
+        .rx-card { border-color: #dee2e6 !important; }
+        .rx-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+        .rx-row { min-height: 0; }
+        .rx-label { font-size: .65rem; color: #6c757d; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 2px; white-space: nowrap; }
+        .dose-input { font-weight: 600; font-size: .82rem; height: 28px !important; }
+        .dose-input:focus { border-color: #198754; box-shadow: 0 0 0 .12rem rgba(25,135,84,.2); }
+        .rx-card .form-control-sm, .rx-card .form-select-sm { font-size: .82rem; height: 28px !important; padding-top: .2rem; padding-bottom: .2rem; }
+        .rx-card .btn-sm { font-size: .75rem; padding: .2rem .45rem; }
+        .btn-timing { font-size: .72rem !important; padding: .18rem .35rem !important; }
+        .remove-card:disabled { opacity: .3; cursor: not-allowed; }
+        .rx-unit-lbl { line-height: 1; margin-top: 1px; }
+        #prescription-cards-container .select2-container { font-size: .82rem; }
     </style>
 @endpush
 
 @push('scripts')
-    <script>
-        $(document).ready(function () {
-            // Select2 Mã bệnh
-            $('#diagnosis_code').select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                placeholder: 'Nhập mã hoặc tên bệnh...',
-                allowClear: true,
-                ajax: {
-                    url: "{{ route('diagnoses.ajax.search') }}",
-                    dataType: 'json',
-                    delay: 250,
-                    data: function (params) { return { keyword: params.term }; },
-                    processResults: function (data) {
-                        return {
-                            results: data.map(item => ({
-                                id: item.diagnosis_code,
-                                text: item.diagnosis_code + ' - ' + item.diagnosis_name,
-                                code: item.diagnosis_code,
-                                name: item.diagnosis_name
-                            }))
-                        };
-                    }
+<script>
+    window.MEDICINE_AJAX_URL  = "{{ route('medicines.ajax.search') }}";
+    window.CATEGORY_AJAX_URL  = "{{ route('medicine_categories.ajax.search') }}";
+    window.currentTemplates   = [];
+    window.CATEGORIES_HTML    = '';
+</script>
+<script src="{{ asset('js/prescription-form.js') }}"></script>
+<script>
+    $(document).ready(function () {
+        // ===== Select2 Mã bệnh ICD =====
+        $('#diagnosis_code').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: 'Nhập mã hoặc tên bệnh...',
+            allowClear: true,
+            ajax: {
+                url: "{{ route('diagnoses.ajax.search') }}",
+                dataType: 'json',
+                delay: 250,
+                data: function(params) { return { keyword: params.term }; },
+                processResults: function(data) {
+                    return { results: data.map(function(item) { return { id: item.diagnosis_code, text: item.diagnosis_code + ' - ' + item.diagnosis_name, code: item.diagnosis_code, name: item.diagnosis_name }; }) };
+                }
+            },
+            templateResult: function(item) {
+                if (item.loading) return item.text;
+                var code = item.code || item.id;
+                var name = item.name || (item.text.indexOf(' - ') > -1 ? item.text.split(' - ').slice(1).join(' - ') : item.text);
+                return $('<div class="d-flex align-items-center border-bottom pb-1 mb-1"><span class="badge bg-success me-2" style="min-width:55px;">' + code + '</span><span>' + name + '</span></div>');
+            }
+        });
+
+        // ===== Template Modal =====
+        var templateLoaded = false;
+        $('#templateModal').on('show.bs.modal', function () {
+            if (templateLoaded) return;
+            $.ajax({
+                url: '{{ route("doctor.templates.ajax") }}',
+                method: 'GET',
+                success: function(res) {
+                    window.currentTemplates = res;
+                    var html = res.length === 0
+                        ? '<tr><td colspan="4" class="text-center py-4 text-muted">Bạn chưa có toa mẫu nào.</td></tr>'
+                        : res.map(function(t, i) {
+                            return '<tr class="template-row">'
+                                + '<td class="ps-3 fw-bold text-primary">' + t.template_name + '</td>'
+                                + '<td>' + (t.diagnosis_code ? '<span class="badge bg-success me-1">' + t.diagnosis_code + '</span>' : '') + ' ' + (t.disease_name || '--') + '</td>'
+                                + '<td><span class="badge bg-secondary">' + t.details.length + ' thuốc</span></td>'
+                                + '<td class="text-center pe-3"><button type="button" class="btn btn-sm btn-success btn-apply-template" data-index="' + i + '">Chọn</button></td>'
+                            + '</tr>';
+                        }).join('');
+                    $('#templateListBody').html(html);
+                    templateLoaded = true;
+                    $('#templateSearchInput').on('input', function() {
+                        var kw = $(this).val().toLowerCase();
+                        $('#templateListBody tr.template-row').each(function() { $(this).toggle($(this).text().toLowerCase().indexOf(kw) > -1); });
+                    });
                 },
-                templateResult: function (item) {
-                    if (item.loading) return item.text;
-                    let code = item.code || item.id;
-                    let name = item.name;
-                    if (!name && item.text && item.text.includes(' - ')) {
-                        name = item.text.split(' - ').slice(1).join(' - ');
-                    }
-                    if (!code) return item.text;
-                    return $(`<div class="d-flex align-items-center border-bottom pb-2 mb-1">
-                        <span class="badge bg-success me-3" style="min-width:60px;font-size:0.9em;">${code}</span>
-                        <span class="text-dark fw-medium">${name || item.text}</span>
-                    </div>`);
-                }
-            });
-
-            // ================= CẤU HÌNH AJAX SELECT2 CHO THUỐC =================
-            function initMedicineSelect(selector) {
-                $(selector).each(function() {
-                    var $el = $(this);
-                    $el.select2({
-                        theme: 'bootstrap-5',
-                        width: '100%',
-                        placeholder: '-- Chọn thuốc --',
-                        allowClear: true,
-                        ajax: {
-                            url: "{{ route('medicines.ajax.search') }}",
-                            dataType: 'json',
-                            delay: 250,
-                            data: function (params) { 
-                                var categoryId = $el.closest('tr').find('.category-select').val();
-                                return { 
-                                    keyword: params.term,
-                                    category_id: categoryId 
-                                }; 
-                            },
-                            processResults: function (data) {
-                                return {
-                                    results: data.map(item => ({
-                                        id: item.id,
-                                        text: item.medicine_name,
-                                        unit: item.unit
-                                    }))
-                                };
-                            }
-                        }
-                    }).on('select2:select', function (e) {
-                        var data = e.params.data;
-                        var row = $(this).closest('tr');
-                        var unitInput = row.find('.unit-input');
-                        unitInput.val(data.unit || '');
-                        unitInput[0].dispatchEvent(new Event('input', { bubbles: true }));
-                    });
-                });
-            }
-
-            // Khởi tạo dòng đầu tiên
-            initMedicineSelect('.medicine-select');
-
-            const tableBody = document.getElementById('prescription-body');
-            const btnAdd = document.getElementById('btn-add-medicine');
-
-            // Xóa thuốc đã chọn nếu đổi nhóm thuốc
-            tableBody.addEventListener('change', function (e) {
-                if (e.target.classList.contains('category-select')) {
-                    var $row = $(e.target).closest('tr');
-                    $row.find('.medicine-select').val(null).trigger('change');
-                    $row.find('.unit-input').val('');
-                }
-            });
-
-            // Tự động tính toán tổng số lượng thuốc
-            tableBody.addEventListener('input', function (e) {
-                if (e.target.classList.contains('qty-per-time') || 
-                    e.target.classList.contains('times-per-day') || 
-                    e.target.classList.contains('duration-days') ||
-                    e.target.classList.contains('unit-input')) {
-                    
-                    const row = e.target.closest('tr');
-                    const qtyPerTime = parseFloat(row.querySelector('.qty-per-time').value) || 0;
-                    const timesPerDay = parseFloat(row.querySelector('.times-per-day').value) || 0;
-                    const durationDays = parseFloat(row.querySelector('.duration-days').value) || 0;
-                    const unit = row.querySelector('.unit-input').value || 'viên';
-
-                    if (qtyPerTime > 0 && timesPerDay > 0 && durationDays > 0) {
-                        const total = Math.ceil(qtyPerTime * timesPerDay * durationDays);
-                        row.querySelector('.total-quantity').value = total;
-                        row.querySelector('.dosage-input').value = `${qtyPerTime} ${unit}/lần, ${timesPerDay} lần/ngày`;
-                    } else {
-                        row.querySelector('.total-quantity').value = '';
-                    }
-                }
-            });
-
-            btnAdd.addEventListener('click', function () {
-                const rows = tableBody.querySelectorAll('tr');
-                const firstRow = rows[0];
-                const lastRow = rows[rows.length - 1]; // Lấy dòng cuối cùng để copy dữ liệu
-                
-                // Lấy dữ liệu từ dòng cuối cùng
-                const lastTimesPerDay = lastRow.querySelector('.times-per-day').value;
-                const lastDurationDays = lastRow.querySelector('.duration-days').value;
-                
-                // Phá hủy Select2 trước khi clone dòng đầu để tránh lỗi UI
-                $(firstRow).find('.medicine-select').select2('destroy');
-                
-                const newRow = firstRow.cloneNode(true);
-                newRow.querySelectorAll('input').forEach(input => input.value = '');
-                newRow.querySelector('.category-select').selectedIndex = 0; // Reset nhóm thuốc về Tất cả
-                newRow.querySelector('.medicine-select').innerHTML = ''; // Xóa option thuốc đã chọn
-                newRow.querySelector('.remove-row').disabled = false;
-                
-                // Kế thừa Lần/ngày và Số ngày từ dòng trước đó
-                newRow.querySelector('.times-per-day').value = lastTimesPerDay;
-                newRow.querySelector('.duration-days').value = lastDurationDays;
-                
-                tableBody.appendChild(newRow);
-                
-                // Khởi tạo lại cả dòng cũ và mới
-                initMedicineSelect($(firstRow).find('.medicine-select'));
-                initMedicineSelect($(newRow).find('.medicine-select'));
-                
-                updateRemoveButtons();
-            });
-
-            tableBody.addEventListener('click', function (e) {
-                const btn = e.target.closest('.remove-row');
-                if (btn) {
-                    if (tableBody.querySelectorAll('tr').length > 1) {
-                        btn.closest('tr').remove();
-                        updateRemoveButtons();
-                    }
-                }
-            });
-
-            function updateRemoveButtons() {
-                const rows = tableBody.querySelectorAll('tr');
-                tableBody.querySelectorAll('.remove-row').forEach((btn, i) => {
-                    btn.disabled = (rows.length === 1);
-                });
-            }
-
-            // 🔥 Xử lý tin nhắn "Sử dụng lại toa thuốc" từ cửa sổ con (Popup)
-            window.addEventListener('message', function (event) {
-                if (event.data.type === 'REUSE_PRESCRIPTION') {
-                    applyReuseData(event.data);
-                }
-            });
-
-            // 🔥 Kiểm tra localStorage khi load trang (Trường hợp điều hướng cùng tab)
-            const savedData = localStorage.getItem('reuse_prescription_data');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                // Chỉ áp dụng nếu dữ liệu mới (trong vòng 5 phút)
-                if (Date.now() - data.timestamp < 300000) {
-                    applyReuseData(data);
-                }
-                localStorage.removeItem('reuse_prescription_data');
-            }
-
-            function applyReuseData(data) {
-                const medicinesData = data.medicines;
-                const advice = data.advice;
-
-                // Điền lời dặn
-                const adviceTextarea = document.querySelector('textarea[name="doctor_advice"]');
-                if (adviceTextarea) adviceTextarea.value = advice;
-
-                // Xóa sạch các dòng hiện tại
-                tableBody.innerHTML = '';
-
-                medicinesData.forEach((med, index) => {
-                    const newRow = document.createElement('tr');
-                    newRow.innerHTML = `
-                        <td>
-                            <select class="form-select form-select-sm category-select">
-                                <option value="">Tất cả</option>
-                                @foreach($categories as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->category_name }}</option>
-                                @endforeach
-                            </select>
-                        </td>
-                        <td>
-                            <select name="medicines[]" class="form-select form-select-sm medicine-select" required>
-                                <option value="${med.id}" selected>${med.name}</option>
-                            </select>
-                        </td>
-                        <td><input type="text" name="units[]" class="form-control form-control-sm unit-input" readonly value="${med.unit || ''}"></td>
-                        <td><input type="number" class="form-control form-control-sm qty-per-time" min="0.1" step="0.1" placeholder="Vd: 1" required></td>
-                        <td><input type="number" class="form-control form-control-sm times-per-day" min="1" step="1" placeholder="Vd: 2" required></td>
-                        <td><input type="number" name="duration_days[]" class="form-control form-control-sm duration-days" min="1" step="1" value="${med.duration_days || ''}" required></td>
-                        <td>
-                            <input type="number" name="quantities[]" class="form-control form-control-sm total-quantity" value="${med.quantity}" readonly required>
-                            <input type="hidden" name="dosages[]" class="dosage-input" value="${med.dosage}">
-                        </td>
-                        <td><input type="text" name="usage_instructions[]" class="form-control form-control-sm" value="${med.usage_instructions || ''}"></td>
-                        <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-row"><i class="fas fa-times"></i></button></td>
-                    `;
-                    
-                    // Thử bóc tách "lần/ngày" và "viên/lần" từ dosage nếu có
-                    if (med.dosage) {
-                        let timesMatch = med.dosage.match(/Ngày\s+(\d+)\s+lần/i);
-                        let doseMatch = med.dosage.match(/mỗi lần\s+([\d.]+)/i);
-                        if(timesMatch) {
-                            let el = newRow.querySelector('.times-per-day');
-                            if (el) el.value = timesMatch[1];
-                        }
-                        if(doseMatch) {
-                            let el = newRow.querySelector('.qty-per-time');
-                            if (el) el.value = doseMatch[1];
-                        }
-                    }
-                    
-                    tableBody.appendChild(newRow);
-                });
-                
-                initMedicineSelect('.medicine-select');
-                updateRemoveButtons();
-
-                // Cuộn xuống phần kê đơn
-                document.getElementById('prescriptionForm').scrollIntoView({ behavior: 'smooth' });
-            }
-
-            // --- TEMPLATE LOGIC ---
-            let templateLoaded = false;
-            let currentTemplates = [];
-            $('#templateModal').on('show.bs.modal', function () {
-                if (!templateLoaded) {
-                    $.ajax({
-                        url: '{{ route("doctor.templates.ajax") }}',
-                        method: 'GET',
-                        success: function(res) {
-                            currentTemplates = res;
-                            let html = '';
-                            if (res.length === 0) {
-                                html = `<tr><td colspan="4" class="text-center py-4 text-muted">Bạn chưa có toa mẫu nào. <a href="{{ route('doctor.templates.create') }}">Tạo ngay</a></td></tr>`;
-                            } else {
-                                res.forEach((t, index) => {
-                                    html += `
-                                    <tr class="template-row">
-                                        <td class="ps-3 fw-bold text-primary">${t.template_name}</td>
-                                        <td>${t.diagnosis_code ? `<span class="badge bg-success me-1">${t.diagnosis_code}</span>` : ''} ${t.disease_name || '--'}</td>
-                                        <td><span class="badge bg-secondary">${t.details.length} thuốc</span></td>
-                                        <td class="text-center pe-3">
-                                            <button type="button" class="btn btn-sm btn-success btn-apply-template shadow-sm" data-index='${index}'>
-                                                <i class="fas fa-check"></i> Chọn
-                                            </button>
-                                        </td>
-                                    </tr>`;
-                                });
-                            }
-                            $('#templateListBody').html(html);
-                            templateLoaded = true;
-                            
-                            // Initialize search
-                            $('#templateSearchInput').on('input', function() {
-                                let keyword = $(this).val().toLowerCase().trim();
-                                $('#templateListBody tr.template-row').each(function() {
-                                    let text = $(this).text().toLowerCase();
-                                    $(this).toggle(text.includes(keyword));
-                                });
-                            });
-                        },
-                        error: function() {
-                            $('#templateListBody').html(`<tr><td colspan="4" class="text-center py-4 text-danger">Lỗi tải dữ liệu toa mẫu.</td></tr>`);
-                        }
-                    });
-                }
-            });
-
-            $(document).on('click', '.btn-apply-template', function() {
-                let index = $(this).data('index');
-                let details = currentTemplates[index].details;
-                
-                if (confirm('Áp dụng toa mẫu sẽ ghi đè lên các thuốc hiện tại. Bạn có chắc chắn?')) {
-                    
-                    // Xóa hoàn toàn modal và backdrop để tránh lỗi treo màn hình
-                    $('#templateModal').modal('hide');
-                    setTimeout(() => {
-                        $('.modal-backdrop').remove();
-                        $('body').removeClass('modal-open').css('overflow', '').css('padding-right', '');
-                    }, 100);
-                    
-                    const mappedData = {
-                        advice: '',
-                        medicines: details.map(d => ({
-                            id: d.medicine.id,
-                            name: d.medicine.medicine_name + ' (' + (d.medicine.trade_name||'') + ')',
-                            unit: d.unit,
-                            quantity: d.quantity,
-                            duration_days: d.duration_days,
-                            dosage: d.dosage,
-                            usage_instructions: d.usage_instructions
-                        }))
-                    };
-                    applyReuseData(mappedData);
-                    
-                    let htmlAlert = `<div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fas fa-check-circle me-1"></i> Đã áp dụng toa thuốc mẫu!
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>`;
-                    $('#prescriptionForm').prepend(htmlAlert);
-                }
+                error: function() { $('#templateListBody').html('<tr><td colspan="4" class="text-center py-4 text-danger">Lỗi tải dữ liệu.</td></tr>'); }
             });
         });
-    </script>
+
+        // ===== Áp dụng toa mẫu =====
+        $(document).on('click', '.btn-apply-template', function() {
+            var index = $(this).data('index');
+            var details = (window.currentTemplates[index] || {}).details || [];
+            if (!confirm('Áp dụng toa mẫu sẽ ghi đè lên các thuốc hiện tại. Bạn có chắc chắn?')) return;
+
+            $('#templateModal').modal('hide');
+            setTimeout(function() { $('.modal-backdrop').remove(); $('body').removeClass('modal-open').css({ overflow: '', 'padding-right': '' }); }, 150);
+
+            window.applyReuseData({
+                advice: '',
+                medicines: details.map(function(d) {
+                    return {
+                        id: d.medicine.id,
+                        name: d.medicine.medicine_name + (d.medicine.trade_name ? ' (' + d.medicine.trade_name + ')' : ''),
+                        unit: d.unit,
+                        quantity: d.quantity,
+                        duration_days: d.duration_days,
+                        dosage: d.dosage,
+                        usage_instructions: d.usage_instructions
+                    };
+                })
+            });
+
+            $('#prescriptionForm').prepend('<div class="alert alert-success alert-dismissible fade show">Đã áp dụng toa thuốc mẫu!<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+        });
+    });
+</script>
 @endpush
+
 
 <!-- Modal Toa Mẫu -->
 <div class="modal fade" id="templateModal" tabindex="-1">
