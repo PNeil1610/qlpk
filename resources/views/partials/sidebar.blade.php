@@ -148,6 +148,10 @@
 
         {{-- ===== ADMIN: Danh mục hệ thống ===== --}}
         @if(auth()->check() && auth()->user()->hasRole('ADMIN'))
+            <h6 class="sidebar-menu-title">Dashboard</h6>
+            <a href="{{ route('dashboard') }}">
+                <i class="fas fa-chart-line menu-icon"></i> Thống kê phòng khám
+            </a>
             <h6 class="sidebar-menu-title">Danh Mục Hệ Thống</h6>
             <a href="{{ route('diagnoses.index') }}">
                 <i class="fas fa-book-medical menu-icon"></i> Mã bệnh ICD-10

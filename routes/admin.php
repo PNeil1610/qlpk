@@ -70,6 +70,10 @@ Route::middleware(['auth'])->group(function () {
 
     // ===== ADMIN ONLY =====
     Route::middleware(['role:ADMIN'])->group(function () {
+        // Dashboard
+        Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard/stats', [\App\Http\Controllers\Admin\DashboardController::class, 'getStats'])->name('dashboard.stats');
+
         // Mã bệnh (CRUD)
         Route::prefix('diagnoses')->name('diagnoses.')->group(function () {
             Route::get('/create', [DiagnosisController::class, 'create'])->name('create');
