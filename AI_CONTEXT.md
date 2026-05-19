@@ -91,7 +91,11 @@ qlpk/
 2. Chọn bệnh nhân đang chờ -> Vào giao diện Khám bệnh (`doctor/examine.blade.php`).
 3. Giao diện chia 2 cột:
     - **Cột trái:** Thông tin hành chính + Toa thuốc hiện tại đã kê + **Lịch sử khám bệnh** (danh sách phiên cũ của BN).
-    - **Cột phải:** Form kết luận chuyên môn + Form kê đơn thuốc mới. (Kê đơn: Bác sĩ nhập liều dùng theo "số lượng/lần", "số lần/ngày" và "số ngày uống", hệ thống sẽ tự động tính toán ra tổng số lượng thuốc).
+    - **Cột phải:** Form kết luận chuyên môn + Form kê đơn thuốc mới.
+        - **Giao diện kê đơn:** Thiết kế dạng lưới gọn gàng (compact 1 dòng/thuốc). Toàn bộ logic JS được tách riêng ra `public/js/prescription-form.js`.
+        - **Tìm kiếm thông minh:** Sử dụng 2 ô Select2 AJAX liên hoàn (khi chọn "Nhóm thuốc", ô "Tên thuốc" tự động lọc và xổ ra danh sách tương ứng, hoặc gõ chữ để tìm trực tiếp).
+        - **Cấu hình liều dùng:** Nhập riêng lẻ liều theo 4 buổi (Sáng, Trưa, Chiều, Tối) + Số ngày uống -> Hệ thống **tự động tính Tổng SL**. Có nút bấm chọn nhanh thời điểm uống (Trước, Trong, Sau ăn).
+        - **Auto-fill:** Khi nhấn "Thêm thuốc", tự động copy "Nhóm thuốc" và "Số ngày" từ dòng liền trước, giúp bác sĩ thao tác rảnh tay, kê đơn hàng loạt cực nhanh.
 4. **Xem lịch sử & Sử dụng lại toa thuốc:**
     - Ở cột lịch sử, hệ thống hiển thị **2 tab**:
         - **Tab "Lịch sử BN"**: Tất cả các phiếu khám đã hoàn thành của bệnh nhân hiện tại ở MỌI phòng, kèm tên bác sĩ đã khám.
