@@ -153,7 +153,7 @@
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-between">
                     <div>
-                        <p class="mb-0 small text-muted">Xóa vĩnh viễn tài khoản <strong>{{ $user->username }}</strong> khỏi hệ thống. Hành động này không thể hoàn tác.</p>
+                        <p class="mb-0 small text-muted">Xóa vĩnh viễn tài khoản {{ $user->username }} khỏi hệ thống. Hành động này không thể hoàn tác.</p>
                     </div>
                     <form action="{{ route('users.destroy', $user->id) }}" method="POST"
                           onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản {{ $user->username }}? Hành động này không thể hoàn tác!')">

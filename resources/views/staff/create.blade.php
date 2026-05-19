@@ -12,40 +12,7 @@
     <form action="{{ route('staff.store') }}" method="POST">
         @csrf
         <div class="row">
-            <div class="col-12 mb-4">
-                <div class="card shadow-sm border-0 border-start border-primary border-4">
-                    <div class="card-header bg-white fw-bold">
-                        <i class="fas fa-user-lock text-primary me-2"></i>Thiết lập tài khoản đăng nhập cho nhân viên
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Tên đăng nhập *</label>
-                                <input type="text" name="username" class="form-control" required placeholder="VD: bacsi.kien">
-                                <small class="text-muted">Dùng để đăng nhập vào hệ thống.</small>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Mật khẩu khởi tạo *</label>
-                                <div class="input-group">
-                                    <input type="password" name="password" id="password" class="form-control" required placeholder="Nhập mật khẩu">
-                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                                <small class="text-muted">Ít nhất 6 ký tự.</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <script>
-        function togglePassword() {
-            var x = document.getElementById("password");
-            if (x.type === "password") { x.type = "text"; } else { x.type = "password"; }
-        }
-        </script>
+            <!-- Thông tin cá nhân -->
             <div class="col-md-6 mb-4">
                 <div class="card shadow-sm border-0 h-100">
                     <div class="card-header bg-white font-weight-bold border-bottom">
@@ -96,6 +63,7 @@
                 </div>
             </div>
 
+            <!-- Chuyên môn & Vị trí -->
             <div class="col-md-6 mb-4">
                 <div class="card shadow-sm border-0 h-100">
                     <div class="card-header bg-white font-weight-bold border-bottom">
@@ -108,7 +76,6 @@
                                 <select name="staff_type" class="form-select" required>
                                     <option value="Doctor">Bác sĩ</option>
                                     <option value="Nurse">Điều dưỡng</option>
-                                    <option value="Technician">Kỹ thuật viên</option>
                                     <option value="Pharmacist">Dược sĩ</option>
                                     <option value="Receptionist">Lễ tân</option>
                                     <option value="Cashier">Thu ngân</option>
@@ -124,7 +91,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Khoa / Phòng ban</label>
-                                <select name="department_id" class="form-select">
+                                <select name="department_id" id="department_id" class="form-select">
                                     <option value="">-- Chọn Khoa --</option>
                                     @foreach($departments as $dept)
                                         <option value="{{ $dept->id }}">{{ $dept->dept_name }}</option>
@@ -133,10 +100,10 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Phòng làm việc</label>
-                                <select name="room_id" class="form-select">
+                                <select name="room_id" id="room_id" class="form-select">
                                     <option value="">-- Chọn Phòng --</option>
                                     @foreach($rooms as $room)
-                                        <option value="{{ $room->id }}">{{ $room->room_name }}</option>
+                                        <option value="{{ $room->id }}" data-department-id="{{ $room->department_id }}">{{ $room->room_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -162,6 +129,35 @@
             </div>
         </div>
 
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card shadow-sm border-0 border-start border-primary border-4">
+                    <div class="card-header bg-white fw-bold">
+                        <i class="fas fa-user-lock text-primary me-2"></i>Thiết lập tài khoản đăng nhập cho nhân viên
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Tên đăng nhập *</label>
+                                <input type="text" name="username" class="form-control" required placeholder="VD: bacsi.kien">
+                                <small class="text-muted">Dùng để đăng nhập vào hệ thống.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Mật khẩu khởi tạo *</label>
+                                <div class="input-group">
+                                    <input type="password" name="password" id="password" class="form-control" required placeholder="Nhập mật khẩu">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Ít nhất 6 ký tự.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="text-end mb-5">
             <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm">
                 <i class="fas fa-save me-1"></i> Lưu Nhân Viên
@@ -169,4 +165,55 @@
         </div>
     </form>
 </div>
+
+<script>
+    function togglePassword() {
+        var x = document.getElementById("password");
+        if (x.type === "password") { x.type = "text"; } else { x.type = "password"; }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const departmentSelect = document.getElementById('department_id');
+        const roomSelect = document.getElementById('room_id');
+        const roomOptions = roomSelect.querySelectorAll('option');
+
+        function filterRooms() {
+            const selectedDepartmentId = departmentSelect.value;
+            
+            // Reset phòng đã chọn nếu nó bị ẩn đi
+            let isCurrentRoomValid = false;
+
+            roomOptions.forEach(option => {
+                if (option.value === '') {
+                    option.hidden = false;
+                    option.disabled = false;
+                    return;
+                }
+
+                const roomDepartmentId = option.getAttribute('data-department-id');
+                
+                if (selectedDepartmentId === '' || roomDepartmentId === selectedDepartmentId) {
+                    option.hidden = false;
+                    option.disabled = false;
+                    if (roomSelect.value === option.value) {
+                        isCurrentRoomValid = true;
+                    }
+                } else {
+                    option.hidden = true;
+                    option.disabled = true;
+                }
+            });
+
+            if (!isCurrentRoomValid && roomSelect.value !== '') {
+                roomSelect.value = '';
+            }
+        }
+
+        // Chạy filter ngay khi load trang
+        filterRooms();
+
+        // Lắng nghe sự kiện thay đổi khoa
+        departmentSelect.addEventListener('change', filterRooms);
+    });
+</script>
 @endsection

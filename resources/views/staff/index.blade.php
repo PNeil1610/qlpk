@@ -45,13 +45,12 @@
                                         $typeColors = [
                                             'Doctor' => ['Bác sĩ', 'primary'],
                                             'Nurse' => ['Điều dưỡng', 'info'],
-                                            'Technician' => ['Kỹ thuật viên', 'warning'],
                                             'Pharmacist' => ['Dược sĩ', 'success'],
                                             'Receptionist' => ['Lễ tân', 'secondary'],
                                             'Cashier' => ['Thu ngân', 'dark'],
                                             'Admin' => ['Quản trị', 'danger'],
                                         ];
-                                        $typeData = $typeColors[$staff->staff_type] ?? ['Chưa rõ', 'light'];
+                                        $typeData = $typeColors[$staff->staff_type] ?? ['Chưa rõ', 'warning'];
                                     @endphp
                                     <span class="badge bg-{{ $typeData[1] }}">{{ $typeData[0] }}</span>
                                     <br><small class="text-muted">{{ $staff->position ?? '' }}</small>
@@ -144,7 +143,6 @@ $(document).ready(function () {
                         const typeColors = {
                             'Doctor': ['Bác sĩ', 'primary'],
                             'Nurse': ['Điều dưỡng', 'info'],
-                            'Technician': ['Kỹ thuật viên', 'warning'],
                             'Pharmacist': ['Dược sĩ', 'success'],
                             'Receptionist': ['Lễ tân', 'secondary'],
                             'Cashier': ['Thu ngân', 'dark'],
