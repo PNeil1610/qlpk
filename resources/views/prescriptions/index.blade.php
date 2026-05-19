@@ -165,6 +165,30 @@
             fetchPrescriptions();
         });
 
+        // 🔥 AUTO REFRESH EVERY 5 SECONDS
+        setInterval(function() {
+            // Only auto-refresh if user is not actively typing
+            if (document.activeElement !== searchKeyword || searchKeyword.value === '') {
+                // Fetch silently without changing opacity to avoid flashing
+                const keyword = searchKeyword.value;
+                const status = searchStatus.value;
+                const queryParams = new URLSearchParams({ keyword: keyword, status: status });
+                const fetchUrl = "{{ route('prescriptions.index') }}?" + queryParams.toString();
+                
+                fetch(fetchUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newTableContainer = doc.getElementById('tableDataContainer');
+                    if (newTableContainer) {
+                        tableContainer.innerHTML = newTableContainer.innerHTML;
+                        attachPaginationEvents();
+                    }
+                });
+            }
+        }, 5000);
+
         attachPaginationEvents();
     });
 </script>

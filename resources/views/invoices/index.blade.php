@@ -251,6 +251,14 @@ $(document).ready(function() {
     $('#search-status').on('change', function() {
         loadInvoices();
     });
+
+    // 🔥 AUTO REFRESH EVERY 5 SECONDS
+    setInterval(function() {
+        // Chỉ auto refresh nếu người dùng đang không gõ chữ liên tục
+        if (!$('#search-keyword').is(':focus') || $('#search-keyword').val() === '') {
+            loadInvoices();
+        }
+    }, 5000);
 });
 </script>
 @endpush

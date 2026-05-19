@@ -112,9 +112,8 @@
 @push('scripts')
 <script>
 $(document).ready(function () {
-    // 🔥 SEARCH AJAX
-    $('#search').on('keyup', function () {
-        let keyword = $(this).val();
+    function loadConsultations() {
+        let keyword = $('#search').val();
 
         $.ajax({
             url: "{{ route('consultations.doctor.ajax.search') }}",
@@ -143,6 +142,21 @@ $(document).ready(function () {
 
                         let dateStr = c.consultation_date ? new Date(c.consultation_date).toLocaleString('vi-VN') : '';
 
+                        let actionHtml = '';
+                        if(c.status === 4) {
+                            actionHtml = `
+                                <a href="/consultations/doctor/${c.id}/examine" class="btn btn-sm btn-outline-secondary shadow-sm" title="Xem chi tiết">
+                                    <i class="fas fa-eye me-1"></i> Xem chi tiết
+                                </a>
+                            `;
+                        } else {
+                            actionHtml = `
+                                <a href="/consultations/doctor/${c.id}/examine" class="btn btn-sm btn-success shadow-sm" title="Khám bệnh & Kê đơn">
+                                    <i class="fas fa-stethoscope me-1"></i> Khám & Kê đơn
+                                </a>
+                            `;
+                        }
+
                         html += `
                         <tr>
                             <td class="ps-4 fw-bold text-secondary">${c.id}</td>
@@ -153,14 +167,9 @@ $(document).ready(function () {
                             <td class="text-center">${c.blood_pressure ?? '--'}</td>
                             <td class="text-muted">${c.symptoms ?? ''}</td>
                             <td class="text-center">${status}</td>
-                                    <td class="text-center pe-4">
+                            <td class="text-center pe-4">
                                 <div class="d-flex gap-2 justify-content-center">
-                                    <a href="/consultations/${c.id}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
-                                        <i class="fas fa-eye me-1"></i> Xem
-                                    </a>
-                                    <a href="/consultations/doctor/${c.id}/examine" class="btn btn-sm btn-success shadow-sm" title="Khám bệnh & Kê đơn">
-                                        <i class="fas fa-stethoscope me-1"></i> Khám & Kê đơn
-                                    </a>
+                                    ${actionHtml}
                                 </div>
                             </td>
                         </tr>
@@ -170,12 +179,25 @@ $(document).ready(function () {
                 $('#consultationTable').html(html);
             }
         });
+    }
+
+    // 🔥 SEARCH AJAX
+    $('#search').on('keyup', function () {
+        loadConsultations();
     });
+
+    // 🔥 AUTO REFRESH EVERY 5 SECONDS
+    setInterval(function() {
+        // Chỉ auto refresh nếu người dùng đang không gõ chữ liên tục
+        if (!$('#search').is(':focus') || $('#search').val() === '') {
+            loadConsultations();
+        }
+    }, 5000);
 
     // 🔥 RESET
     $('#resetSearch').click(function () {
         $('#search').val('');
-        location.reload();
+        loadConsultations();
     });
 });
 </script>
