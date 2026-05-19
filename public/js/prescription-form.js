@@ -313,7 +313,28 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!btnAdd) return;
 
     addMedicineCard();
-    btnAdd.addEventListener('click', function() { addMedicineCard(); });
+    btnAdd.addEventListener('click', function() {
+        let opts = {};
+        const cards = document.querySelectorAll('.rx-card');
+        if (cards.length > 0) {
+            const lastCard = cards[cards.length - 1];
+            
+            // Lấy nhóm thuốc của dòng cuối cùng
+            const $catSel = $(lastCard).find('.category-select');
+            const catData = $catSel.select2('data');
+            if (catData && catData.length > 0 && catData[0].id) {
+                opts.category_id = catData[0].id;
+                opts.category_name = catData[0].text;
+            }
+
+            // Lấy số ngày của dòng cuối cùng
+            const duration = lastCard.querySelector('.duration-days').value;
+            if (duration) {
+                opts.duration_days = duration;
+            }
+        }
+        addMedicineCard(opts);
+    });
 
     const savedRaw = localStorage.getItem('reuse_prescription_data');
     if (savedRaw) {
