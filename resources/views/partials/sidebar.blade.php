@@ -157,7 +157,7 @@
                 <i class="fas fa-book-medical menu-icon"></i> Mã bệnh ICD-10
             </a>
             <a href="{{ route('prescriptions.index') }}">
-                <i class="fas fa-receipt menu-icon"></i> Đơn thuốc
+                <i class="fas fa-receipt menu-icon"></i> Danh sách đơn thuốc
             </a>
             <a href="{{ route('medicine_categories.index') }}">
                 <i class="fas fa-pills menu-icon"></i> Loại hình thuốc
@@ -188,7 +188,7 @@
         @if(auth()->check() && auth()->user()->hasRole('PHARMACIST'))
             <h6 class="sidebar-menu-title">Khu Vực Dược Sĩ</h6>
             <a href="{{ route('prescriptions.index') }}">
-                <i class="fas fa-receipt menu-icon"></i> Cấp phát thuốc
+                <i class="fas fa-receipt menu-icon"></i> Danh sách đơn thuốc
             </a>
             <a href="{{ route('medicine_categories.index') }}">
                 <i class="fas fa-pills menu-icon"></i> Loại hình thuốc
