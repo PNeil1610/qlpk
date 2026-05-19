@@ -136,7 +136,7 @@ $(document).ready(function () {
                             case 0: status = '<span class="badge rounded-pill bg-secondary">Mới tạo</span>'; break;
                             case 1: status = '<span class="badge rounded-pill bg-dark">Chờ</span>'; break;
                             case 2: status = '<span class="badge rounded-pill bg-primary">Đang khám</span>'; break;
-                            case 3: status = '<span class="badge rounded-pill bg-info">Chờ thanh toán</span>'; break;
+                            case 3: status = '<span class="badge rounded-pill bg-warning text-dark">Chờ thanh toán</span>'; break;
                             case 4: status = '<span class="badge rounded-pill bg-success">Hoàn thành</span>'; break;
                         }
 
