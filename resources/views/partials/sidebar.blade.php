@@ -200,10 +200,22 @@
 
         {{-- ===== TẤT CẢ (trừ PATIENT): Thông báo ===== --}}
         @if(auth()->check() && !auth()->user()->hasRole('PATIENT'))
+            @php
+                $initialUnreadCount = \App\Models\SystemNotification::visibleTo(auth()->user())
+                    ->whereDoesntHave('reads', function ($q) {
+                        $q->where('user_id', auth()->id());
+                    })->count();
+            @endphp
             <h6 class="sidebar-menu-title">Khác</h6>
             <a href="{{ route('notifications.index') }}" id="sidebar-notif-link" class="d-flex justify-content-between align-items-center">
-                <div><i class="fas fa-bell menu-icon"></i> Thông báo</div>
-                <span class="badge bg-danger rounded-pill" id="notif-badge" style="display:none; font-size:0.7rem;"></span>
+                <div class="d-flex align-items-center">
+                    <span class="position-relative d-inline-block" style="width: 28px; margin-right: 8px;">
+                        <i class="fas fa-bell menu-icon" style="width: 100%; margin-right: 0;"></i>
+                        <span class="position-absolute bg-danger border border-light rounded-circle" id="notif-dot" style="display: {{ $initialUnreadCount > 0 ? 'inline-block' : 'none' }}; width: 8px; height: 8px; top: 1px; right: 2px;"></span>
+                    </span>
+                    <span>Thông báo</span>
+                </div>
+                <span class="badge bg-danger rounded-pill" id="notif-badge" style="display: {{ $initialUnreadCount > 0 ? 'inline-block' : 'none' }}; font-size:0.7rem;">{{ $initialUnreadCount > 99 ? '99+' : $initialUnreadCount }}</span>
             </a>
         @endif
 
@@ -241,12 +253,20 @@ function refreshNotifBadge() {
     $.getJSON('{{ route("notifications.ajax.unread") }}', function(data) {
         var count = data.count || 0;
         var badge = document.getElementById('notif-badge');
+        var dot = document.getElementById('notif-dot');
         if (badge) {
             if (count > 0) {
                 badge.textContent = count > 99 ? '99+' : count;
                 badge.style.display = 'inline-block';
             } else {
                 badge.style.display = 'none';
+            }
+        }
+        if (dot) {
+            if (count > 0) {
+                dot.style.display = 'inline-block';
+            } else {
+                dot.style.display = 'none';
             }
         }
     }).fail(function() {

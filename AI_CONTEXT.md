@@ -78,6 +78,8 @@ qlpk/
     - `lookup()`: Logic tra cứu đa năng (theo mã bệnh nhân, mã phiên khám hoặc SĐT).
     - `store()`: Tự động tính toán phí khám và phí thuốc dựa trên dữ liệu từ `Consultation`.
 - **app/Models/Consultation.php:** Định nghĩa các trạng thái phiên khám (`STATUS_NEW`, `STATUS_PENDING`, `STATUS_COMPLETED`...) và logic chuyển trạng thái.
+- **app/Http/Controllers/NotificationController.php:** Quản lý gửi nhận thông báo nội bộ cho nhân viên phòng khám.
+- **resources/views/partials/sidebar.blade.php:** Tích hợp tính năng tự động đếm thông báo chưa đọc (`ajaxUnreadCount`) và hiển thị chấm đỏ (red dot badge) ngay tại icon cái chuông (`#notif-dot`) kết hợp hiển thị số lượng chưa đọc. Tối ưu hóa trải nghiệm bằng cách tải trực tiếp số lượng chưa đọc từ máy chủ (Server-side rendering qua Blade) khi tải trang để chấm đỏ xuất hiện tức thì, sau đó tiếp tục đồng bộ và cập nhật tự động mỗi 60 giây qua AJAX.
 
 # 7. Luồng Nghiệp vụ Cốt lõi (Core Business Flows)
 
@@ -112,6 +114,12 @@ qlpk/
 2. Hệ thống tổng hợp `consultation_fee` + `medicine_fee`.
 3. Thu ngân xác nhận thanh toán (`pay()`).
 4. **Hậu xử lý:** Cập nhật Hóa đơn thành `PAID` và Phiên khám thành `COMPLETED`.
+
+### D. Luồng Thông báo nội bộ
+1. Hệ thống cho phép gửi thông báo nội bộ tới toàn bộ nhân viên (All), theo nhóm vai trò (Role), hoặc cá nhân cụ thể (User).
+2. Khi tải trang, hệ thống lập tức kiểm tra số lượng thông báo chưa đọc và hiển thị chấm đỏ trực tiếp trên quả chuông của sidebar (Server-side rendering), tránh hiện tượng trễ/nháy giao diện. Số lượng chưa đọc cụ thể cũng được hiển thị dạng badge bên phải chữ "Thông báo".
+3. Sidebar thiết lập luồng polling cứ mỗi 60 giây qua AJAX để kiểm tra các thông báo mới phát sinh trong phiên hoạt động của người dùng.
+4. Khi nhân viên click xem chi tiết thông báo (`NotificationController@show`), hệ thống tự động ghi nhận là đã đọc (`NotificationRead::firstOrCreate`) và đồng bộ cập nhật ẩn chấm đỏ/cập nhật số lượng trên sidebar ngay lập tức qua cơ chế AJAX.
 
 # 8. Môi trường & Triển khai (Docker Setup)
 - **Docker Services (via Sail):**
