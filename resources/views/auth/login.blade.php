@@ -199,7 +199,7 @@
             <div class="logo-icon mt-4">
                 <i class="fas fa-heartbeat"></i>
             </div>
-            <h2>QLPK SYSTEM</h2>
+            <h2>Clinic Management System</h2>
             <p>Hệ thống Quản lý Phòng khám Đa khoa thông minh, tiện lợi và chuyên nghiệp.</p>
         </div>
         

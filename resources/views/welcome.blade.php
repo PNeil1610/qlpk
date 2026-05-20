@@ -172,7 +172,7 @@
     <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/') }}">
-                <i class="fas fa-heartbeat"></i> QLPK SYSTEM
+                <i class="fas fa-heartbeat"></i> Clinic Management System
             </a>
             <div class="d-flex ms-auto">
                 <!-- Nút bấm đã được chuyển xuống phần thân trang -->
