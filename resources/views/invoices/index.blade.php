@@ -30,7 +30,6 @@
             <div class="card shadow-sm border-0 border-top border-warning border-3 mb-4">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-bold text-warning"><i class="fas fa-list-ol me-2"></i>Danh sách chờ thanh toán</h5>
-                    <span class="badge bg-warning text-dark">Tự động cập nhật</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
