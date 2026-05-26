@@ -448,7 +448,7 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     .rx-row > div[style*="width:50px"], 
     .rx-row > div[style*="width:55px"],
     .rx-row > div[style*="width:45px"] {
-        display: inline-block !important;
+        display: block !important;
         width: calc(33.33% - 8px) !important;
         float: left;
     }
