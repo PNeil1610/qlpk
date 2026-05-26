@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Danh sách Phòng')
+
 @section('content')
 <div class="container-fluid px-4 mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">

@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Quản lý Kho thuốc - Vật tư')
+
 @section('content')
 <div class="container-fluid px-4 mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">

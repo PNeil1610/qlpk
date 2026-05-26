@@ -1,4 +1,7 @@
 @extends('layouts.app')
+
+@section('title', 'Danh sách Bệnh nhân')
+
 <!-- danh sách bệnh nhân -->
 @section('content')
 <div class="container-fluid px-4 mt-4">
