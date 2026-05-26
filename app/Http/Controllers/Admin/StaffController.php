@@ -144,6 +144,7 @@ class StaffController extends Controller
                     ->orWhere('phone_number', 'like', "%{$keyword}%");
             })
             ->latest()
+            ->limit(10)
             ->get();
 
         return response()->json($staffs);

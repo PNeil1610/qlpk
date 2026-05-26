@@ -56,7 +56,7 @@
 
                     <div class="text-end mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
                         <a href="{{ route('medicine_categories.edit', $category->id) }}" class="btn btn-primary px-4 shadow-sm">
-                            <i class="fas fa-edit me-1"></i> Sửa Danh Mục
+                            <i class="fas fa-edit"></i> Danh Mục
                         </a>
                         <form action="{{ route('medicine_categories.destroy', $category->id) }}" method="POST"
                             class="d-inline"
@@ -64,7 +64,7 @@
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger shadow-sm px-4">
-                                <i class="fas fa-trash-alt me-1"></i> Xóa
+                                <i class="fas fa-trash-alt"></i>
                             </button>
                         </form>
                     </div>

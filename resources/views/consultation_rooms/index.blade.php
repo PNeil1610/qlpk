@@ -44,14 +44,14 @@
                                 <a href="{{ route('consultation_rooms.show', [
                                     'consultation_id' => $item->consultation_id,
                                     'room_id' => $item->room_id
-                                ]) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
-                                    <i class="fas fa-eye me-1"></i> Xem
+                                ]) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="{{ route('consultation_rooms.edit', [
                                     'consultation_id' => $item->consultation_id,
                                     'room_id' => $item->room_id
-                                ]) }}" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
-                                    <i class="fas fa-edit me-1"></i> Sửa
+                                ]) }}" class="btn btn-sm btn-primary shadow-sm" title="Chỉnh sửa">
+                                    <i class="fas fa-edit"></i>
                                 </a>
                                 <form action="{{ route('consultation_rooms.destroy', [
                                     'consultation_id' => $item->consultation_id,
@@ -60,7 +60,7 @@
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
-                                        <i class="fas fa-trash-alt me-1"></i> Xóa
+                                        <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
                             </div>

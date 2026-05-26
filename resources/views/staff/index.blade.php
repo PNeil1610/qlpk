@@ -73,21 +73,21 @@
                                 </td>
                                 <td class="text-center pe-4">
                                     {{-- XEM --}}
-                                    <a href="{{ route('staff.show', $staff->id) }}" class="btn btn-info btn-sm">
-                                        Xem
+                                    <a href="{{ route('staff.show', $staff->id) }}" class="btn btn-info btn-sm" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
                                     </a>
                                     
                                     {{-- SỬA --}}
-                                    <a href="{{ route('staff.edit', $staff->id) }}" class="btn btn-warning btn-sm">
-                                        Sửa
+                                    <a href="{{ route('staff.edit', $staff->id) }}" class="btn btn-warning btn-sm" title="Chỉnh sửa">
+                                        <i class="fas fa-edit"></i>
                                     </a>
                                     
                                     {{-- XÓA --}}
                                     <form action="{{ route('staff.destroy', $staff->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa nhân viên {{ $staff->full_name }} không? Hành động này không thể hoàn tác!');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm">
-                                            Xóa
+                                        <button type="submit" class="btn btn-danger btn-sm" title="Xóa nhân viên">
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
                                 </td>
@@ -184,12 +184,12 @@ $(document).ready(function () {
                                 <td>${staff.phone_number ?? '-'}</td>
                                 <td class="text-center">${statusHtml}</td>
                                 <td class="text-center pe-4">
-                                    <a href="/staff/${staff.id}" class="btn btn-info btn-sm">Xem</a>
-                                    <a href="/staff/${staff.id}/edit" class="btn btn-warning btn-sm">Sửa</a>
+                                    <a href="/staff/${staff.id}" class="btn btn-info btn-sm" title="Xem chi tiết"><i class="fas fa-eye"></i></a>
+                                    <a href="/staff/${staff.id}/edit" class="btn btn-warning btn-sm" title="Chỉnh sửa"><i class="fas fa-edit"></i></a>
                                     <form action="/staff/${staff.id}" method="POST" style="display:inline;">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa nhân viên ${staff.full_name} không? Hành động này không thể hoàn tác!');">Xóa</button>
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa nhân viên ${staff.full_name} không? Hành động này không thể hoàn tác!');" title="Xóa nhân viên"><i class="fas fa-trash-alt"></i></button>
                                     </form>
                                 </td>
                             </tr>

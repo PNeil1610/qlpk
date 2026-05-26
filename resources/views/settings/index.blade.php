@@ -138,7 +138,7 @@
 
                                     {{-- Sửa --}}
                                     <a href="{{ route('settings.edit', $s->id) }}"
-                                       class="btn btn-primary btn-sm" title="Sửa">
+                                       class="btn btn-primary btn-sm" title="Chỉnh sửa">
                                         <i class="fas fa-edit"></i>
                                     </a>
 

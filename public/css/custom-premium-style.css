@@ -1,0 +1,561 @@
+/*
+ * custom-premium-style.css
+ * Premium UI & Responsive Theme for Clinic Management System (QLPK)
+ * Crafted with precision for mobile, tablet, iPad, and desktop viewports.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+/* --- Theme Variables --- */
+:root {
+    --font-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --primary-color: #1A2980;
+    --primary-light: #2a3eb1;
+    --primary-gradient: linear-gradient(135deg, #1A2980 0%, #26D0CE 100%);
+    --secondary-color: #475569;
+    --accent-color: #ffc107;
+    --success-color: #10b981;
+    --success-light: rgba(16, 185, 129, 0.1);
+    --info-color: #0ea5e9;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --body-bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 16px;
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    --card-shadow-hover: 0 10px 25px rgba(26, 41, 128, 0.08);
+    --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Global Styling --- */
+body {
+    font-family: var(--font-primary) !important;
+    background-color: var(--body-bg);
+    color: var(--text-main);
+    letter-spacing: -0.01em;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: var(--font-primary) !important;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+}
+
+/* --- Premium Scrollbar --- */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.2);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.4);
+}
+
+/* --- Navigation & Layout Improvements --- */
+.navbar {
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(8px);
+    background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Sidebar Custom Improvements */
+.sidebar {
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Offcanvas Mobile Sidebar */
+.offcanvas-sidebar {
+    background: linear-gradient(180deg, #1A2980 0%, #26D0CE 100%) !important;
+    color: white;
+    width: 280px !important;
+}
+.offcanvas-sidebar .btn-close-white {
+    margin-top: 15px;
+    margin-right: 15px;
+}
+
+/* Header di động */
+.mobile-header {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+/* --- Card Enhancements --- */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius-md) !important;
+    box-shadow: var(--card-shadow) !important;
+    transition: var(--transition-smooth) !important;
+}
+.card:hover {
+    box-shadow: var(--card-shadow-hover) !important;
+}
+.card-header {
+    background-color: transparent !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 1.25rem 1.5rem !important;
+    color: #0f172a;
+}
+.card-body {
+    padding: 1.5rem !important;
+}
+.card-footer {
+    background-color: transparent !important;
+    border-top: 1px solid var(--border-color) !important;
+    padding: 1.25rem 1.5rem !important;
+}
+
+/* Border top highlights */
+.border-top-3 {
+    border-top-width: 3px !important;
+}
+.border-info { border-top-color: var(--info-color) !important; }
+.border-success { border-top-color: var(--success-color) !important; }
+.border-warning { border-top-color: var(--warning-color) !important; }
+.border-secondary { border-top-color: var(--secondary-color) !important; }
+
+/* --- Interactive Elements --- */
+.btn {
+    font-weight: 600;
+    border-radius: var(--border-radius-sm);
+    padding: 0.5rem 1.2rem;
+    font-size: 0.9rem;
+    transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.btn-sm {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+}
+.btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+    box-shadow: 0 4px 12px rgba(26, 41, 128, 0.2);
+}
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(26, 41, 128, 0.3);
+    opacity: 0.95;
+}
+.btn-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+.btn-success:hover {
+    background-color: #0d9488;
+    border-color: #0d9488;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.25);
+}
+.btn-info {
+    background-color: var(--info-color);
+    border-color: var(--info-color);
+    color: white !important;
+}
+.btn-info:hover {
+    background-color: #0284c7;
+    border-color: #0284c7;
+    transform: translateY(-1px);
+}
+
+/* Badge Styling */
+.badge {
+    padding: 0.45em 0.85em;
+    font-weight: 700;
+    font-size: 0.75rem;
+    border-radius: 30px !important;
+    letter-spacing: 0.02em;
+}
+.bg-success {
+    background-color: var(--success-light) !important;
+    color: var(--success-color) !important;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.bg-danger {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    color: var(--danger-color) !important;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.bg-warning {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+    color: var(--warning-color) !important;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.bg-secondary {
+    background-color: rgba(100, 116, 139, 0.1) !important;
+    color: var(--secondary-color) !important;
+    border: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+/* --- Forms & Inputs --- */
+.form-control, .form-select {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--border-radius-sm);
+    padding: 0.6rem 0.9rem;
+    color: var(--text-main);
+    font-size: 0.92rem;
+    transition: var(--transition-smooth);
+}
+.form-control:focus, .form-select:focus {
+    background-color: #ffffff;
+    border-color: var(--info-color);
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
+}
+.form-control-sm, .form-select-sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.82rem;
+}
+.form-label {
+    font-weight: 600;
+    color: #334155;
+    font-size: 0.88rem;
+    margin-bottom: 0.5rem;
+}
+
+/* --- Beautiful Responsive Tables --- */
+.table-responsive {
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.01);
+}
+
+.table {
+    margin-bottom: 0 !important;
+    width: 100%;
+}
+.table > thead {
+    background-color: #f8fafc !important;
+    border-bottom: 2px solid var(--border-color);
+}
+.table > thead th {
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 1rem 1.25rem;
+    border-bottom: none;
+}
+.table > tbody td {
+    padding: 1rem 1.25rem;
+    color: var(--text-main);
+    border-bottom: 1px solid #f1f5f9;
+}
+.table-hover tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* 
+ * Apply horizontal scrolling and nowrap rules ONLY on mobile and tablet screens (< 992px)
+ * On desktop and laptop screens (>= 992px), columns wrap naturally and no scrollbars are shown.
+ */
+@media (max-width: 991.98px) {
+    .table-responsive {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Custom visible scrollbar for responsive tables on mobile */
+    .table-responsive::-webkit-scrollbar {
+        height: 6px !important;
+        display: block !important;
+    }
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: rgba(26, 41, 128, 0.2) !important;
+        border-radius: 10px !important;
+    }
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: rgba(26, 41, 128, 0.4) !important;
+    }
+    .table-responsive::-webkit-scrollbar-track {
+        background: #f1f5f9 !important;
+        border-radius: 10px !important;
+    }
+
+    .table > thead th,
+    .table > tbody td {
+        white-space: nowrap !important;
+    }
+    .table > tbody td.text-wrap {
+        white-space: normal !important;
+    }
+}
+
+/* Custom Table Actions Group for Mobile */
+@media (max-width: 767.98px) {
+    .table > tbody td {
+        padding: 0.75rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    .table > thead th {
+        padding: 0.75rem 0.75rem;
+        font-size: 0.7rem;
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    .d-flex.gap-2 {
+        gap: 0.25rem !important;
+    }
+}
+
+/* --- Select2 Premium Integration --- */
+.select2-container--bootstrap-5 .select2-selection {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: var(--border-radius-sm) !important;
+    background-color: #f8fafc !important;
+    min-height: 38px !important;
+    display: flex;
+    align-items: center;
+}
+.select2-container--bootstrap-5.select2-container--focus .select2-selection {
+    border-color: var(--info-color) !important;
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12) !important;
+    background-color: #ffffff !important;
+}
+.select2-dropdown {
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius-sm) !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08) !important;
+    overflow: hidden;
+    z-index: 9999;
+}
+.select2-results__option {
+    padding: 8px 12px !important;
+    font-size: 0.88rem !important;
+}
+
+/* --- Doctor examine.blade.php Responsive Optimizations --- */
+.patient-details-card table th {
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.patient-details-card table td {
+    color: var(--text-main);
+}
+
+/* Responsive collapse trigger for doctor examine */
+.collapse-trigger-btn {
+    display: none;
+}
+
+@media (max-width: 991.98px) {
+    .collapse-trigger-btn {
+        display: inline-flex;
+    }
+}
+
+/* --- Prescription Form Mobile Magic Stack --- */
+@media (max-width: 991.98px) {
+    #prescription-cards-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .rx-card {
+        border: 1.5px solid var(--border-color) !important;
+        border-radius: var(--border-radius-md) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02) !important;
+        overflow: hidden;
+        margin-bottom: 0 !important;
+    }
+    
+    .rx-row {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 16px !important;
+        gap: 14px !important;
+    }
+    
+    /* Layout styling inside each mobile rx-card */
+    .rx-row > div {
+        width: 100% !important;
+        margin-bottom: 0 !important;
+    }
+    
+    /* Segment headers */
+    .rx-row .rx-label {
+        font-size: 0.72rem !important;
+        color: #475569 !important;
+        margin-bottom: 5px !important;
+    }
+    
+    /* STT badge placement */
+    .rx-row > div:first-child {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 8px;
+        margin-bottom: 4px !important;
+    }
+    .rx-row > div:first-child::after {
+        content: 'Thuốc kê đơn';
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: var(--primary-color);
+    }
+    
+    /* Grid layout for doses */
+    .rx-row > div.d-flex.align-items-end.gap-1 {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 8px !important;
+        width: 100% !important;
+        background: #f8fafc;
+        padding: 12px;
+        border-radius: var(--border-radius-sm);
+        border: 1px solid #e2e8f0;
+    }
+    .rx-row > div.d-flex.align-items-end.gap-1 > div {
+        width: auto !important;
+    }
+    .rx-row .dose-input {
+        height: 36px !important;
+        font-size: 0.95rem !important;
+    }
+    
+    /* Row layout for Days and Quantities */
+    .rx-row > div[style*="width:50px"], 
+    .rx-row > div[style*="width:55px"],
+    .rx-row > div[style*="width:45px"] {
+        display: inline-block !important;
+        width: calc(33.33% - 8px) !important;
+        float: left;
+    }
+    
+    /* Clearance after floats */
+    .rx-row::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    
+    /* Expand notes, medicines and timing buttons */
+    .rx-row .rx-med, 
+    .rx-row .category-select,
+    .rx-row .medicine-select {
+        width: 100% !important;
+    }
+    
+    .rx-row .btn-group {
+        display: flex !important;
+        width: 100% !important;
+    }
+    .rx-row .btn-group .btn-timing {
+        flex: 1;
+        padding: 8px 0 !important;
+        font-size: 0.8rem !important;
+    }
+    
+    .rx-row .extra-note {
+        margin-bottom: 0 !important;
+        height: 38px !important;
+    }
+    
+    /* Big custom remove button at bottom of mobile card */
+    .rx-row > div:last-child {
+        display: block !important;
+        text-align: right;
+        margin-top: 10px !important;
+        border-top: 1px solid #f1f5f9;
+        padding-top: 12px;
+    }
+    .rx-row .remove-card {
+        width: 100% !important;
+        height: 38px !important;
+        font-size: 0.85rem !important;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background-color: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        color: var(--danger-color);
+        border-radius: var(--border-radius-sm);
+    }
+    .rx-row .remove-card::after {
+        content: ' Xóa dòng này';
+        font-weight: 600;
+    }
+    .rx-row .remove-card:hover {
+        background-color: var(--danger-color) !important;
+        color: white !important;
+    }
+}
+
+/* --- Premium Pagination Styling --- */
+.pagination-premium {
+    gap: 4px;
+}
+.pagination-premium .page-item .page-link {
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    background-color: #ffffff;
+    border-radius: var(--border-radius-sm);
+    padding: 0.5rem 0.85rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: var(--transition-smooth);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+}
+.pagination-premium .page-item .page-link:hover {
+    background-color: var(--body-bg);
+    color: var(--primary-color);
+    border-color: var(--primary-light);
+    transform: translateY(-1px);
+}
+.pagination-premium .page-item.active .page-link {
+    background: var(--primary-gradient);
+    border-color: transparent;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(26, 41, 128, 0.2);
+}
+.pagination-premium .page-item.disabled .page-link {
+    background-color: #f8fafc;
+    color: var(--text-muted);
+    border-color: var(--border-color);
+    opacity: 0.6;
+}
+
+/* Mobile responsive pagination size */
+@media (max-width: 575.98px) {
+    .pagination-premium .page-item .page-link {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.8rem;
+        border-radius: 6px;
+    }
+    .pagination-premium {
+        gap: 2px;
+    }
+}
+

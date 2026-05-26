@@ -15,7 +15,7 @@
         @method('PUT')
         
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="mb-0 text-primary"><i class="fas fa-edit me-2"></i>Sửa Toa Mẫu</h3>
+            <h3 class="mb-0 text-primary"><i class="fas fa-edit"></i> Toa Mẫu</h3>
             <div>
                 <a href="{{ route('doctor.templates.index') }}" class="btn btn-outline-secondary me-2">Hủy</a>
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Lưu Thay Đổi</button>

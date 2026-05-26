@@ -96,25 +96,25 @@
             </td>
             <td class="text-center pe-4">
                 <div class="d-flex gap-2 justify-content-center">
-                    <a href="{{ route('consultations.show', $c->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
-                        <i class="fas fa-eye me-1"></i> Xem
+                    <a href="{{ route('consultations.show', $c->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem chi tiết">
+                        <i class="fas fa-eye"></i>
                     </a>
                     @if($c->status != 4)
                         @if($c->rooms->isEmpty())
                             <a href="{{ route('consultations.edit', $c->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Thêm phòng">
-                                <i class="fas fa-plus-circle me-1"></i> Thêm phòng
+                                <i class="fas fa-plus-circle"></i>
                             </a>
                         @else
-                            <a href="{{ route('consultations.edit', $c->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
-                                <i class="fas fa-edit me-1"></i> Sửa
+                            <a href="{{ route('consultations.edit', $c->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Chỉnh sửa">
+                                <i class="fas fa-edit"></i>
                             </a>
                         @endif
                     @endif
                     <form action="{{ route('consultations.destroy', $c->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa không?');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
-                            <i class="fas fa-trash-alt me-1"></i> Xóa
+                        <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa phiên khám">
+                            <i class="fas fa-trash-alt"></i>
                         </button>
                     </form>
                 </div>
@@ -212,12 +212,12 @@ $(document).ready(function () {
 
                         if (c.status != 4) {
                             let editBtnHtml = `<a href="/consultations/${c.id}/edit" class="btn btn-sm btn-primary shadow-sm" title="Thêm phòng">
-                                                    <i class="fas fa-plus-circle me-1"></i> Thêm phòng
+                                                    <i class="fas fa-plus-circle"></i>
                                                </a>`;
                             
                             if (c.rooms && c.rooms.length > 0) {
-                                editBtnHtml = `<a href="/consultations/${c.id}/edit" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
-                                                    <i class="fas fa-edit me-1"></i> Sửa
+                                editBtnHtml = `<a href="/consultations/${c.id}/edit" class="btn btn-sm btn-primary shadow-sm" title="Chỉnh sửa">
+                                                    <i class="fas fa-edit"></i>
                                                </a>`;
                             }
 
@@ -228,8 +228,8 @@ $(document).ready(function () {
                             <form action="/consultations/${c.id}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa không?');">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="_method" value="DELETE">
-                                <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
-                                    <i class="fas fa-trash-alt me-1"></i> Xóa
+                                <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa phiên khám">
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
                             </form>
                         `;
@@ -247,8 +247,8 @@ $(document).ready(function () {
                                 <td class="text-center">${status}</td>
                                 <td class="text-center pe-4">
                                     <div class="d-flex gap-2 justify-content-center">
-                                        <a href="/consultations/${c.id}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
-                                            <i class="fas fa-eye me-1"></i> Xem
+                                        <a href="/consultations/${c.id}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
                                         </a>
                                         ${actionBtnsHtml}
                                     </div>

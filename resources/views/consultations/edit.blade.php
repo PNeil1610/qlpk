@@ -4,7 +4,7 @@
 <div class="container-fluid px-4 mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h3 class="mb-0 text-primary"><i class="fas fa-edit me-2"></i>Sửa Phiên Khám</h3>
+            <h3 class="mb-0 text-primary"><i class="fas fa-edit"></i> Phiên Khám</h3>
             <span class="text-muted">Bệnh nhân: <strong>{{ $consultation->patient->full_name }}</strong></span>
         </div>
         <a href="{{ route('consultations.index') }}" class="btn btn-outline-secondary shadow-sm">

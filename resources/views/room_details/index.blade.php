@@ -52,17 +52,17 @@
                                 <td class="text-center">{{ $item->last_cleaned_at ? $item->last_cleaned_at->format('d/m/Y H:i') : '--' }}</td>
                                 <td class="text-center pe-4">
                                     <div class="d-flex gap-2 justify-content-center">
-                                        <a href="{{ route('room_details.show', $item->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
-                                            <i class="fas fa-eye me-1"></i> Xem
+                                        <a href="{{ route('room_details.show', $item->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('room_details.edit', $item->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
-                                            <i class="fas fa-edit me-1"></i> Sửa
+                                        <a href="{{ route('room_details.edit', $item->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
                                         </a>
                                         <form action="{{ route('room_details.destroy', $item->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
-                                                <i class="fas fa-trash-alt me-1"></i> Xóa
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -125,17 +125,17 @@ $(document).ready(function () {
                                 <td class="text-center">${lastCleanedAt}</td>
                                 <td class="text-center pe-4">
                                     <div class="d-flex gap-2 justify-content-center">
-                                        <a href="/room-details/${r.id}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
-                                            <i class="fas fa-eye me-1"></i> Xem
+                                        <a href="/room-details/${r.id}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="/room-details/${r.id}/edit" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
-                                            <i class="fas fa-edit me-1"></i> Sửa
+                                        <a href="/room-details/${r.id}/edit" class="btn btn-sm btn-primary shadow-sm" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
                                         </a>
                                         <form action="/room-details/${r.id}" method="POST" class="d-inline-block" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?');">
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                             <input type="hidden" name="_method" value="DELETE">
                                             <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
-                                                <i class="fas fa-trash-alt me-1"></i> Xóa
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
                                     </div>

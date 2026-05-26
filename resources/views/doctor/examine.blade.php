@@ -7,7 +7,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 @if($consultation->status === \App\Models\Consultation::STATUS_COMPLETED)
-                    <h3 class="mb-0 text-secondary"><i class="fas fa-eye me-2"></i>Xem phiếu khám (Chỉ đọc)</h3>
+                    <h3 class="mb-0 text-secondary"><i class="fas fa-eye"></i> phiếu khám (Chỉ đọc)</h3>
                 @else
                     <h3 class="mb-0 text-primary"><i class="fas fa-stethoscope me-2"></i>Khám bệnh & Kê đơn thuốc</h3>
                 @endif
@@ -33,8 +33,16 @@
         @endif
 
         <div class="row g-4">
+            <!-- Mobile Toggle Button for Patient Details & History -->
+            <div class="col-12 d-lg-none mb-2">
+                <button class="btn btn-outline-primary w-100 shadow-sm d-flex justify-content-between align-items-center py-2.5 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#leftColumnCollapse" aria-expanded="false">
+                    <span class="fw-bold"><i class="fas fa-user-injured me-2"></i>Thông tin bệnh nhân & Lịch sử khám</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+
             {{-- ====== CỘT TRÁI: THÔNG TIN HÀNH CHÍNH (CHỈ ĐỌC) ====== --}}
-            <div class="col-xl-3 col-lg-4">
+            <div class="col-xl-3 col-lg-4 collapse d-lg-block" id="leftColumnCollapse">
                 <div class="card shadow-sm border-0 border-top border-info border-3 mb-3">
                     <div class="card-header bg-white fw-bold py-3">
                         <i class="fas fa-clipboard-list text-info me-2"></i>Thông tin phiên khám
@@ -163,7 +171,7 @@
             </div>
 
             {{-- ====== CỘT PHẢI: KẾT LUẬN + KÊ ĐƠN ====== --}}
-            <div class="col-xl-9 col-lg-8">
+            <div class="col-xl-9 col-lg-8 col-12">
 
                 {{-- PHẦN 1: KẾT LUẬN CHUYÊN MÔN --}}
                 <div class="card shadow-sm border-0 border-top border-warning border-3 mb-4">

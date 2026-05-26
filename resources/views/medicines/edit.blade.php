@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="mb-0 text-primary"><i class="fas fa-edit me-2"></i>Sửa Tên Thuốc: {{ $medicine->medicine_name }}</h3>
+                <h3 class="mb-0 text-primary"><i class="fas fa-edit"></i> Tên Thuốc: {{ $medicine->medicine_name }}</h3>
                 <a href="{{ route('medicines.show', $medicine->id) }}" class="btn btn-outline-secondary">Quay lại</a>
             </div>
 

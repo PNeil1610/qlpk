@@ -53,14 +53,14 @@
                                 <td class="text-center pe-4">
                                     <div class="d-flex gap-2 justify-content-center">
                                         <a href="{{ route('medicines.details.edit', $detail->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Sửa chi tiết">
-                                            <i class="fas fa-edit me-1"></i> Sửa
+                                            <i class="fas fa-edit"></i>
                                         </a>
                                         @if($detail->status != 1)
                                             <form action="{{ route('medicines.details.destroy', $detail->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa phiên bản chi tiết này không?');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
-                                                    <i class="fas fa-trash-alt me-1"></i> Xóa
+                                                    <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </form>
                                         @endif

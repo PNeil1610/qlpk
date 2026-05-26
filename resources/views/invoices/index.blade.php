@@ -57,11 +57,11 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="d-flex justify-content-center gap-1">
-                                                <a href="{{ route('invoices.edit', $item->id) }}" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa chiết khấu/phụ phí">
-                                                    <i class="fas fa-edit"></i> Sửa
+                                                <a href="{{ route('invoices.edit', $item->id) }}" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa phụ phí/chiết khấu">
+                                                    <i class="fas fa-edit"></i>
                                                 </a>
                                                 <a href="{{ route('invoices.show', $item->id) }}" class="btn btn-sm btn-success" title="Xác nhận thanh toán">
-                                                    <i class="fas fa-dollar-sign"></i> Thanh toán
+                                                    <i class="fas fa-dollar-sign"></i>
                                                 </a>
                                             </div>
                                         </td>
@@ -135,7 +135,7 @@
                                         <td class="text-center">
                                             <a href="{{ route('invoices.show', $item->id) }}" class="btn btn-sm btn-outline-primary"
                                                 title="Xem chi tiết">
-                                                <i class="fas fa-eye"></i> Xem
+                                                <i class="fas fa-eye"></i>
                                             </a>
                                         </td>
                                     </tr>
@@ -226,7 +226,7 @@ $(document).ready(function() {
                             <td class="text-center">${statusHtml}</td>
                             <td class="text-center">
                                 <a href="${showUrl}" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
-                                    <i class="fas fa-eye"></i> Xem
+                                    <i class="fas fa-eye"></i>
                                 </a>
                             </td>
                         </tr>
@@ -291,11 +291,11 @@ $(document).ready(function() {
                             <td class="text-end fw-bold text-danger fs-6">${amountStr}</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-1">
-                                    <a href="${editUrl}" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa chiết khấu/phụ phí">
-                                        <i class="fas fa-edit"></i> Sửa
+                                    <a href="${editUrl}" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa phụ phí/chiết khấu">
+                                        <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="${showUrl}" class="btn btn-sm btn-success" title="Xác nhận thanh toán">
-                                        <i class="fas fa-dollar-sign"></i> Thanh toán
+                                        <i class="fas fa-dollar-sign"></i>
                                     </a>
                                 </div>
                             </td>

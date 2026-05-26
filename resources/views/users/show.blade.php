@@ -159,7 +159,7 @@
                           onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản {{ $user->username }}? Hành động này không thể hoàn tác!')">
                         @csrf @method('DELETE')
                         <button class="btn btn-outline-danger btn-sm ms-3 text-nowrap">
-                            <i class="fas fa-trash me-1"></i> Xóa tài khoản
+                            <i class="fas fa-trash"></i> tài khoản
                         </button>
                     </form>
                 </div>

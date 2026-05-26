@@ -6,7 +6,7 @@
         <div class="col-md-8">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h3 class="mb-0 text-primary"><i class="fas fa-edit me-2"></i>Sửa Chi tiết & Đơn giá</h3>
+                    <h3 class="mb-0 text-primary"><i class="fas fa-edit"></i> Chi tiết & Đơn giá</h3>
                     <span class="text-muted fw-bold">Thuốc: {{ $detail->medicine->medicine_name }}</span>
                 </div>
                 <a href="{{ route('medicines.details', $detail->medicine_id) }}" class="btn btn-outline-secondary shadow-sm">

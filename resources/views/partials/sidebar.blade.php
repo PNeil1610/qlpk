@@ -1,13 +1,13 @@
 <style>
-    .sidebar {
+    .sidebar, .offcanvas-sidebar {
         background: linear-gradient(180deg, #1A2980 0%, #26D0CE 100%) !important;
         box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         overflow-y: auto;
     }
-    .sidebar::-webkit-scrollbar {
+    .sidebar::-webkit-scrollbar, .offcanvas-sidebar::-webkit-scrollbar {
         width: 5px;
     }
-    .sidebar::-webkit-scrollbar-thumb {
+    .sidebar::-webkit-scrollbar-thumb, .offcanvas-sidebar::-webkit-scrollbar-thumb {
         background: rgba(255,255,255,0.2);
         border-radius: 10px;
     }
@@ -31,7 +31,7 @@
         margin: 0;
     }
 
-    .sidebar a {
+    .sidebar a, .offcanvas-sidebar a {
         color: rgba(255,255,255,0.85) !important;
         padding: 0.8rem 1.5rem !important;
         display: flex;
@@ -43,13 +43,13 @@
         margin-bottom: 2px;
     }
     
-    .sidebar a:hover, .sidebar a.active {
+    .sidebar a:hover, .sidebar a.active, .offcanvas-sidebar a:hover, .offcanvas-sidebar a.active {
         color: #ffffff !important;
         background: rgba(255,255,255,0.1) !important;
         border-left-color: #ffc107 !important;
     }
     
-    .sidebar a i.menu-icon {
+    .sidebar a i.menu-icon, .offcanvas-sidebar a i.menu-icon {
         width: 28px;
         font-size: 1.1rem;
         margin-right: 8px;
@@ -58,7 +58,7 @@
         transition: color 0.2s;
     }
     
-    .sidebar a:hover i.menu-icon, .sidebar a.active i.menu-icon {
+    .sidebar a:hover i.menu-icon, .sidebar a.active i.menu-icon, .offcanvas-sidebar a:hover i.menu-icon, .offcanvas-sidebar a.active i.menu-icon {
         color: #ffc107;
     }
 </style>

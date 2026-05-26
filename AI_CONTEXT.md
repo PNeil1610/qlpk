@@ -16,7 +16,7 @@ Tài liệu này được thiết kế để cung cấp cái nhìn toàn diện 
 # 2. Tech Stack & Infrastructure
 - **Ngôn ngữ & Framework:** PHP 8.1+, **Laravel 10** (MVC Architecture).
 - **Cơ sở dữ liệu:** **MySQL** (Sử dụng Eloquent ORM để quản lý quan hệ dữ liệu).
-- **Frontend:** Laravel Blade Template, Bootstrap 5, Vite, jQuery, Select2.
+- **Frontend:** Laravel Blade Template, Bootstrap 5, Vite, jQuery, Select2, Google Font **Plus Jakarta Sans**, CSS Premium chuyên dụng (`custom-premium-style.css`).
 - **Containerization:** **Laravel Sail** (Docker Compose) cung cấp môi trường phát triển đồng bộ.
 - **Kiến trúc:** Monolithic Web Application với RESTful Web Routes.
 
@@ -69,6 +69,8 @@ qlpk/
 # 6. Breakdown Code Cốt Lõi (Core File Analysis)
 
 - **resources/views/auth/login.blade.php:** Giao diện đăng nhập được thiết kế lại độc lập với layout chính, mang phong cách hiện đại, trực quan và tối ưu cho UI/UX hệ thống phòng khám.
+- **resources/views/layouts/app.blade.php:** Layout nền tảng được cấu trúc lại hoàn toàn cho Responsive (Sidebar cố định ở desktop `>= 992px`, và Hamburger Offcanvas Sidebar Drawer ở di động `< 992px`). Tích hợp Google Font `Plus Jakarta Sans` và liên kết file CSS Premium.
+- **public/css/custom-premium-style.css:** Định nghĩa hệ thống theme Premium (bo góc mềm mại `12px` - `16px`, soft shadow). Cấu hình cuộn ngang cho bảng (`overflow-x: auto`) và triệt tiêu bóp nghẹt chữ/nút hành động (`white-space: nowrap !important`) cùng thanh scrollbar Indigo nổi bật để vuốt kéo dễ dàng trên di động.
 - **app/Models/User.php:** Quản lý Auth và RBAC (hàm `hasRole`, `hasPermission`).
 - **app/Http/Controllers/Admin/ConsultationController.php:** Quản lý phiên khám (CRUD) cho Admin.
 - **app/Http/Controllers/Doctor/ExaminationController.php:** 
@@ -79,7 +81,7 @@ qlpk/
     - `store()`: Tự động tính toán phí khám và phí thuốc dựa trên dữ liệu từ `Consultation`.
 - **app/Models/Consultation.php:** Định nghĩa các trạng thái phiên khám (`STATUS_NEW`, `STATUS_PENDING`, `STATUS_COMPLETED`...) và logic chuyển trạng thái.
 - **app/Http/Controllers/NotificationController.php:** Quản lý gửi nhận thông báo nội bộ cho nhân viên phòng khám.
-- **resources/views/partials/sidebar.blade.php:** Tích hợp tính năng tự động đếm thông báo chưa đọc (`ajaxUnreadCount`) và hiển thị chấm đỏ (red dot badge) ngay tại icon cái chuông (`#notif-dot`) kết hợp hiển thị số lượng chưa đọc. Tối ưu hóa trải nghiệm bằng cách tải trực tiếp số lượng chưa đọc từ máy chủ (Server-side rendering qua Blade) khi tải trang để chấm đỏ xuất hiện tức thì, sau đó tiếp tục đồng bộ và cập nhật tự động mỗi 60 giây qua AJAX.
+- **resources/views/partials/sidebar.blade.php:** Tích hợp tính năng tự động đếm thông báo chưa đọc (`ajaxUnreadCount`) và hiển thị chấm đỏ (red dot badge) ngay tại icon cái chuông (`#notif-dot`) kết hợp hiển thị số lượng chưa đọc. Tối ưu hóa trải nghiệm bằng cách tải trực tiếp số lượng chưa đọc từ máy chủ (Server-side rendering qua Blade) khi tải trang để chấm đỏ xuất hiện tức thì, sau đó tiếp tục đồng bộ và cập nhật tự động mỗi 60 giây qua AJAX. Tương thích hoàn hảo cả khi làm Sidebar cố định lẫn khi nằm trong Offcanvas di động nhờ đồng bộ hóa các bộ lọc CSS.
 
 # 7. Luồng Nghiệp vụ Cốt lõi (Core Business Flows)
 
@@ -143,6 +145,10 @@ qlpk/
     - Dữ liệu lưu: `localStorage['reuse_prescription_data']` gồm `medicines[]`, `advice`, `timestamp`.
     - Dữ liệu tự xóa sau khi được áp dụng hoặc sau 5 phút nếu không được dùng đến.
 - **Tích hợp Select2:** Hệ thống sử dụng Select2 AJAX cho việc tìm kiếm Mã bệnh (ICD-10) và Thuốc để tối ưu hiệu năng khi danh mục lớn.
+- **Responsive & Premium UI Optimizations:**
+    - **Khóa cột không co chữ trong bảng biểu:** Trên di động, để tránh nội dung bị trình duyệt tự ý bóp nghẹt làm vỡ chữ hay vỡ hàng nút bấm, hệ thống áp dụng `white-space: nowrap !important` kết hợp `overflow-x: auto` trên container `.table-responsive` giúp kéo vuốt qua lại vô cùng dễ dàng.
+    - **Khối thông tin thu gọn di động:** Vùng xem chi tiết hồ sơ bệnh nhân ở cột trái của bác sĩ tự động thu vào Accordion `#leftColumnCollapse` khi ở màn hình nhỏ, giúp bác sĩ không phải cuộn nhiều.
+    - **Kê đơn dạng thẻ dọc di động:** Phần kê đơn thuốc tự chuyển đổi linh hoạt từ hàng ngang dài sang cấu trúc Mini Card đứng trên di động/tablet để dễ chạm bấm ngón tay và có liều dùng dạng lưới thoáng đãng.
 
 ---
 *Ghi chú: Luôn kiểm tra `routes/web.php` để nắm bắt các URL mới và `app/Models` để cập nhật các thay đổi về schema.*

@@ -62,16 +62,16 @@
                                             <i class="fas fa-eye me-1"></i> Chi tiết
                                         </a>
                                         <a href="{{ route('medicines.show', $item->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem chi tiết">
-                                            <i class="fas fa-eye me-1"></i> Xem
+                                            <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('medicines.edit', $item->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
-                                            <i class="fas fa-edit me-1"></i> Sửa
+                                        <a href="{{ route('medicines.edit', $item->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
                                         </a>
                                         <form action="{{ route('medicines.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thuốc này không?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
-                                                <i class="fas fa-trash-alt me-1"></i> Xóa
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
                                     </div>

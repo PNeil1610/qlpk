@@ -166,7 +166,7 @@
                         <div class="mt-3 d-flex gap-2 flex-wrap">
                             <a href="{{ route('consultations.show', $c->id) }}{{ $fromConsultation ? '?reuse_mode=1&from_consultation='.$fromConsultation : '' }}"
                                class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-eye me-1"></i>Xem phiếu khám
+                                <i class="fas fa-eye"></i> phiếu khám
                             </a>
                         </div>
                     </div>

@@ -54,6 +54,7 @@ class ExaminationController extends Controller
                 });
             })
             ->latest()
+            ->limit(10)
             ->get();
 
         return response()->json($consultations);

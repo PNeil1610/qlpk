@@ -122,6 +122,7 @@ class UserController extends Controller
                 });
             })
             ->orderBy('id', 'desc')
+            ->limit(10)
             ->get()
             ->map(function ($user) {
                 return [

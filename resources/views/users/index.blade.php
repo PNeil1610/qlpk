@@ -126,7 +126,7 @@
                             </td>
                             <td class="text-center pe-4">
                                 <div class="d-flex gap-1 justify-content-center flex-wrap">
-                                    <a href="{{ route('users.show', $user->id) }}" class="btn btn-outline-info btn-sm" title="Xem">
+                                    <a href="{{ route('users.show', $user->id) }}" class="btn btn-outline-info btn-sm" title="Xem chi tiết">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     @if($user->id !== auth()->id())
@@ -251,7 +251,7 @@ $(document).ready(function () {
                             <td class="text-center status-col">${statusHtml}</td>
                             <td class="text-center pe-4">
                                 <div class="d-flex gap-1 justify-content-center flex-wrap action-col">
-                                    <a href="/users/${user.id}" class="btn btn-outline-info btn-sm" title="Xem"><i class="fas fa-eye"></i></a>
+                                    <a href="/users/${user.id}" class="btn btn-outline-info btn-sm" title="Xem chi tiết"><i class="fas fa-eye"></i></a>
                                     ${toggleBtn}
                                     ${deleteBtn}
                                 </div>

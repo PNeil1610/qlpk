@@ -5,7 +5,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="mb-0 text-primary"><i class="fas fa-door-open me-2"></i>Danh sách Phòng</h3>
         <a href="{{ route('rooms.create') }}" class="btn btn-primary shadow-sm">
-            <i class="fas fa-plus-circle me-1"></i> Thêm Phòng
+            <i class="fas fa-plus-circle"></i>
         </a>
     </div>
 
@@ -72,20 +72,20 @@
                     </td>
                     <td class="text-center pe-4">
                         <div class="d-flex gap-2 justify-content-center">
-                            <a href="{{ route('rooms.show', $room->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
-                                <i class="fas fa-eye me-1"></i> Xem
+                            <a href="{{ route('rooms.show', $room->id) }}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
                             </a>
-                            <a href="{{ route('rooms.edit', $room->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
-                                <i class="fas fa-edit me-1"></i> Sửa
+                            <a href="{{ route('rooms.edit', $room->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Chỉnh sửa">
+                                <i class="fas fa-edit"></i>
                             </a>
                             <a href="{{ route('room_details.create', ['room_id' => $room->id]) }}" class="btn btn-sm btn-success shadow-sm" title="Thêm Chi tiết">
-                                <i class="fas fa-plus me-1"></i> Chi tiết
+                                <i class="fas fa-plus-circle"></i>
                             </a>
                             <form action="{{ route('rooms.destroy', $room->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa không?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
-                                    <i class="fas fa-trash-alt me-1"></i> Xóa
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
                             </form>
                         </div>
@@ -182,20 +182,20 @@ $(document).ready(function () {
                                 <td class="text-center">${status}</td>
                                 <td class="text-center pe-4">
                                     <div class="d-flex gap-2 justify-content-center">
-                                        <a href="/rooms/${r.id}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem">
-                                            <i class="fas fa-eye me-1"></i> Xem
+                                        <a href="/rooms/${r.id}" class="btn btn-sm btn-info shadow-sm text-white" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="/rooms/${r.id}/edit" class="btn btn-sm btn-primary shadow-sm" title="Sửa">
-                                            <i class="fas fa-edit me-1"></i> Sửa
+                                        <a href="/rooms/${r.id}/edit" class="btn btn-sm btn-primary shadow-sm" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
                                         </a>
                                         <a href="/room-details/create?room_id=${r.id}" class="btn btn-sm btn-success shadow-sm" title="Thêm Chi tiết">
-                                            <i class="fas fa-plus me-1"></i> Chi tiết
+                                            <i class="fas fa-plus-circle"></i>
                                         </a>
                                         <form action="/rooms/${r.id}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa không?');">
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                             <input type="hidden" name="_method" value="DELETE">
                                             <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
-                                                <i class="fas fa-trash-alt me-1"></i> Xóa
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
                                     </div>

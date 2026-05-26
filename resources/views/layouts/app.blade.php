@@ -18,31 +18,7 @@
         href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-
-        .sidebar {
-            height: 100vh;
-            background: #343a40;
-            color: white;
-            position: sticky;
-            top: 0;
-        }
-
-        .sidebar a {
-            color: #ddd;
-            display: block;
-            padding: 10px;
-            text-decoration: none;
-        }
-
-        .sidebar a:hover {
-            background: #495057;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/custom-premium-style.css') }}">
 
     @stack('styles')
 </head>
@@ -51,16 +27,23 @@
     <div id="app" class="container-fluid p-0">
         <div class="row g-0">
 
-            <div class="col-md-2 sidebar d-none d-md-block">
+            <!-- Desktop Sidebar -->
+            <div class="col-lg-3 col-xl-2 sidebar d-none d-lg-block">
                 @include('partials.sidebar')
             </div>
 
-            <div class="col-md-10">
+            <!-- Content Column -->
+            <div class="col-lg-9 col-xl-10 col-12 d-flex flex-column min-vh-100">
 
-                <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+                <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm sticky-top">
                     <div class="container-fluid px-4">
 
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        <!-- Hamburger Toggle for Mobile Sidebar Drawer -->
+                        <button class="btn btn-link text-dark d-lg-none me-3 p-0 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebarOffcanvas" aria-controls="mobileSidebarOffcanvas" style="font-size: 1.25rem; text-decoration: none;">
+                            <i class="fas fa-bars"></i>
+                        </button>
+
+                        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
                             data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                             aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                             <span class="navbar-toggler-icon"></span>
@@ -107,7 +90,7 @@
                     </div>
                 </nav>
 
-                <main class="p-4">
+                <main class="p-4 flex-grow-1">
                     <h3>@yield('page_title')</h3>
 
                     @if(session('success'))
@@ -142,6 +125,16 @@
                 </main>
 
             </div>
+        </div>
+    </div>
+
+    <!-- Mobile Sidebar Drawer (Offcanvas) -->
+    <div class="offcanvas offcanvas-start offcanvas-sidebar d-lg-none" tabindex="-1" id="mobileSidebarOffcanvas" aria-labelledby="mobileSidebarOffcanvasLabel">
+        <div class="offcanvas-header justify-content-end p-0 border-0">
+            <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            @include('partials.sidebar')
         </div>
     </div>
 

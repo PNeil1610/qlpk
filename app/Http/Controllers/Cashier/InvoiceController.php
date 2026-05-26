@@ -193,6 +193,7 @@ class InvoiceController extends Controller
                 });
             })
             ->orderBy('id', 'desc')
+            ->limit(10)
             ->get();
 
         return response()->json($invoices);

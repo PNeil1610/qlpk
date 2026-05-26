@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="mb-0 text-primary"><i class="fas fa-edit me-2"></i>Sửa Danh Mục Thuốc</h3>
+                <h3 class="mb-0 text-primary"><i class="fas fa-edit"></i> Danh Mục Thuốc</h3>
                 <a href="{{ route('medicine_categories.index') }}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-1"></i> Quay lại
                 </a>
