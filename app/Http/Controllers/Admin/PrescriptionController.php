@@ -150,7 +150,17 @@ class PrescriptionController extends Controller
                 }
 
                 $consultation = Consultation::find($request->consultation_id);
-                $consultation->update(['status' => Consultation::STATUS_WAIT_PAYMENT]);
+                // Giữ trạng thái ở Đang khám (STATUS_PROCESSING) khi kê đơn,
+                // trạng thái Chờ thanh toán (STATUS_WAIT_PAYMENT) chỉ chuyển sau khi bác sĩ Lưu Kết Luận.
+                if (in_array($consultation->status, [Consultation::STATUS_NEW, Consultation::STATUS_PENDING])) {
+                    $consultation->update(['status' => Consultation::STATUS_PROCESSING]);
+                }
+
+                // Nếu là bác sĩ đang thực hiện khám, quay lại màn hình khám tiếp tục
+                if (auth()->user() && auth()->user()->hasRole('DOCTOR')) {
+                    return redirect()->route('consultations.doctor.examine', $request->consultation_id)
+                                     ->with('success', 'Đã kê toa thuốc thành công!');
+                }
 
                 return redirect()->route('consultations.show', $request->consultation_id)
                                  ->with('success', 'Đã kê toa thuốc thành công!');
