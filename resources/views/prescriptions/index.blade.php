@@ -64,19 +64,19 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-1">
-                                            <a href="{{ route('prescriptions.show', $item->id) }}" class="btn btn-sm btn-outline-info" title="Xem toa thuốc">
-                                                <i class="fas fa-eye"></i> Xem
+                                            <a href="{{ route('prescriptions.show', $item->id) }}" class="btn btn-sm btn-outline-info" title="Xem chi tiết toa thuốc">
+                                                <i class="fas fa-eye"></i>
                                             </a>
-                                            <form action="{{ route('prescriptions.update_status', $item->id) }}" method="POST">
+                                            <form action="{{ route('prescriptions.update_status', $item->id) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('PATCH')
                                                 @if($item->status == 1)
                                                     <button type="submit" class="btn btn-sm btn-success" title="Xác nhận đã phát thuốc" onclick="return confirm('Xác nhận bệnh nhân đã lấy thuốc cho toa #{{ $item->id }}?')">
-                                                        <i class="fas fa-check"></i> Đã lấy
+                                                        <i class="fas fa-check"></i>
                                                     </button>
                                                 @else
-                                                    <button type="submit" class="btn btn-sm btn-secondary" title="Hủy xác nhận phát thuốc" onclick="return confirm('Hủy xác nhận đã lấy thuốc cho toa #{{ $item->id }}?')">
-                                                        <i class="fas fa-undo"></i> Hủy
+                                                    <button type="submit" class="btn btn-sm btn-secondary" title="Hủy xác nhận đã phát thuốc" onclick="return confirm('Hủy xác nhận đã lấy thuốc cho toa #{{ $item->id }}?')">
+                                                        <i class="fas fa-undo"></i>
                                                     </button>
                                                 @endif
                                             </form>
@@ -85,7 +85,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">
+                                    <td colspan="6" class="text-center py-5 text-muted">
                                         Chưa có toa thuốc nào trên hệ thống.
                                     </td>
                                 </tr>

@@ -67,6 +67,11 @@ class ExaminationController extends Controller
     {
         $consultation = Consultation::with(['patient', 'rooms', 'prescriptions'])->findOrFail($id);
 
+        // Tự động chuyển sang trạng thái "Đang khám" nếu đang là mới tạo hoặc chờ khám
+        if (in_array($consultation->status, [Consultation::STATUS_NEW, Consultation::STATUS_PENDING])) {
+            $consultation->update(['status' => Consultation::STATUS_PROCESSING]);
+        }
+
         // Thuốc sẽ được load qua AJAX trong view, giảm tải băng thông
         $categories = \App\Models\MedicineCategory::where('status', 1)->orderBy('category_name')->get();
 
@@ -97,14 +102,19 @@ class ExaminationController extends Controller
             'diagnosis_notes' => 'nullable|string',
             'diagnosis_code'  => 'nullable|string|max:15',
             'follow_up_date'  => 'nullable|date',
-            'status'          => 'required|integer',
         ]);
+
+        // Tự động nâng lên "Chờ thanh toán" nếu đang ở các bước khám lâm sàng đầu tiên
+        $newStatus = $consultation->status;
+        if (in_array($consultation->status, [Consultation::STATUS_NEW, Consultation::STATUS_PENDING, Consultation::STATUS_PROCESSING])) {
+            $newStatus = Consultation::STATUS_WAIT_PAYMENT;
+        }
 
         $consultation->update([
             'diagnosis_notes' => $request->diagnosis_notes,
             'diagnosis_code'  => $request->diagnosis_code,
             'follow_up_date'  => $request->follow_up_date,
-            'status'          => $request->status,
+            'status'          => $newStatus,
             'doctor_id'       => auth()->user()->staff->id ?? $consultation->doctor_id,
             // Giữ lại các trường readonly
             'patient_id'        => $request->patient_id ?? $consultation->patient_id,

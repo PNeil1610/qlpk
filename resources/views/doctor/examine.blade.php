@@ -266,18 +266,21 @@
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label fw-bold">Trạng thái phiên khám</label>
-                                        <select name="status" class="form-select border-warning shadow-sm">
-                                            <option value="0" {{ old('status', $consultation->status) == 0 ? 'selected' : '' }}>
-                                                Mới tạo</option>
-                                            <option value="1" {{ old('status', $consultation->status) == 1 ? 'selected' : '' }}>
-                                                Chờ khám</option>
-                                            <option value="2" {{ old('status', $consultation->status) == 2 ? 'selected' : '' }}>
-                                                Đang khám</option>
-                                            <option value="3" {{ old('status', $consultation->status) == 3 ? 'selected' : '' }}>
-                                                Chờ thanh toán</option>
-                                            <option value="4" {{ old('status', $consultation->status) == 4 ? 'selected' : '' }}>
-                                                Hoàn thành</option>
-                                        </select>
+                                        <div class="form-control-plaintext pt-1">
+                                            @if($consultation->status == \App\Models\Consultation::STATUS_NEW)
+                                                <span class="badge bg-secondary p-2 shadow-sm"><i class="fas fa-plus me-1"></i> Mới tạo</span>
+                                            @elseif($consultation->status == \App\Models\Consultation::STATUS_PENDING)
+                                                <span class="badge bg-info p-2 shadow-sm"><i class="fas fa-hourglass-half me-1"></i> Chờ khám</span>
+                                            @elseif($consultation->status == \App\Models\Consultation::STATUS_PROCESSING)
+                                                <span class="badge bg-primary p-2 shadow-sm"><i class="fas fa-spinner fa-spin me-1"></i> Đang khám</span>
+                                            @elseif($consultation->status == \App\Models\Consultation::STATUS_WAIT_PAYMENT)
+                                                <span class="badge bg-warning text-dark p-2 shadow-sm"><i class="fas fa-hand-holding-usd me-1"></i> Chờ thanh toán</span>
+                                            @elseif($consultation->status == \App\Models\Consultation::STATUS_COMPLETED)
+                                                <span class="badge bg-success p-2 shadow-sm"><i class="fas fa-check-circle me-1"></i> Hoàn thành</span>
+                                            @else
+                                                <span class="badge bg-secondary p-2 shadow-sm">Không xác định</span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
 
