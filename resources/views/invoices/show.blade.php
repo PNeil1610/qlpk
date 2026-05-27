@@ -29,7 +29,14 @@
             {{-- HEADER --}}
             <div class="inv-header">
                 <div class="inv-header-left">
-                    <div class="inv-clinic-logo"><i class="fas fa-hospital-alt"></i></div>
+                    {{-- Logo phòng khám hoặc icon fallback --}}
+                    @if($clinicSetting?->logo_path)
+                        <img src="{{ asset('storage/' . $clinicSetting->logo_path) }}"
+                             alt="{{ $clinicSetting->clinic_name }}"
+                             class="inv-clinic-logo-img">
+                    @else
+                        <div class="inv-clinic-logo"><i class="fas fa-hospital-alt"></i></div>
+                    @endif
                     <div>
                         <div class="inv-clinic-name">{{ $clinicSetting->clinic_name ?? 'PHÒNG KHÁM ĐA KHOA' }}</div>
                         @if($clinicSetting?->address)<div class="inv-clinic-sub">{{ $clinicSetting->address }}</div>@endif
@@ -154,6 +161,14 @@
     <div class="hd-col-banske">
         <div class="bk-page" id="print-banske">
             <div class="bk-header">
+                {{-- Logo bản kê --}}
+                @if($clinicSetting?->logo_path)
+                <div style="margin-bottom:6px;">
+                    <img src="{{ asset('storage/' . $clinicSetting->logo_path) }}"
+                         alt="{{ $clinicSetting->clinic_name }}"
+                         class="bk-clinic-logo-img">
+                </div>
+                @endif
                 <div class="bk-clinic-name">{{ $clinicSetting->clinic_name ?? 'PHÒNG KHÁM ĐA KHOA' }}</div>
                 @if($clinicSetting)<div class="bk-clinic-sub">{{ $clinicSetting->address }} | ĐT: {{ $clinicSetting->phone_number }}</div>@endif
                 <div class="bk-title">BẢN KÊ CHI TIẾT DỊCH VỤ</div>
@@ -296,6 +311,8 @@
 .inv-header { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1.5px solid #222; padding-bottom:4mm; margin-bottom:3mm; }
 .inv-header-left { display:flex; align-items:flex-start; gap:8px; flex:1; }
 .inv-clinic-logo { font-size:26px; color:#1a56a0; margin-top:2px; flex-shrink:0; }
+.inv-clinic-logo-img { height:42px; max-width:90px; object-fit:contain; flex-shrink:0; margin-top:2px; }
+.bk-clinic-logo-img { height:36px; max-width:100px; object-fit:contain; }
 .inv-clinic-name { font-size:11.5pt; font-weight:700; color:#1a3a6b; line-height:1.2; text-transform:uppercase; }
 .inv-clinic-sub { font-size:8pt; color:#444; line-height:1.4; }
 .inv-header-right { text-align:right; font-size:8.5pt; color:#333; flex-shrink:0; min-width:42mm; }

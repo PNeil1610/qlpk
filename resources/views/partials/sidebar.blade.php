@@ -65,9 +65,11 @@
 
 <div class="d-flex flex-column h-100">
     <div class="clinic-brand-info text-center p-4 mb-2">
-        @if(isset($clinicSetting) && $clinicSetting->logo_url)
-            <img src="{{ asset($clinicSetting->logo_url) }}" alt="Logo" class="img-fluid rounded-circle mb-3 bg-white p-1 shadow-sm"
-                style="width: 80px; height: 80px; object-fit: contain;">
+        @if(isset($clinicSetting) && $clinicSetting->logo_path)
+            <img src="{{ asset('storage/' . $clinicSetting->logo_path) }}"
+                 alt="Logo {{ $clinicSetting->clinic_name }}"
+                 class="mb-3 shadow-sm"
+                 style="width: 80px; height: 80px; object-fit: contain; border-radius: 12px; background: rgba(255,255,255,0.15); padding: 6px;">
         @else
             <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white shadow-sm mb-3 text-primary" style="width: 80px; height: 80px; font-size: 2rem;">
                 <i class="fas fa-hospital-alt"></i>

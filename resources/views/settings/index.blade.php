@@ -11,7 +11,7 @@
             <h3 class="mb-0 text-primary">
                 <i class="fas fa-cog me-2"></i>Cấu hình phòng khám
             </h3>
-            <small class="text-muted">Quản lý thông tin hiển thị & cài đặt hệ thống</small>
+            <small class="text-muted">Quản lý thông tin hiển thị &amp; cài đặt hệ thống</small>
         </div>
         <a href="{{ route('settings.create') }}" class="btn btn-primary shadow-sm">
             <i class="fas fa-plus me-1"></i> Thêm cấu hình
@@ -22,7 +22,16 @@
     @if($activeSetting)
     <div class="alert border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #e8f4e8, #d4edda); border-left: 5px solid #198754 !important;">
         <div class="d-flex align-items-start gap-3">
-            <div class="text-success mt-1" style="font-size:1.5rem;">✅</div>
+            {{-- Logo hoặc icon --}}
+            <div class="flex-shrink-0">
+                @if($activeSetting->logo_path)
+                    <img src="{{ asset('storage/' . $activeSetting->logo_path) }}"
+                         alt="Logo {{ $activeSetting->clinic_name }}"
+                         class="active-setting-logo">
+                @else
+                    <div class="text-success mt-1" style="font-size:1.8rem;">🏥</div>
+                @endif
+            </div>
             <div class="flex-grow-1">
                 <h6 class="fw-bold text-success mb-2">Cấu hình đang áp dụng</h6>
                 <div class="row g-2">
@@ -77,6 +86,7 @@
                     <thead class="table-light">
                         <tr>
                             <th style="width:50px;">#</th>
+                            <th style="width:70px;" class="text-center">Logo</th>
                             <th>Tên phòng khám</th>
                             <th>Điện thoại</th>
                             <th>Địa chỉ</th>
@@ -90,6 +100,16 @@
                         @forelse($settings as $s)
                         <tr class="{{ $s->status == 1 ? 'table-success' : '' }}">
                             <td class="text-muted small">{{ $s->id }}</td>
+                            <td class="text-center">
+                                @if($s->logo_path)
+                                    <img src="{{ asset('storage/' . $s->logo_path) }}"
+                                         alt="Logo"
+                                         class="table-logo-thumb"
+                                         title="{{ $s->clinic_name }}">
+                                @else
+                                    <span class="text-muted small">—</span>
+                                @endif
+                            </td>
                             <td>
                                 <div class="fw-semibold">{{ $s->clinic_name }}</div>
                                 @if($s->email)
@@ -117,7 +137,7 @@
                             </td>
                             <td class="text-center">
                                 <div class="d-flex gap-1 justify-content-center flex-wrap">
-                                    {{-- Áp dụng --}}
+                                    {{-- Áp dụng / Thu hồi --}}
                                     @if($s->status == 0)
                                     <form action="{{ route('settings.activate', $s->id) }}" method="POST"
                                           onsubmit="return confirm('Áp dụng cấu hình này cho hệ thống?')">
@@ -162,7 +182,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">
+                            <td colspan="9" class="text-center py-4 text-muted">
                                 <i class="fas fa-cog fa-2x mb-2 d-block"></i>
                                 Chưa có cấu hình nào. <a href="{{ route('settings.create') }}">Tạo ngay</a>
                             </td>
@@ -180,4 +200,25 @@
     </div>
 
 </div>
+
+<style>
+.active-setting-logo {
+    height: 60px;
+    max-width: 130px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: #fff;
+    border: 1px solid #c3e6cb;
+    padding: 4px;
+}
+.table-logo-thumb {
+    height: 36px;
+    max-width: 70px;
+    object-fit: contain;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    padding: 2px;
+    background: #fff;
+}
+</style>
 @endsection

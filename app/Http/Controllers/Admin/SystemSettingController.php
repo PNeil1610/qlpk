@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\SystemSetting;
 
 class SystemSettingController extends Controller
@@ -42,9 +43,13 @@ class SystemSettingController extends Controller
             'email'          => 'nullable|email|max:100',
             'address'        => 'nullable|string|max:255',
             'additional_info'=> 'nullable|string',
+            'logo'           => 'nullable|image|mimes:jpeg,jpg,png,webp,gif|max:2048',
         ], [
             'clinic_name.required' => 'Tên phòng khám không được để trống.',
             'email.email'          => 'Địa chỉ email không hợp lệ.',
+            'logo.image'           => 'Logo phải là file hình ảnh.',
+            'logo.mimes'           => 'Logo chỉ chấp nhận định dạng: JPEG, PNG, WEBP, GIF.',
+            'logo.max'             => 'Logo không được vượt quá 2MB.',
         ]);
 
         $applyNow = $request->boolean('apply_now');
@@ -54,6 +59,12 @@ class SystemSettingController extends Controller
             SystemSetting::where('status', 1)->update(['status' => 0]);
         }
 
+        // Xử lý upload logo
+        $logoPath = null;
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('clinic_logos', 'public');
+        }
+
         SystemSetting::create([
             'created_by'     => auth()->id(),
             'clinic_name'    => $request->clinic_name,
@@ -61,6 +72,7 @@ class SystemSettingController extends Controller
             'email'          => $request->email,
             'address'        => $request->address,
             'additional_info'=> $request->additional_info,
+            'logo_path'      => $logoPath,
             'status'         => $applyNow ? 1 : 0,
         ]);
 
@@ -93,19 +105,34 @@ class SystemSettingController extends Controller
             'email'          => 'nullable|email|max:100',
             'address'        => 'nullable|string|max:255',
             'additional_info'=> 'nullable|string',
+            'logo'           => 'nullable|image|mimes:jpeg,jpg,png,webp,gif|max:2048',
         ], [
             'clinic_name.required' => 'Tên phòng khám không được để trống.',
             'email.email'          => 'Địa chỉ email không hợp lệ.',
+            'logo.image'           => 'Logo phải là file hình ảnh.',
+            'logo.mimes'           => 'Logo chỉ chấp nhận định dạng: JPEG, PNG, WEBP, GIF.',
+            'logo.max'             => 'Logo không được vượt quá 2MB.',
         ]);
 
-        $setting->update([
+        $data = [
             'created_by'     => auth()->id(),
             'clinic_name'    => $request->clinic_name,
             'phone_number'   => $request->phone_number,
             'email'          => $request->email,
             'address'        => $request->address,
             'additional_info'=> $request->additional_info,
-        ]);
+        ];
+
+        // Xử lý upload logo mới
+        if ($request->hasFile('logo')) {
+            // Xóa logo cũ khỏi storage
+            if ($setting->logo_path) {
+                Storage::disk('public')->delete($setting->logo_path);
+            }
+            $data['logo_path'] = $request->file('logo')->store('clinic_logos', 'public');
+        }
+
+        $setting->update($data);
 
         return redirect()->route('settings.index')
             ->with('success', 'Đã cập nhật cấu hình thành công!');
@@ -140,6 +167,22 @@ class SystemSettingController extends Controller
     }
 
     /**
+     * Xóa logo của cấu hình (giữ nguyên các thông tin khác)
+     */
+    public function removeLogo($id)
+    {
+        $setting = SystemSetting::findOrFail($id);
+
+        if ($setting->logo_path) {
+            Storage::disk('public')->delete($setting->logo_path);
+            $setting->update(['logo_path' => null]);
+        }
+
+        return redirect()->route('settings.edit', $id)
+            ->with('success', 'Đã xóa logo phòng khám.');
+    }
+
+    /**
      * Xóa cấu hình
      */
     public function destroy($id)
@@ -148,6 +191,11 @@ class SystemSettingController extends Controller
 
         if ($setting->status == 1) {
             return back()->with('error', 'Không thể xóa cấu hình đang được áp dụng. Hãy thu hồi trước.');
+        }
+
+        // Xóa file logo kèm theo nếu có
+        if ($setting->logo_path) {
+            Storage::disk('public')->delete($setting->logo_path);
         }
 
         $setting->delete();

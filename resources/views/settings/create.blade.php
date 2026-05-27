@@ -17,8 +17,34 @@
         <div class="col-lg-8">
             <div class="card shadow border-0">
                 <div class="card-body p-4">
-                    <form action="{{ route('settings.store') }}" method="POST">
+                    <form action="{{ route('settings.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
+
+                        {{-- ===== LOGO UPLOAD ===== --}}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-image me-1 text-primary"></i>
+                                Logo phòng khám
+                                <span class="text-muted small">(PNG, JPG, WEBP — tối đa 2MB)</span>
+                            </label>
+                            <div class="logo-upload-area" id="logoUploadArea" onclick="document.getElementById('logoInput').click()">
+                                <div id="logoPreviewWrap" class="d-none">
+                                    <img id="logoPreview" src="" alt="Preview logo" class="logo-preview-img">
+                                    <button type="button" class="logo-clear-btn" id="logoClearBtn" title="Xóa ảnh đã chọn">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div id="logoPlaceholder">
+                                    <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                                    <div class="fw-semibold text-muted">Kéo & thả hoặc nhấn để chọn logo</div>
+                                    <div class="text-muted small mt-1">PNG, JPG, WEBP, GIF · Tối đa 2MB</div>
+                                </div>
+                            </div>
+                            <input type="file" name="logo" id="logoInput" class="d-none" accept="image/*">
+                            @error('logo')
+                                <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div>
+                            @enderror
+                        </div>
 
                         {{-- Tên phòng khám --}}
                         <div class="mb-4">
@@ -128,4 +154,102 @@
         </div>
     </div>
 </div>
+
+<style>
+.logo-upload-area {
+    border: 2px dashed #c0cfe0;
+    border-radius: 12px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .25s, background .25s;
+    background: #f8fbff;
+    position: relative;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.logo-upload-area:hover {
+    border-color: #0d6efd;
+    background: #eef4ff;
+}
+.logo-upload-area.drag-over {
+    border-color: #0d6efd;
+    background: #dbeaff;
+}
+.logo-preview-img {
+    max-height: 100px;
+    max-width: 260px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+.logo-clear-btn {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+.logo-clear-btn:hover { background: #b02a37; }
+</style>
+
+<script>
+(function () {
+    const input   = document.getElementById('logoInput');
+    const area    = document.getElementById('logoUploadArea');
+    const preview = document.getElementById('logoPreview');
+    const previewWrap = document.getElementById('logoPreviewWrap');
+    const placeholder = document.getElementById('logoPlaceholder');
+    const clearBtn = document.getElementById('logoClearBtn');
+
+    function showPreview(file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            preview.src = e.target.result;
+            previewWrap.classList.remove('d-none');
+            placeholder.classList.add('d-none');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    input.addEventListener('change', function () {
+        if (this.files && this.files[0]) showPreview(this.files[0]);
+    });
+
+    clearBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        input.value = '';
+        preview.src = '';
+        previewWrap.classList.add('d-none');
+        placeholder.classList.remove('d-none');
+    });
+
+    // Drag & Drop
+    area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('drag-over'); });
+    area.addEventListener('dragleave', () => area.classList.remove('drag-over'));
+    area.addEventListener('drop', e => {
+        e.preventDefault();
+        area.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            input.files = dt.files;
+            showPreview(file);
+        }
+    });
+})();
+</script>
 @endsection

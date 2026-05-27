@@ -167,6 +167,7 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{id}', [SystemSettingController::class, 'destroy'])->name('destroy');
             Route::post('/{id}/activate', [SystemSettingController::class, 'activate'])->name('activate');
             Route::post('/{id}/deactivate', [SystemSettingController::class, 'deactivate'])->name('deactivate');
+            Route::delete('/{id}/logo', [SystemSettingController::class, 'removeLogo'])->name('removeLogo');
         });
     });
 
