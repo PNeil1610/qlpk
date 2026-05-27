@@ -23,64 +23,84 @@
             </div>
             @endif
 
+            {{-- ===== KHỐI 1: LOGO HIỆN TẠI (form độc lập, không lồng trong form chính) ===== --}}
+            @if($setting->logo_path)
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0 fw-bold text-secondary">
+                        <i class="fas fa-image me-2"></i>Logo hiện tại
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="flex-shrink-0">
+                            <img src="{{ asset('storage/' . $setting->logo_path) }}"
+                                 alt="Logo {{ $setting->clinic_name }}"
+                                 class="current-logo-thumb">
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold mb-1">
+                                <i class="fas fa-check-circle text-success me-1"></i>
+                                Đang sử dụng logo này
+                            </div>
+                            <small class="text-muted">
+                                Để thay logo, hãy upload file mới trong phần bên dưới.<br>
+                                Để bỏ logo và dùng icon mặc định, nhấn "Xóa logo".
+                            </small>
+                        </div>
+                        <div class="flex-shrink-0">
+                            {{-- Form xóa logo — ĐỘC LẬP, không nằm trong form chỉnh sửa --}}
+                            <form action="{{ route('settings.removeLogo', $setting->id) }}"
+                                  method="POST"
+                                  onsubmit="return confirm('Xóa logo? Hệ thống sẽ dùng icon mặc định.')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash me-1"></i>Xóa logo
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            {{-- ===== KHỐI 2: FORM CHỈNH SỬA CHÍNH ===== --}}
             <div class="card shadow border-0">
                 <div class="card-body p-4">
                     <form action="{{ route('settings.update', $setting->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf @method('PUT')
 
-                        {{-- ===== LOGO ===== --}}
+                        {{-- Upload logo mới --}}
                         <div class="mb-4">
                             <label class="form-label fw-semibold">
-                                <i class="fas fa-image me-1 text-primary"></i>
-                                Logo phòng khám
+                                <i class="fas fa-cloud-upload-alt me-1 text-primary"></i>
+                                {{ $setting->logo_path ? 'Thay thế logo' : 'Upload logo phòng khám' }}
                                 <span class="text-muted small">(PNG, JPG, WEBP — tối đa 2MB)</span>
                             </label>
-
-                            {{-- Hiển thị logo hiện tại --}}
-                            @if($setting->logo_path)
-                            <div class="current-logo-wrap mb-3" id="currentLogoWrap">
-                                <div class="d-flex align-items-center gap-3 p-3 bg-light rounded border">
-                                    <img src="{{ asset('storage/' . $setting->logo_path) }}"
-                                         alt="Logo hiện tại"
-                                         class="current-logo-thumb">
-                                    <div class="flex-grow-1">
-                                        <div class="fw-semibold text-success mb-1">
-                                            <i class="fas fa-check-circle me-1"></i>Logo hiện tại
-                                        </div>
-                                        <small class="text-muted">Upload logo mới bên dưới để thay thế, hoặc nhấn "Xóa logo" để bỏ.</small>
-                                    </div>
-                                    <form action="{{ route('settings.removeLogo', $setting->id) }}" method="POST"
-                                          onsubmit="return confirm('Xóa logo phòng khám này?')" class="m-0">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">
-                                            <i class="fas fa-trash me-1"></i>Xóa logo
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                            @endif
-
-                            {{-- Vùng upload logo mới --}}
-                            <div class="logo-upload-area" id="logoUploadArea" onclick="document.getElementById('logoInput').click()">
+                            <div class="logo-upload-area" id="logoUploadArea"
+                                 onclick="document.getElementById('logoInput').click()">
                                 <div id="logoPreviewWrap" class="d-none">
-                                    <img id="logoPreview" src="" alt="Preview logo" class="logo-preview-img">
-                                    <button type="button" class="logo-clear-btn" id="logoClearBtn" title="Xóa ảnh đã chọn">
+                                    <img id="logoPreview" src="" alt="Preview" class="logo-preview-img">
+                                    <button type="button" class="logo-clear-btn" id="logoClearBtn"
+                                            title="Hủy chọn">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
                                 <div id="logoPlaceholder">
                                     <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
-                                    @if($setting->logo_path)
-                                        <div class="fw-semibold text-muted">Kéo & thả hoặc nhấn để <span class="text-primary">thay logo</span></div>
-                                    @else
-                                        <div class="fw-semibold text-muted">Kéo & thả hoặc nhấn để chọn logo</div>
-                                    @endif
+                                    <div class="fw-semibold text-muted">
+                                        Kéo &amp; thả hoặc nhấn để
+                                        {{ $setting->logo_path ? '<span class="text-primary">thay logo</span>' : 'chọn logo' }}
+                                    </div>
                                     <div class="text-muted small mt-1">PNG, JPG, WEBP, GIF · Tối đa 2MB</div>
                                 </div>
                             </div>
                             <input type="file" name="logo" id="logoInput" class="d-none" accept="image/*">
                             @error('logo')
-                                <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</div>
+                                <div class="text-danger small mt-1">
+                                    <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                </div>
                             @enderror
                         </div>
 
@@ -186,19 +206,20 @@
                     </form>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
 <style>
 .current-logo-thumb {
-    height: 64px;
-    max-width: 140px;
+    height: 72px;
+    max-width: 160px;
     object-fit: contain;
-    border-radius: 6px;
+    border-radius: 8px;
     border: 1px solid #dee2e6;
-    padding: 4px;
-    background: #fff;
+    padding: 6px;
+    background: #f8f9fa;
 }
 .logo-upload-area {
     border: 2px dashed #c0cfe0;
@@ -214,14 +235,8 @@
     align-items: center;
     justify-content: center;
 }
-.logo-upload-area:hover {
-    border-color: #0d6efd;
-    background: #eef4ff;
-}
-.logo-upload-area.drag-over {
-    border-color: #0d6efd;
-    background: #dbeaff;
-}
+.logo-upload-area:hover  { border-color: #0d6efd; background: #eef4ff; }
+.logo-upload-area.drag-over { border-color: #0d6efd; background: #dbeaff; }
 .logo-preview-img {
     max-height: 90px;
     max-width: 240px;
@@ -231,19 +246,12 @@
 }
 .logo-clear-btn {
     position: absolute;
-    top: 8px;
-    right: 10px;
-    background: #dc3545;
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    width: 26px;
-    height: 26px;
-    font-size: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    top: 8px; right: 10px;
+    background: #dc3545; color: #fff;
+    border: none; border-radius: 50%;
+    width: 26px; height: 26px;
+    font-size: 12px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
     z-index: 2;
 }
 .logo-clear-btn:hover { background: #b02a37; }
@@ -251,12 +259,12 @@
 
 <script>
 (function () {
-    const input   = document.getElementById('logoInput');
-    const area    = document.getElementById('logoUploadArea');
-    const preview = document.getElementById('logoPreview');
+    const input       = document.getElementById('logoInput');
+    const area        = document.getElementById('logoUploadArea');
+    const preview     = document.getElementById('logoPreview');
     const previewWrap = document.getElementById('logoPreviewWrap');
     const placeholder = document.getElementById('logoPlaceholder');
-    const clearBtn = document.getElementById('logoClearBtn');
+    const clearBtn    = document.getElementById('logoClearBtn');
 
     function showPreview(file) {
         const reader = new FileReader();
@@ -280,8 +288,8 @@
         placeholder.classList.remove('d-none');
     });
 
-    area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('drag-over'); });
-    area.addEventListener('dragleave', () => area.classList.remove('drag-over'));
+    area.addEventListener('dragover',  e => { e.preventDefault(); area.classList.add('drag-over'); });
+    area.addEventListener('dragleave', ()  => area.classList.remove('drag-over'));
     area.addEventListener('drop', e => {
         e.preventDefault();
         area.classList.remove('drag-over');

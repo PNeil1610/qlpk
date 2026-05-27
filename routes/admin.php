@@ -164,10 +164,11 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/', [SystemSettingController::class, 'store'])->name('store');
             Route::get('/{id}/edit', [SystemSettingController::class, 'edit'])->name('edit');
             Route::put('/{id}', [SystemSettingController::class, 'update'])->name('update');
-            Route::delete('/{id}', [SystemSettingController::class, 'destroy'])->name('destroy');
             Route::post('/{id}/activate', [SystemSettingController::class, 'activate'])->name('activate');
             Route::post('/{id}/deactivate', [SystemSettingController::class, 'deactivate'])->name('deactivate');
+            // Phải đặt trước /{id} để tránh conflict
             Route::delete('/{id}/logo', [SystemSettingController::class, 'removeLogo'])->name('removeLogo');
+            Route::delete('/{id}', [SystemSettingController::class, 'destroy'])->name('destroy');
         });
     });
 
