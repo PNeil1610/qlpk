@@ -91,7 +91,7 @@
                                     <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
                                     <div class="fw-semibold text-muted">
                                         Kéo &amp; thả hoặc nhấn để
-                                        {{ $setting->logo_path ? '<span class="text-primary">thay logo</span>' : 'chọn logo' }}
+                                        {{ $setting->logo_path ? 'thay logo' : 'chọn logo' }}
                                     </div>
                                     <div class="text-muted small mt-1">PNG, JPG, WEBP, GIF · Tối đa 2MB</div>
                                 </div>
