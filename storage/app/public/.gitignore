@@ -1,2 +1,4 @@
 *
 !.gitignore
+!clinic_logos/
+!clinic_logos/*
