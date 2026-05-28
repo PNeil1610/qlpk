@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Pill shape: left half navy, right half red -->
+  <defs>
+    <clipPath id="left-half">
+      <rect x="0" y="0" width="32" height="64"/>
+    </clipPath>
+    <clipPath id="right-half">
+      <rect x="32" y="0" width="32" height="64"/>
+    </clipPath>
+  </defs>
+  <!-- Left half (navy blue) -->
+  <rect x="2" y="16" width="60" height="32" rx="16" ry="16" fill="#1a3a6b" clip-path="url(#left-half)"/>
+  <!-- Right half (medical red) -->
+  <rect x="2" y="16" width="60" height="32" rx="16" ry="16" fill="#e53e3e" clip-path="url(#right-half)"/>
+  <!-- Dividing line highlight -->
+  <line x1="32" y1="16" x2="32" y2="48" stroke="white" stroke-width="1.5" opacity="0.6"/>
+  <!-- Shine/highlight on pill -->
+  <ellipse cx="32" cy="20" rx="22" ry="4" fill="white" opacity="0.15"/>
+</svg>

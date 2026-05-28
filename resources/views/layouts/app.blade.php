@@ -7,6 +7,8 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+
     <title>@hasSection('title')@yield('title') - {{ config('app.name') }}@else{{ config('app.name') }}@endif</title>
 
     <link rel="dns-prefetch" href="//fonts.bunny.net">
