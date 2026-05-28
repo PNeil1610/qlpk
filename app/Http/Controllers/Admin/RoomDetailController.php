@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\RoomDetail;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 
 class RoomDetailController extends Controller
 {
@@ -73,8 +74,18 @@ class RoomDetailController extends Controller
     public function destroy($id)
     {
         $roomDetail = RoomDetail::findOrFail($id);
-        $roomDetail->delete();
-        return redirect()->route('room_details.index')->with('success', 'Xóa chi tiết phòng thành công');
+
+        try {
+            $roomDetail->delete();
+            return redirect()->route('room_details.index')->with('success', 'Xóa chi tiết phòng thành công');
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return redirect()->route('room_details.index')
+                    ->with('error', 'Không thể xóa chi tiết phòng này vì đang được liên kết với dữ liệu khác trong hệ thống.');
+            }
+            return redirect()->route('room_details.index')
+                ->with('error', 'Đã xảy ra lỗi khi xóa chi tiết phòng. Vui lòng thử lại.');
+        }
     }
 
     public function ajaxSearch(Request $request)

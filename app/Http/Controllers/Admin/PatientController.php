@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Patient;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 
 class PatientController extends Controller
 {
@@ -110,16 +111,26 @@ class PatientController extends Controller
     public function destroy($id)
     {
         $patient = Patient::findOrFail($id);
+        $name = $patient->full_name;
 
         if ($patient->consultations()->exists()) {
             return redirect()->route('patients.index')
-                ->with('error', 'Không thể xóa bệnh nhân vì đã có phiên khám.');
+                ->with('error', 'Không thể xóa bệnh nhân "' . $name . '" vì đã có phiên khám liên quan. Vui lòng xóa các phiên khám trước.');
         }
 
-        $patient->delete();
+        try {
+            $patient->delete();
 
-        return redirect()->route('patients.index')
-            ->with('success', 'Xóa bệnh nhân thành công.');
+            return redirect()->route('patients.index')
+                ->with('success', 'Xóa bệnh nhân thành công.');
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return redirect()->route('patients.index')
+                    ->with('error', 'Không thể xóa bệnh nhân "' . $name . '" vì đang được liên kết với dữ liệu khác trong hệ thống.');
+            }
+            return redirect()->route('patients.index')
+                ->with('error', 'Đã xảy ra lỗi khi xóa bệnh nhân. Vui lòng thử lại.');
+        }
     }
 
     public function search(Request $request)

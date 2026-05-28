@@ -7,6 +7,7 @@ use App\Models\Consultation;
 use App\Models\Room;
 use App\Models\ConsultationRoom;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 
 class ConsultationRoomController extends Controller
 {
@@ -128,12 +129,21 @@ class ConsultationRoomController extends Controller
 
     public function destroy($consultation_id, $room_id)
     {
-        ConsultationRoom::where('consultation_id', $consultation_id)
-            ->where('room_id', $room_id)
-            ->delete();
+        try {
+            ConsultationRoom::where('consultation_id', $consultation_id)
+                ->where('room_id', $room_id)
+                ->delete();
 
-        return redirect()
-            ->route('consultation_rooms.index')
-            ->with('success', 'Xóa thành công');
+            return redirect()
+                ->route('consultation_rooms.index')
+                ->with('success', 'Xóa thành công');
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return redirect()->route('consultation_rooms.index')
+                    ->with('error', 'Không thể xóa bản ghi này vì đang được liên kết với dữ liệu khác trong hệ thống.');
+            }
+            return redirect()->route('consultation_rooms.index')
+                ->with('error', 'Đã xảy ra lỗi khi xóa. Vui lòng thử lại.');
+        }
     }
 }

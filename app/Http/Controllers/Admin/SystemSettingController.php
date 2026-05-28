@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\SystemSetting;
+use Illuminate\Database\QueryException;
 
 class SystemSettingController extends Controller
 {
@@ -198,9 +199,18 @@ class SystemSettingController extends Controller
             Storage::disk('public')->delete($setting->logo_path);
         }
 
-        $setting->delete();
+        try {
+            $setting->delete();
 
-        return redirect()->route('settings.index')
-            ->with('success', 'Đã xóa cấu hình.');
+            return redirect()->route('settings.index')
+                ->with('success', 'Đã xóa cấu hình.');
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return redirect()->route('settings.index')
+                    ->with('error', 'Không thể xóa cấu hình này vì đang được liên kết với dữ liệu khác trong hệ thống.');
+            }
+            return redirect()->route('settings.index')
+                ->with('error', 'Đã xảy ra lỗi khi xóa cấu hình. Vui lòng thử lại.');
+        }
     }
 }

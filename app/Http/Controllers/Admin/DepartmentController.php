@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 
 class DepartmentController extends Controller
 {
@@ -100,12 +101,22 @@ class DepartmentController extends Controller
     public function destroy($id)
     {
         $department = Department::findOrFail($id);
+        $deptName = $department->dept_name;
 
-        $department->delete();
+        try {
+            $department->delete();
 
-        return redirect()
-            ->route('departments.index')
-            ->with('success', 'Xóa khoa thành công');
+            return redirect()
+                ->route('departments.index')
+                ->with('success', 'Xóa khoa thành công');
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return redirect()->route('departments.index')
+                    ->with('error', 'Không thể xóa khoa "' . $deptName . '" vì vẫn còn nhân viên hoặc phòng khám thuộc khoa này. Vui lòng chuyển hoặc xóa các dữ liệu liên quan trước.');
+            }
+            return redirect()->route('departments.index')
+                ->with('error', 'Đã xảy ra lỗi khi xóa khoa. Vui lòng thử lại.');
+        }
     }
 
     public function ajaxSearch(Request $request)

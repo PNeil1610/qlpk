@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\MedicineCategory;
 use App\Models\Medicine;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
 
 class MedicineCategoryController extends Controller
 {
@@ -106,10 +107,19 @@ class MedicineCategoryController extends Controller
     {
         $category = MedicineCategory::findOrFail($id);
         $categoryName = $category->category_name;
-        $category->delete();
 
-        return redirect()->route('medicine_categories.index')
-                         ->with('success', 'Đã xóa nhóm thuốc: ' . $categoryName . ' thành công!');
+        try {
+            $category->delete();
+            return redirect()->route('medicine_categories.index')
+                             ->with('success', 'Đã xóa nhóm thuốc: ' . $categoryName . ' thành công!');
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return redirect()->route('medicine_categories.index')
+                    ->with('error', 'Không thể xóa nhóm thuốc "' . $categoryName . '" vì vẫn còn thuốc thuộc nhóm này. Vui lòng chuyển hoặc xóa các thuốc trong nhóm trước.');
+            }
+            return redirect()->route('medicine_categories.index')
+                ->with('error', 'Đã xảy ra lỗi khi xóa nhóm thuốc. Vui lòng thử lại.');
+        }
     }
 
     /**

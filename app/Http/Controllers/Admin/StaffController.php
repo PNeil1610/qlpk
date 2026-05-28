@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
 
 class StaffController extends Controller
 {
@@ -129,8 +130,18 @@ class StaffController extends Controller
     {
         $staff = Staff::findOrFail($id);
         $name = $staff->full_name;
-        $staff->delete();
-        return redirect()->route('staff.index')->with('success', 'Đã xóa hồ sơ nhân viên: ' . $name);
+
+        try {
+            $staff->delete();
+            return redirect()->route('staff.index')->with('success', 'Đã xóa hồ sơ nhân viên: ' . $name);
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return redirect()->route('staff.index')
+                    ->with('error', 'Không thể xóa nhân viên "' . $name . '" vì hồ sơ này đang được liên kết với các dữ liệu khác (phiên khám, đơn thuốc, v.v.). Vui lòng xóa các dữ liệu liên quan trước.');
+            }
+            return redirect()->route('staff.index')
+                ->with('error', 'Đã xảy ra lỗi khi xóa nhân viên. Vui lòng thử lại.');
+        }
     }
 
     public function ajaxSearch(Request $request)

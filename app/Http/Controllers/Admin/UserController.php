@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
+use Illuminate\Database\QueryException;
 
 class UserController extends Controller
 {
@@ -75,11 +76,21 @@ class UserController extends Controller
         }
 
         $username = $user->username;
-        $user->roles()->detach();
-        $user->delete();
 
-        return redirect()->route('users.index')
-            ->with('success', "Đã xóa tài khoản <strong>{$username}</strong> khỏi hệ thống.");
+        try {
+            $user->roles()->detach();
+            $user->delete();
+
+            return redirect()->route('users.index')
+                ->with('success', "Đã xóa tài khoản <strong>{$username}</strong> khỏi hệ thống.");
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return redirect()->route('users.index')
+                    ->with('error', "Không thể xóa tài khoản <strong>{$username}</strong> vì đang được liên kết với dữ liệu khác trong hệ thống.");
+            }
+            return redirect()->route('users.index')
+                ->with('error', 'Đã xảy ra lỗi khi xóa tài khoản. Vui lòng thử lại.');
+        }
     }
 
     public function resetPassword(Request $request, $id)

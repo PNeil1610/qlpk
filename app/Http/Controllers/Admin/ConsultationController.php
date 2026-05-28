@@ -8,6 +8,7 @@ use App\Models\Patient;
 use App\Models\Invoice;
 use App\Models\InvoiceDetail;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 
 class ConsultationController extends Controller
 {
@@ -224,10 +225,24 @@ class ConsultationController extends Controller
     public function destroy($id)
     {
         $consultation = Consultation::findOrFail($id);
-        $consultation->delete();
 
-        return redirect()->route('consultations.index')
-            ->with('success', 'Xóa thành công');
+        try {
+            $consultation->delete();
+
+            return redirect()->route('consultations.index')
+                ->with('success', 'Xóa phiên khám thành công');
+        } catch (QueryException $e) {
+            // Lỗi vi phạm ràng buộc khóa ngoại (SQLSTATE 23000)
+            if ($e->getCode() === '23000') {
+                $message = 'Không thể xóa phiên khám #' . $id . ' vì dữ liệu này đang được liên kết với các bản ghi khác (hóa đơn, đơn thuốc, v.v.). Vui lòng xóa các dữ liệu liên quan trước.';
+
+                return redirect()->route('consultations.index')
+                    ->with('error', $message);
+            }
+
+            return redirect()->route('consultations.index')
+                ->with('error', 'Đã xảy ra lỗi khi xóa phiên khám. Vui lòng thử lại.');
+        }
     }
 
     public function ajaxSearch(Request $request)

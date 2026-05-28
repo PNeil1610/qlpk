@@ -104,13 +104,19 @@ class MedicineController extends Controller
     public function destroy($id)
     {
         $medicine = Medicine::findOrFail($id);
-        
+        $medicineName = $medicine->medicine_name;
+
         try {
-            $medicine->details()->delete(); 
+            $medicine->details()->delete();
             $medicine->delete();
             return redirect()->route('medicines.index')->with('success', 'Đã xóa thuốc khỏi hệ thống.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Không thể xóa vì thuốc này có dữ liệu liên quan.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return redirect()->route('medicines.index')
+                    ->with('error', 'Không thể xóa thuốc "' . $medicineName . '" vì thuốc này đã được sử dụng trong các đơn thuốc hoặc hóa đơn. Vui lòng xóa các dữ liệu liên quan trước.');
+            }
+            return redirect()->route('medicines.index')
+                ->with('error', 'Đã xảy ra lỗi khi xóa thuốc. Vui lòng thử lại.');
         }
     }
 
