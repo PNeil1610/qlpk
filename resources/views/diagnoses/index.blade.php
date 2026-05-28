@@ -4,9 +4,14 @@
 <div class="container-fluid px-4 mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="mb-0 text-primary"><i class="fas fa-disease me-2"></i>Danh sách Bệnh</h3>
-        <a href="{{ route('diagnoses.create') }}" class="btn btn-primary shadow-sm">
-            <i class="fas fa-plus-circle me-1"></i> Thêm Bệnh
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('diagnoses.import.form') }}" class="btn btn-outline-primary shadow-sm">
+                <i class="fas fa-file-import me-1"></i> Import Excel/CSV
+            </a>
+            <a href="{{ route('diagnoses.create') }}" class="btn btn-primary shadow-sm">
+                <i class="fas fa-plus-circle me-1"></i> Thêm Bệnh
+            </a>
+        </div>
     </div>
 
     <div class="card shadow-sm border-0 mb-3">

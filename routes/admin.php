@@ -76,6 +76,10 @@ Route::middleware(['auth'])->group(function () {
 
         // Mã bệnh (CRUD)
         Route::prefix('diagnoses')->name('diagnoses.')->group(function () {
+            Route::get('/import', [DiagnosisController::class, 'importForm'])->name('import.form');
+            Route::post('/import', [DiagnosisController::class, 'import'])->name('import');
+            Route::get('/import/template', [DiagnosisController::class, 'downloadTemplate'])->name('import.template');
+
             Route::get('/create', [DiagnosisController::class, 'create'])->name('create');
             Route::post('/', [DiagnosisController::class, 'store'])->name('store');
             Route::get('/{id}/edit', [DiagnosisController::class, 'edit'])->name('edit');
@@ -125,6 +129,13 @@ Route::middleware(['auth'])->group(function () {
 
         // Loại thuốc (CRUD)
         Route::prefix('medicine-categories')->name('medicine_categories.')->group(function () {
+            Route::get('/import', [MedicineCategoryController::class, 'importForm'])->name('import.form');
+            Route::post('/import', [MedicineCategoryController::class, 'import'])->name('import');
+            Route::get('/import/template', [MedicineCategoryController::class, 'downloadTemplate'])->name('import.template');
+            
+            Route::get('/merge', [MedicineCategoryController::class, 'mergeForm'])->name('merge.form');
+            Route::post('/merge', [MedicineCategoryController::class, 'merge'])->name('merge');
+
             Route::get('/create', [MedicineCategoryController::class, 'create'])->name('create');
             Route::post('/', [MedicineCategoryController::class, 'store'])->name('store');
             Route::get('/{id}/edit', [MedicineCategoryController::class, 'edit'])->name('edit');
@@ -134,6 +145,10 @@ Route::middleware(['auth'])->group(function () {
 
         // Thuốc (CRUD)
         Route::prefix('medicines')->name('medicines.')->group(function () {
+            Route::get('/import', [MedicineController::class, 'importForm'])->name('import.form');
+            Route::post('/import', [MedicineController::class, 'import'])->name('import');
+            Route::get('/import/template', [MedicineController::class, 'downloadTemplate'])->name('import.template');
+
             Route::get('/create', [MedicineController::class, 'create'])->name('create');
             Route::post('/', [MedicineController::class, 'store'])->name('store');
             Route::get('/{id}/edit', [MedicineController::class, 'edit'])->name('edit');

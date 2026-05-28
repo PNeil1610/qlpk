@@ -29,7 +29,7 @@
 
             <!-- Desktop Sidebar -->
             <div class="col-lg-3 col-xl-2 sidebar d-none d-lg-block">
-                @include('partials.sidebar')
+                @include('partials.sidebar', ['sidebarIdPrefix' => 'desktop'])
             </div>
 
             <!-- Content Column -->
@@ -134,7 +134,7 @@
             <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body p-0">
-            @include('partials.sidebar')
+            @include('partials.sidebar', ['sidebarIdPrefix' => 'mobile'])
         </div>
     </div>
 
