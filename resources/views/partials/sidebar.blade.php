@@ -247,13 +247,13 @@
             <div class="collapse {{ $isFacilityActive ? 'show' : '' }}" id="{{ $prefix }}_facilityMenu">
                 <div class="sidebar-submenu">
                     <a href="{{ route('departments.index') }}" class="{{ request()->routeIs('departments.*') ? 'active' : '' }}">
-                        <i class="fas fa-network-wired me-2"></i> Khoa phòng khoa học
+                        <i class="fas fa-network-wired me-2"></i> Danh sách khoa phòng
                     </a>
                     <a href="{{ route('rooms.index') }}" class="{{ request()->routeIs('rooms.*') ? 'active' : '' }}">
-                        <i class="fas fa-door-open me-2"></i> Quản lý phòng ban
+                        <i class="fas fa-door-open me-2"></i> Danh sách phòng khám
                     </a>
                     <a href="{{ route('room_details.index') }}" class="{{ request()->routeIs('room_details.*') ? 'active' : '' }}">
-                        <i class="fas fa-bed me-2"></i> Thiết lập giường bệnh
+                        <i class="fas fa-bed me-2"></i> Chi tiết phòng khám
                     </a>
                 </div>
             </div>
