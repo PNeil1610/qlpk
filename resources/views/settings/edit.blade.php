@@ -34,7 +34,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center gap-4">
                         <div class="flex-shrink-0">
-                            <img src="{{ asset('storage/' . $setting->logo_path) }}"
+                            <img src="{{ asset($setting->logo_path) }}"
                                  alt="Logo {{ $setting->clinic_name }}"
                                  class="current-logo-thumb">
                         </div>

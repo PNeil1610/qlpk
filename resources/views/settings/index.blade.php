@@ -25,7 +25,7 @@
             {{-- Logo hoặc icon --}}
             <div class="flex-shrink-0">
                 @if($activeSetting->logo_path)
-                    <img src="{{ asset('storage/' . $activeSetting->logo_path) }}"
+                    <img src="{{ asset($activeSetting->logo_path) }}"
                          alt="Logo {{ $activeSetting->clinic_name }}"
                          class="active-setting-logo">
                 @else
@@ -102,7 +102,7 @@
                             <td class="text-muted small">{{ $s->id }}</td>
                             <td class="text-center">
                                 @if($s->logo_path)
-                                    <img src="{{ asset('storage/' . $s->logo_path) }}"
+                                    <img src="{{ asset($s->logo_path) }}"
                                          alt="Logo"
                                          class="table-logo-thumb"
                                          title="{{ $s->clinic_name }}">

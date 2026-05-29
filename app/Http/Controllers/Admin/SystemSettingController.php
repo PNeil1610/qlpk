@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use App\Models\SystemSetting;
 use Illuminate\Database\QueryException;
 
@@ -63,7 +62,10 @@ class SystemSettingController extends Controller
         // Xử lý upload logo
         $logoPath = null;
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('clinic_logos', 'public');
+            $file = $request->file('logo');
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $file->move(public_path('uploads/clinic_logos'), $filename);
+            $logoPath = 'uploads/clinic_logos/' . $filename;
         }
 
         SystemSetting::create([
@@ -126,11 +128,14 @@ class SystemSettingController extends Controller
 
         // Xử lý upload logo mới
         if ($request->hasFile('logo')) {
-            // Xóa logo cũ khỏi storage
-            if ($setting->logo_path) {
-                Storage::disk('public')->delete($setting->logo_path);
+            // Xóa logo cũ khỏi public folder
+            if ($setting->logo_path && file_exists(public_path($setting->logo_path))) {
+                unlink(public_path($setting->logo_path));
             }
-            $data['logo_path'] = $request->file('logo')->store('clinic_logos', 'public');
+            $file = $request->file('logo');
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $file->move(public_path('uploads/clinic_logos'), $filename);
+            $data['logo_path'] = 'uploads/clinic_logos/' . $filename;
         }
 
         $setting->update($data);
@@ -174,8 +179,8 @@ class SystemSettingController extends Controller
     {
         $setting = SystemSetting::findOrFail($id);
 
-        if ($setting->logo_path) {
-            Storage::disk('public')->delete($setting->logo_path);
+        if ($setting->logo_path && file_exists(public_path($setting->logo_path))) {
+            unlink(public_path($setting->logo_path));
             $setting->update(['logo_path' => null]);
         }
 
@@ -195,8 +200,8 @@ class SystemSettingController extends Controller
         }
 
         // Xóa file logo kèm theo nếu có
-        if ($setting->logo_path) {
-            Storage::disk('public')->delete($setting->logo_path);
+        if ($setting->logo_path && file_exists(public_path($setting->logo_path))) {
+            unlink(public_path($setting->logo_path));
         }
 
         try {

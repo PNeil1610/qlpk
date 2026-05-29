@@ -31,7 +31,7 @@
                 <div class="inv-header-left">
                     {{-- Logo phòng khám hoặc icon fallback --}}
                     @if($clinicSetting?->logo_path)
-                        <img src="{{ asset('storage/' . $clinicSetting->logo_path) }}"
+                        <img src="{{ asset($clinicSetting->logo_path) }}"
                              alt="{{ $clinicSetting->clinic_name }}"
                              class="inv-clinic-logo-img">
                     @else
@@ -164,7 +164,7 @@
                 {{-- Logo bản kê --}}
                 @if($clinicSetting?->logo_path)
                 <div style="margin-bottom:6px;">
-                    <img src="{{ asset('storage/' . $clinicSetting->logo_path) }}"
+                    <img src="{{ asset($clinicSetting->logo_path) }}"
                          alt="{{ $clinicSetting->clinic_name }}"
                          class="bk-clinic-logo-img">
                 </div>
