@@ -30,8 +30,8 @@
             <div class="inv-header">
                 <div class="inv-header-left">
                     {{-- Logo phòng khám hoặc icon fallback --}}
-                    @if($clinicSetting?->logo_path)
-                        <img src="{{ asset($clinicSetting->logo_path) }}"
+                    @if($clinicSetting?->logo_data)
+                        <img src="{{ $clinicSetting->logo_data }}"
                              alt="{{ $clinicSetting->clinic_name }}"
                              class="inv-clinic-logo-img">
                     @else
@@ -162,9 +162,9 @@
         <div class="bk-page" id="print-banske">
             <div class="bk-header">
                 {{-- Logo bản kê --}}
-                @if($clinicSetting?->logo_path)
+                @if($clinicSetting?->logo_data)
                 <div style="margin-bottom:6px;">
-                    <img src="{{ asset($clinicSetting->logo_path) }}"
+                    <img src="{{ $clinicSetting->logo_data }}"
                          alt="{{ $clinicSetting->clinic_name }}"
                          class="bk-clinic-logo-img">
                 </div>

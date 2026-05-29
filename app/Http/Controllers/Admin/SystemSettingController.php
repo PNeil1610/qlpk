@@ -33,6 +33,16 @@ class SystemSettingController extends Controller
     }
 
     /**
+     * Chuyển file ảnh sang chuỗi Base64 có kèm data URI prefix
+     */
+    private function imageToBase64($file): string
+    {
+        $mime     = $file->getMimeType();
+        $content  = file_get_contents($file->getRealPath());
+        return 'data:' . $mime . ';base64,' . base64_encode($content);
+    }
+
+    /**
      * Lưu cấu hình mới
      */
     public function store(Request $request)
@@ -59,13 +69,10 @@ class SystemSettingController extends Controller
             SystemSetting::where('status', 1)->update(['status' => 0]);
         }
 
-        // Xử lý upload logo
-        $logoPath = null;
+        // Chuyển ảnh sang Base64 lưu vào DB
+        $logoData = null;
         if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
-            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $file->move(public_path('uploads/clinic_logos'), $filename);
-            $logoPath = 'uploads/clinic_logos/' . $filename;
+            $logoData = $this->imageToBase64($request->file('logo'));
         }
 
         SystemSetting::create([
@@ -75,7 +82,7 @@ class SystemSettingController extends Controller
             'email'          => $request->email,
             'address'        => $request->address,
             'additional_info'=> $request->additional_info,
-            'logo_path'      => $logoPath,
+            'logo_data'      => $logoData,
             'status'         => $applyNow ? 1 : 0,
         ]);
 
@@ -126,16 +133,9 @@ class SystemSettingController extends Controller
             'additional_info'=> $request->additional_info,
         ];
 
-        // Xử lý upload logo mới
+        // Xử lý upload logo mới → ghi đè Base64 cũ trong DB
         if ($request->hasFile('logo')) {
-            // Xóa logo cũ khỏi public folder
-            if ($setting->logo_path && file_exists(public_path($setting->logo_path))) {
-                unlink(public_path($setting->logo_path));
-            }
-            $file = $request->file('logo');
-            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $file->move(public_path('uploads/clinic_logos'), $filename);
-            $data['logo_path'] = 'uploads/clinic_logos/' . $filename;
+            $data['logo_data'] = $this->imageToBase64($request->file('logo'));
         }
 
         $setting->update($data);
@@ -178,11 +178,7 @@ class SystemSettingController extends Controller
     public function removeLogo($id)
     {
         $setting = SystemSetting::findOrFail($id);
-
-        if ($setting->logo_path && file_exists(public_path($setting->logo_path))) {
-            unlink(public_path($setting->logo_path));
-            $setting->update(['logo_path' => null]);
-        }
+        $setting->update(['logo_data' => null]);
 
         return redirect()->route('settings.edit', $id)
             ->with('success', 'Đã xóa logo phòng khám.');
@@ -197,11 +193,6 @@ class SystemSettingController extends Controller
 
         if ($setting->status == 1) {
             return back()->with('error', 'Không thể xóa cấu hình đang được áp dụng. Hãy thu hồi trước.');
-        }
-
-        // Xóa file logo kèm theo nếu có
-        if ($setting->logo_path && file_exists(public_path($setting->logo_path))) {
-            unlink(public_path($setting->logo_path));
         }
 
         try {

@@ -16,7 +16,7 @@ class SystemSetting extends Model
         'email',
         'address',
         'additional_info',
-        'logo_path',
+        'logo_data',
         'status',
     ];
 

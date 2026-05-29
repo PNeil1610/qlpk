@@ -99,8 +99,8 @@
 
 <div class="d-flex flex-column h-100">
     <div class="clinic-brand-info text-center p-4 mb-2">
-        @if(isset($clinicSetting) && $clinicSetting->logo_path)
-            <img src="{{ asset($clinicSetting->logo_path) }}"
+        @if(isset($clinicSetting) && $clinicSetting->logo_data)
+            <img src="{{ $clinicSetting->logo_data }}"
                  alt="Logo {{ $clinicSetting->clinic_name }}"
                  class="mb-3 shadow-sm"
                  style="width: 80px; height: 80px; object-fit: contain; border-radius: 12px; background: rgba(255,255,255,0.15); padding: 6px;">

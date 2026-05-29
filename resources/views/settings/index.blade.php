@@ -24,8 +24,8 @@
         <div class="d-flex align-items-start gap-3">
             {{-- Logo hoặc icon --}}
             <div class="flex-shrink-0">
-                @if($activeSetting->logo_path)
-                    <img src="{{ asset($activeSetting->logo_path) }}"
+                @if($activeSetting->logo_data)
+                    <img src="{{ $activeSetting->logo_data }}"
                          alt="Logo {{ $activeSetting->clinic_name }}"
                          class="active-setting-logo">
                 @else
@@ -101,8 +101,8 @@
                         <tr class="{{ $s->status == 1 ? 'table-success' : '' }}">
                             <td class="text-muted small">{{ $s->id }}</td>
                             <td class="text-center">
-                                @if($s->logo_path)
-                                    <img src="{{ asset($s->logo_path) }}"
+                                @if($s->logo_data)
+                                    <img src="{{ $s->logo_data }}"
                                          alt="Logo"
                                          class="table-logo-thumb"
                                          title="{{ $s->clinic_name }}">

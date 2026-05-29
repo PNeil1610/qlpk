@@ -24,7 +24,7 @@
             @endif
 
             {{-- ===== KHỐI 1: LOGO HIỆN TẠI (form độc lập, không lồng trong form chính) ===== --}}
-            @if($setting->logo_path)
+            @if($setting->logo_data)
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-white py-3">
                     <h6 class="mb-0 fw-bold text-secondary">
@@ -34,7 +34,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center gap-4">
                         <div class="flex-shrink-0">
-                            <img src="{{ asset($setting->logo_path) }}"
+                            <img src="{{ $setting->logo_data }}"
                                  alt="Logo {{ $setting->clinic_name }}"
                                  class="current-logo-thumb">
                         </div>
@@ -75,7 +75,7 @@
                         <div class="mb-4">
                             <label class="form-label fw-semibold">
                                 <i class="fas fa-cloud-upload-alt me-1 text-primary"></i>
-                                {{ $setting->logo_path ? 'Thay thế logo' : 'Upload logo phòng khám' }}
+                                {{ $setting->logo_data ? 'Thay thế logo' : 'Upload logo phòng khám' }}
                                 <span class="text-muted small">(PNG, JPG, WEBP — tối đa 2MB)</span>
                             </label>
                             <div class="logo-upload-area" id="logoUploadArea"
@@ -91,7 +91,7 @@
                                     <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
                                     <div class="fw-semibold text-muted">
                                         Kéo &amp; thả hoặc nhấn để
-                                        {{ $setting->logo_path ? 'thay logo' : 'chọn logo' }}
+                                        {{ $setting->logo_data ? 'thay logo' : 'chọn logo' }}
                                     </div>
                                     <div class="text-muted small mt-1">PNG, JPG, WEBP, GIF · Tối đa 2MB</div>
                                 </div>

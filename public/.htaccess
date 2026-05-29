@@ -1,3 +1,22 @@
+# ============================================================
+# Chặn Search Engine Index (SEO Blocking)
+# ============================================================
+
+# Gửi header yêu cầu tất cả robot không index, không follow
+<IfModule mod_headers.c>
+    Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+</IfModule>
+
+# Chặn các bot crawler phổ biến truy cập hoàn toàn
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteCond %{HTTP_USER_AGENT} (Googlebot|bingbot|Slurp|DuckDuckBot|Baiduspider|YandexBot|Sogou|Exabot|facebot|ia_archiver|msnbot|Teoma|Scooter|AltaVista) [NC]
+    RewriteRule ^ - [F,L]
+</IfModule>
+
+# ============================================================
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
