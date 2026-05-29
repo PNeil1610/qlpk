@@ -28,6 +28,14 @@
             <label class="form-label fw-bold text-muted">Phòng khám</label>
             @php 
                 $currentRoomId = old('room_id', isset($consultation) ? ($consultation->rooms->first()->id ?? '') : ''); 
+                
+                // Mặc định chọn phòng có mã PK-SINGLE nếu tạo mới và chưa chọn phòng
+                if (!isset($consultation) && !old('room_id') && isset($rooms)) {
+                    $defaultRoom = $rooms->firstWhere('room_code', 'PK-SINGLE');
+                    if ($defaultRoom) {
+                        $currentRoomId = $defaultRoom->id;
+                    }
+                }
             @endphp
             @if(isset($consultation))
                 @php 
@@ -40,8 +48,8 @@
                 <input type="text" class="form-control bg-light" value="{{ $roomText }}" readonly>
                 <input type="hidden" name="room_id" value="{{ $currentRoomId }}">
             @else
-                <select name="room_id" class="form-control @error('room_id') is-invalid @enderror">
-                    <option value="">-- Chọn phòng khám (Tùy chọn) --</option>
+                <select name="room_id" class="form-select @error('room_id') is-invalid @enderror">
+                    <option value="">Phòng chờ</option>
                     @if(isset($rooms))
                         @foreach($rooms as $room)
                             <option value="{{ $room->id }}" {{ $currentRoomId == $room->id ? 'selected' : '' }}>

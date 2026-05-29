@@ -79,6 +79,14 @@
                             <label class="form-label fw-bold">Phòng khám</label>
                             @php
                                 $currentRoomId = old('room_id', $consultation->rooms->first()->id ?? '');
+                                
+                                // Mặc định chọn phòng có mã PK-SINGLE nếu chưa phân phòng và chưa có old('room_id')
+                                if (!$currentRoomId && !old('room_id') && isset($rooms)) {
+                                    $defaultRoom = $rooms->firstWhere('room_code', 'PK-SINGLE');
+                                    if ($defaultRoom) {
+                                        $currentRoomId = $defaultRoom->id;
+                                    }
+                                }
                             @endphp
                             <select name="room_id" class="form-select shadow-sm @error('room_id') is-invalid @enderror">
                                 <option value="">-- Chưa phân phòng --</option>
