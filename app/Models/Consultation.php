@@ -42,6 +42,7 @@ class Consultation extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'temperature' => 'decimal:1',
+        'status' => 'integer',
     ];
 
     // ========================
