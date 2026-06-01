@@ -65,11 +65,13 @@
                         
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label text-muted">Chi phí khám bệnh (Mặc định)</label>
+                                <label class="form-label fw-bold">Chi phí khám bệnh</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" value="{{ number_format($invoice->consultation_fee, 0, ',', '.') }}" readonly>
+                                    <input type="number" name="consultation_fee" id="consultation_fee" class="form-control @error('consultation_fee') is-invalid @enderror" 
+                                           value="{{ old('consultation_fee', $invoice->consultation_fee) }}" min="0" step="1000">
                                     <span class="input-group-text">VNĐ</span>
                                 </div>
+                                @error('consultation_fee') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted">Chi phí thuốc (Đồng bộ từ bác sĩ)</label>
@@ -140,19 +142,21 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        const baseAmount = {{ $invoice->consultation_fee + $invoice->lab_test_fee + $invoice->medicine_fee }};
+        const medicineFee = {{ $invoice->medicine_fee }};
+        const labTestFee = {{ $invoice->lab_test_fee }};
         
         function calculateTotal() {
+            let consultationFee = parseFloat($('#consultation_fee').val()) || 0;
             let otherFee = parseFloat($('#other_fee').val()) || 0;
             let discount = parseFloat($('#discount').val()) || 0;
             
-            let total = baseAmount + otherFee - discount;
+            let total = consultationFee + medicineFee + labTestFee + otherFee - discount;
             if (total < 0) total = 0;
             
             $('#total_amount_preview').text(new Intl.NumberFormat('vi-VN').format(total) + ' VNĐ');
         }
 
-        $('#other_fee, #discount').on('input', calculateTotal);
+        $('#consultation_fee, #other_fee, #discount').on('input', calculateTotal);
     });
 </script>
 @endpush

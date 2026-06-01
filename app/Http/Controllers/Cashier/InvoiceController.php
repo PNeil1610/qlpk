@@ -73,6 +73,7 @@ class InvoiceController extends Controller
         }
         
         $request->validate([
+            'consultation_fee' => 'required|numeric|min:0',
             'other_fee' => 'nullable|numeric|min:0',
             'other_fee_note' => 'nullable|string|max:255',
             'discount' => 'nullable|numeric|min:0',
@@ -80,8 +81,26 @@ class InvoiceController extends Controller
 
         try {
             DB::transaction(function () use ($request, $invoice) {
+                $consultationFee = $request->consultation_fee ?? 100000;
                 $otherFee = $request->other_fee ?? 0;
                 $discount = $request->discount ?? 0;
+                
+                // Cập nhật hoặc tạo lại dòng Chi phí khám bệnh trong InvoiceDetail
+                InvoiceDetail::updateOrCreate(
+                    [
+                        'invoice_id' => $invoice->id,
+                        'item_type' => InvoiceDetail::TYPE_CONSULTATION,
+                    ],
+                    [
+                        'item_name' => 'Chi phí khám bệnh',
+                        'reference_id' => $invoice->consultation_id,
+                        'quantity' => 1,
+                        'unit_price' => $consultationFee,
+                        'discount' => 0,
+                        'line_total' => $consultationFee,
+                        'status' => 1,
+                    ]
+                );
                 
                 // Cập nhật lại các dòng InvoiceDetail loại OTHER
                 // Xóa chi phí khác cũ
@@ -103,10 +122,11 @@ class InvoiceController extends Controller
                 }
                 
                 // Tính toán lại tổng tiền
-                $totalAmount = $invoice->consultation_fee + $invoice->lab_test_fee + $invoice->medicine_fee + $otherFee - $discount;
+                $totalAmount = $consultationFee + $invoice->lab_test_fee + $invoice->medicine_fee + $otherFee - $discount;
                 if ($totalAmount < 0) $totalAmount = 0;
                 
                 $invoice->update([
+                    'consultation_fee' => $consultationFee,
                     'other_fee' => $otherFee,
                     'discount' => $discount,
                     'total_amount' => $totalAmount
@@ -210,5 +230,30 @@ class InvoiceController extends Controller
             ->get();
             
         return response()->json($pendingInvoices);
+    }
+
+    /**
+     * 🗑️ Xóa hóa đơn (chỉ khi chưa thanh toán)
+     */
+    public function destroy($id)
+    {
+        $invoice = Invoice::findOrFail($id);
+        
+        if ($invoice->status != Invoice::STATUS_PENDING) {
+            return redirect()->route('invoices.index')->with('error', 'Chỉ có thể xóa hóa đơn chưa thanh toán.');
+        }
+
+        try {
+            DB::transaction(function () use ($invoice) {
+                // Xóa chi tiết hóa đơn trước
+                InvoiceDetail::where('invoice_id', $invoice->id)->delete();
+                // Xóa hóa đơn
+                $invoice->delete();
+            });
+
+            return redirect()->route('invoices.index')->with('success', 'Đã xóa hóa đơn thành công.');
+        } catch (\Exception $e) {
+            return redirect()->route('invoices.index')->with('error', 'Có lỗi xảy ra khi xóa hóa đơn: ' . $e->getMessage());
+        }
     }
 }

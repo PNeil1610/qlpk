@@ -63,6 +63,13 @@
                                                 <a href="{{ route('invoices.show', $item->id) }}" class="btn btn-sm btn-success" title="Xác nhận thanh toán">
                                                     <i class="fas fa-dollar-sign"></i>
                                                 </a>
+                                                <form action="{{ route('invoices.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa hóa đơn này không?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa hóa đơn">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
                                             </div>
                                         </td>
                                     </tr>
@@ -279,6 +286,7 @@ $(document).ready(function() {
 
                     let editUrl = '{{ route("invoices.edit", ":id") }}'.replace(':id', item.id);
                     let showUrl = '{{ route("invoices.show", ":id") }}'.replace(':id', item.id);
+                    let deleteUrl = '{{ route("invoices.destroy", ":id") }}'.replace(':id', item.id);
 
                     let row = `
                         <tr>
@@ -297,6 +305,13 @@ $(document).ready(function() {
                                     <a href="${showUrl}" class="btn btn-sm btn-success" title="Xác nhận thanh toán">
                                         <i class="fas fa-dollar-sign"></i>
                                     </a>
+                                    <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa hóa đơn này không?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa hóa đơn">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

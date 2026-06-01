@@ -7,7 +7,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 @if($consultation->status === \App\Models\Consultation::STATUS_COMPLETED)
-                    <h3 class="mb-0 text-secondary"><i class="fas fa-eye"></i> phiếu khám (Chỉ đọc)</h3>
+                    <h3 class="mb-0 text-secondary"><i class="fas fa-eye"></i>Phiếu khám</h3>
                 @else
                     <h3 class="mb-0 text-primary"><i class="fas fa-stethoscope me-2"></i>Khám bệnh & Kê đơn thuốc</h3>
                 @endif

@@ -264,11 +264,11 @@
             <span class="badge-status">
                 <i class="fas fa-file-medical me-1"></i>Phiên khám #{{ $consultation->id }}
             </span>
-            <span class="badge-status {{ $statusInfo['class'] }}" style="background:rgba(255,255,255,.22);">
+            <span class="badge-status {{ $statusInfo['class'] }}" style="background:rgba(255,255,255,.22); color:#fff !important;">
                 {{ $statusInfo['label'] }}
             </span>
         </div>
-        <h4 class="mb-0 fw-bold" style="font-size:1.35rem;">
+        <h4 class="mb-0 fw-bold text-white" style="font-size:1.35rem;">
             {{ $consultation->patient->full_name }}
         </h4>
         <small class="opacity-75">
@@ -306,8 +306,8 @@
                             <td><code class="text-primary">{{ $consultation->patient->patient_code }}</code></td>
                         </tr>
                         <tr>
-                            <td>Ngày sinh</td>
-                            <td>{{ $consultation->patient->date_of_birth ? \Carbon\Carbon::parse($consultation->patient->date_of_birth)->format('d/m/Y') : '--' }}</td>
+                            <td>Tuổi</td>
+                            <td>{{ $consultation->patient->age ?? '--' }} tuổi</td>
                         </tr>
                         <tr>
                             <td>Giới tính</td>

@@ -71,4 +71,7 @@
     </div>
 </div>
 
-<button class="btn btn-success">💾 Lưu</button>
+<div class="mt-3">
+    <a href="{{ route('patients.index') }}" class="btn btn-secondary me-2">Quay lại</a>
+    <button class="btn btn-success">Lưu</button>
+</div>

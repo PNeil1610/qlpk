@@ -21,5 +21,6 @@ Route::middleware(['auth', 'role:ADMIN,CASHIER'])->group(function () {
         Route::put('/{id}', [InvoiceController::class, 'update'])->name('update');
         Route::get('/{id}/show', [InvoiceController::class, 'show'])->name('show');
         Route::put('/{id}/pay', [InvoiceController::class, 'pay'])->name('pay');
+        Route::delete('/{id}', [InvoiceController::class, 'destroy'])->name('destroy');
     });
 });

@@ -119,18 +119,25 @@
         // Tính toán trạng thái Active cho các nhóm menu collapsible
         $prefix = $sidebarIdPrefix ?? 'sidebar';
 
-        $isReceptionActive = request()->routeIs('patients.*') 
-            || (request()->routeIs('consultations.*') && !request()->routeIs('consultations.doctor') && !request()->routeIs('doctor.my_history')) 
-            || request()->routeIs('consultation_rooms.*');
+        $isDoctor = auth()->check() && auth()->user()->hasRole('DOCTOR');
 
-        $isClinicalActive = request()->routeIs('consultations.doctor') 
+        $isClinicalActive = request()->routeIs('consultations.doctor*') 
             || request()->routeIs('doctor.my_history') 
-            || request()->routeIs('doctor.templates.*') 
-            || request()->routeIs('diagnoses.*');
+            || request()->routeIs('doctor.templates.*')
+            || (request()->routeIs('consultations.show') && $isDoctor);
+
+        $isReceptionActive = request()->routeIs('patients.*') 
+            || (request()->routeIs('consultations.*') 
+                && !request()->routeIs('consultations.doctor*') 
+                && !request()->routeIs('doctor.my_history')
+                && !(request()->routeIs('consultations.show') && $isDoctor)
+               ) 
+            || request()->routeIs('consultation_rooms.*');
 
         $isPharmacyActive = request()->routeIs('prescriptions.*') 
             || request()->routeIs('medicine_categories.*') 
-            || request()->routeIs('medicines.*');
+            || request()->routeIs('medicines.*')
+            || request()->routeIs('diagnoses.*');
 
         $isFacilityActive = request()->routeIs('departments.*') 
             || request()->routeIs('rooms.*') 

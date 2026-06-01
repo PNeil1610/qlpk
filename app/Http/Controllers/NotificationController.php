@@ -158,7 +158,7 @@ class NotificationController extends Controller
         $notification = SystemNotification::with(['sender.roles', 'targetUser'])->findOrFail($id);
 
         // Kiểm tra user có quyền xem không
-        $canView = $notification->sender_id === $user->id
+        $canView = (int)$notification->sender_id === (int)$user->id
             || $this->isVisibleToUser($notification, $user);
 
         if (!$canView) {
@@ -166,7 +166,7 @@ class NotificationController extends Controller
         }
 
         // Đánh dấu đã đọc nếu chưa
-        if ($notification->sender_id !== $user->id) {
+        if ((int)$notification->sender_id !== (int)$user->id) {
             NotificationRead::firstOrCreate([
                 'notification_id' => $notification->id,
                 'user_id'         => $user->id,
@@ -187,7 +187,7 @@ class NotificationController extends Controller
         $notification = SystemNotification::findOrFail($id);
 
         // Chỉ người gửi hoặc Admin mới được thu hồi
-        if ($notification->sender_id !== $user->id && !$user->hasRole('ADMIN')) {
+        if ((int)$notification->sender_id !== (int)$user->id && !$user->hasRole('ADMIN')) {
             return back()->with('error', 'Bạn không có quyền thu hồi thông báo này.');
         }
 
@@ -231,7 +231,7 @@ class NotificationController extends Controller
         return match ($n->target_type) {
             'all'  => true,
             'role' => in_array($n->target_role, $userRoles),
-            'user' => $n->target_user_id === $user->id,
+            'user' => (int)$n->target_user_id === (int)$user->id,
             default => false,
         };
     }

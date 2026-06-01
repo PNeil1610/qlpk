@@ -150,10 +150,8 @@
 
 $(document).ready(function () {
 
-    // 🔥 SEARCH AJAX
-    $('#search').on('keyup', function () {
-
-        let keyword = $(this).val();
+    function loadConsultations() {
+        let keyword = $('#search').val();
         let urlParams = new URLSearchParams(window.location.search);
         let filter = urlParams.get('filter');
 
@@ -183,9 +181,9 @@ $(document).ready(function () {
                     data.forEach(function (c) {
 
                         let status = '';
+                        let statusVal = parseInt(c.status);
 
-                        switch(c.status) {
-
+                        switch(statusVal) {
                             case 0:
                                 status = '<span class="badge rounded-pill bg-secondary">Mới tạo</span>';
                                 break;
@@ -201,6 +199,8 @@ $(document).ready(function () {
                             case 4:
                                 status = '<span class="badge rounded-pill bg-success">Hoàn thành</span>';
                                 break;
+                            default:
+                                status = `<span class="badge rounded-pill bg-danger">Không xác định (${c.status})</span>`;
                         }
 
                         let roomNames = '--';
@@ -261,15 +261,24 @@ $(document).ready(function () {
                 $('#consultationTable').html(html);
             }
         });
+    }
+
+    // 🔥 SEARCH AJAX
+    $('#search').on('keyup', function () {
+        loadConsultations();
     });
 
+    // 🔥 AUTO REFRESH EVERY 5 SECONDS
+    setInterval(function() {
+        if (!$('#search').is(':focus') || $('#search').val() === '') {
+            loadConsultations();
+        }
+    }, 5000);
 
     // 🔥 RESET
     $('#resetSearch').click(function () {
-
         $('#search').val('');
-
-        location.reload();
+        loadConsultations();
     });
 
 });

@@ -7,9 +7,6 @@
             <h3 class="mb-0 text-primary"><i class="fas fa-edit"></i> Phiên Khám</h3>
             <span class="text-muted">Bệnh nhân: <strong>{{ $consultation->patient->full_name }}</strong></span>
         </div>
-        <a href="{{ route('consultations.index') }}" class="btn btn-outline-secondary shadow-sm">
-            <i class="fas fa-arrow-left me-1"></i> Quay lại
-        </a>
     </div>
 
     @if($errors->any())

@@ -195,11 +195,12 @@ class ConsultationController extends Controller
 
         // Cập nhật phòng khám
         if ($request->has('room_id')) {
-            $consultationRoom = \App\Models\ConsultationRoom::where('consultation_id', $consultation->id)->first();
+            $consultationRoomExists = \App\Models\ConsultationRoom::where('consultation_id', $consultation->id)->exists();
 
             if ($request->room_id) {
-                if ($consultationRoom) {
-                    $consultationRoom->update(['room_id' => $request->room_id]);
+                if ($consultationRoomExists) {
+                    \App\Models\ConsultationRoom::where('consultation_id', $consultation->id)
+                        ->update(['room_id' => $request->room_id]);
                 } else {
                     \App\Models\ConsultationRoom::create([
                         'consultation_id' => $consultation->id,
@@ -208,9 +209,7 @@ class ConsultationController extends Controller
                     ]);
                 }
             } else {
-                if ($consultationRoom) {
-                    $consultationRoom->delete();
-                }
+                \App\Models\ConsultationRoom::where('consultation_id', $consultation->id)->delete();
             }
         }
 

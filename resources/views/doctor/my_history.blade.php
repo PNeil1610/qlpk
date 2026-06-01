@@ -72,11 +72,11 @@
     {{-- HEADER --}}
     <div class="page-header-bar d-flex align-items-center justify-content-between flex-wrap gap-3">
         <div>
-            <h4 class="mb-1 fw-bold">
+            <h4 class="mb-1 fw-bold text-white">
                 <i class="fas fa-history me-2"></i>Lịch sử khám bệnh của tôi
-            </h4>
+            </h4>   
             <div class="opacity-75" style="font-size:.88rem;">
-                BS. <strong>{{ $doctorName }}</strong>
+                <strong>{{ $doctorName }}</strong>
                 @if($fromConsultation)
                     &nbsp;·&nbsp; Chọn toa để sử dụng lại cho <strong>Phiếu #{{ $fromConsultation }}</strong>
                 @endif
