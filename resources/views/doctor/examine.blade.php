@@ -223,10 +223,10 @@
                                 @endif
                             @endif
                         @else
-                            <form method="POST" action="{{ route('doctor.consultation.save_conclusion', $consultation->id) }}"
+                            {{-- FORM THỐNG NHẤT: kết luận + đơn thuốc --}}
+                            <form method="POST" action="{{ route('doctor.consultation.save_examination', $consultation->id) }}"
                                 id="examineForm">
                                 @csrf
-                                @method('PUT')
 
                                 {{-- Hidden fields giữ lại dữ liệu readonly --}}
                                 <input type="hidden" name="patient_id" value="{{ $consultation->patient_id }}">
@@ -235,6 +235,7 @@
                                 <input type="hidden" name="symptoms" value="{{ $consultation->symptoms }}">
                                 <input type="hidden" name="temperature" value="{{ $consultation->temperature }}">
                                 <input type="hidden" name="blood_pressure" value="{{ $consultation->blood_pressure }}">
+                                <input type="hidden" name="consultation_id" value="{{ $consultation->id }}">
 
                                 <div class="row">
                                     <div class="col-md-8 mb-3">
@@ -283,22 +284,16 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <div class="text-end">
-                                    <button type="submit" class="btn btn-warning shadow-sm px-4 fw-bold text-dark">
-                                        <i class="fas fa-save me-1"></i> Lưu Kết Luận
-                                    </button>
-                                </div>
                             </form>
                         @endif
                     </div>
                 </div>
 
-                {{-- PHẦN 2: KÊ ĐƠN THUỐC --}}
+                {{-- PHẦN 2: KÊ ĐƠN THUỐC (input dùng form="examineForm") --}}
                 @if($consultation->status !== \App\Models\Consultation::STATUS_COMPLETED)
                     <div class="card shadow-sm border-0 border-top border-success border-3" id="prescriptionSection">
                         <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-pills text-success me-2"></i>Kê đơn thuốc</span>
+                            <span><i class="fas fa-pills text-success me-2"></i>Kê đơn thuốc <span class="text-muted fw-normal small">(tùy chọn)</span></span>
                             <div>
                                 <button type="button" class="btn btn-sm btn-outline-primary shadow-sm me-2" id="btn-use-template" data-bs-toggle="modal" data-bs-target="#templateModal">
                                     <i class="fas fa-file-prescription me-1"></i> Sử dụng toa mẫu
@@ -309,25 +304,24 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('prescriptions.store') }}" method="POST" id="prescriptionForm">
-                                @csrf
-                                <input type="hidden" name="consultation_id" value="{{ $consultation->id }}">
+                            {{-- input dùng form="examineForm" để liên kết với form kết luận --}}
+                            <div id="prescription-cards-container"></div>
 
-                                <div id="prescription-cards-container"></div>
-
-                                <div class="mb-3 mt-3">
-                                    <label class="form-label fw-bold"><i class="fas fa-comment-medical me-1 text-muted"></i>Lời dặn của Bác sĩ</label>
-                                    <textarea name="doctor_advice" class="form-control" rows="2"
-                                        placeholder="Ghi chú chế độ ăn uống, kiêng cữ..."></textarea>
-                                </div>
-
-                                <div class="text-end">
-                                    <button type="submit" class="btn btn-success shadow-sm px-4 fw-bold">
-                                        <i class="fas fa-file-prescription me-1"></i> Lưu Toa Thuốc
-                                    </button>
-                                </div>
-                            </form>
+                            <div class="mb-3 mt-3">
+                                <label class="form-label fw-bold"><i class="fas fa-comment-medical me-1 text-muted"></i>Lời dặn của Bác sĩ</label>
+                                <textarea name="doctor_advice" form="examineForm" class="form-control" rows="2"
+                                    placeholder="Ghi chú chế độ ăn uống, kiêng cữ..."></textarea>
+                            </div>
                         </div>
+                    </div>
+                @endif
+
+                {{-- NÚT LƯU KẾT QUẢ KHÁM DUY NHẤT --}}
+                @if($consultation->status !== \App\Models\Consultation::STATUS_COMPLETED)
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="submit" form="examineForm" class="btn btn-primary btn-lg shadow-sm px-5 fw-bold">
+                            <i class="fas fa-check-circle me-2"></i> Lưu kết quả khám
+                        </button>
                     </div>
                 @endif
 
@@ -335,6 +329,7 @@
         </div>
     </div>
 @endsection
+
 
 @push('styles')
     <style>
@@ -445,7 +440,93 @@
                 })
             });
 
-            $('#prescriptionForm').prepend('<div class="alert alert-success alert-dismissible fade show">Đã áp dụng toa thuốc mẫu!<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            $('#prescription-cards-container').before('<div class="alert alert-success alert-dismissible fade show">Đã áp dụng toa thuốc mẫu!<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+        });
+
+        // ===== TỰ ĐỘNG LƯU / KHÔI PHỤC DỮ LIỆU CHẨN ĐOÁN =====
+        var DRAFT_KEY = 'examine_draft_{{ $consultation->id }}';
+
+        // Hàm lưu dữ liệu form chẩn đoán vào localStorage
+        function saveDiagnosisDraft() {
+            var diagCode = '';
+            var diagText = '';
+            var sel = $('#diagnosis_code');
+            if (sel.length && sel.val()) {
+                diagCode = sel.val();
+                var selectedOption = sel.find('option:selected');
+                diagText = selectedOption.text();
+            }
+            var draft = {
+                diagnosis_notes : $('textarea[name="diagnosis_notes"]').val() || '',
+                diagnosis_code  : diagCode,
+                diagnosis_text  : diagText,
+                follow_up_date  : $('input[name="follow_up_date"]').val() || '',
+                doctor_advice   : $('textarea[name="doctor_advice"]').val() || '',
+                saved_at        : Date.now()
+            };
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+        }
+
+        // Lưu nháp khi bấm vào bất kỳ link lịch sử nào trong sidebar
+        $(document).on('click', 'a[href*="reuse_mode"]', function() {
+            saveDiagnosisDraft();
+        });
+
+        // Cũng lưu nháp định kỳ mỗi 15 giây (auto-save)
+        setInterval(saveDiagnosisDraft, 15000);
+
+        // Khôi phục dữ liệu nháp khi tải trang (nếu có)
+        var draftRaw = localStorage.getItem(DRAFT_KEY);
+        if (draftRaw) {
+            try {
+                var draft = JSON.parse(draftRaw);
+                // Chỉ khôi phục nếu nháp còn mới (trong vòng 30 phút)
+                if (Date.now() - draft.saved_at < 1800000) {
+
+                    // Khôi phục chẩn đoán text
+                    if (draft.diagnosis_notes) {
+                        $('textarea[name="diagnosis_notes"]').val(draft.diagnosis_notes);
+                    }
+
+                    // Khôi phục ngày tái khám
+                    if (draft.follow_up_date) {
+                        $('input[name="follow_up_date"]').val(draft.follow_up_date);
+                    }
+
+                    // Khôi phục lời dặn bác sĩ
+                    if (draft.doctor_advice) {
+                        $('textarea[name="doctor_advice"]').val(draft.doctor_advice);
+                    }
+
+                    // Khôi phục mã ICD (Select2 cần khởi tạo option trước)
+                    if (draft.diagnosis_code && draft.diagnosis_text) {
+                        var $sel = $('#diagnosis_code');
+                        if ($sel.length) {
+                            // Nếu option chưa tồn tại thì thêm vào
+                            if ($sel.find('option[value="' + draft.diagnosis_code + '"]').length === 0) {
+                                $sel.append(new Option(draft.diagnosis_text, draft.diagnosis_code, true, true));
+                            } else {
+                                $sel.val(draft.diagnosis_code);
+                            }
+                            $sel.trigger('change');
+                        }
+                    }
+
+                    // Hiển thị thông báo đã khôi phục
+                    var $notice = $('<div class="alert alert-info alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert" id="draft-restored-notice">' +
+                        '<i class="fas fa-magic text-info"></i>' +
+                        '<span><strong>Đã khôi phục</strong> dữ liệu chẩn đoán bạn nhập trước đó.</span>' +
+                        '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                        '</div>');
+                    $('#examineForm').prepend($notice);
+                    setTimeout(function() { $notice.alert('close'); }, 5000);
+                }
+            } catch(e) {}
+        }
+
+        // Xóa nháp khi form được submit thành công
+        $('#examineForm').on('submit', function() {
+            localStorage.removeItem(DRAFT_KEY);
         });
     });
 </script>

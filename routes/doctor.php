@@ -34,6 +34,10 @@ Route::middleware(['auth', 'role:DOCTOR'])->group(function () {
     Route::put('/doctor/consultations/{id}/conclusion', [ExaminationController::class, 'saveConclusion'])
         ->name('doctor.consultation.save_conclusion');
 
+    // ✅ Lưu kết quả khám tổng hợp (kết luận + đơn thuốc, 1 lần submit)
+    Route::post('/doctor/consultations/{id}/save-examination', [ExaminationController::class, 'saveExamination'])
+        ->name('doctor.consultation.save_examination');
+
     // Lịch sử khám bệnh của bác sĩ
     Route::get('/doctor/my-history', [ExaminationController::class, 'myHistory'])
         ->name('doctor.my_history');

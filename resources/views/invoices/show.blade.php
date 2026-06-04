@@ -186,10 +186,10 @@
             </table>
 
             @php
-                $consultItems = $invoice->details->where('item_type','Consultation');
-                $medItems     = $invoice->details->where('item_type','Medicine');
-                $labItems     = $invoice->details->where('item_type','LabTest');
-                $otherItems   = $invoice->details->where('item_type','Other');
+                $consultItems = $invoice->details->where('item_type','Consultation')->where('status', 1);
+                $medItems     = $invoice->details->where('item_type','Medicine')->where('status', 1);
+                $labItems     = $invoice->details->where('item_type','LabTest')->where('status', 1);
+                $otherItems   = $invoice->details->where('item_type','Other')->where('status', 1);
                 $sections = [];
                 if($consultItems->count()) $sections[] = ['label'=>'I','title'=>'CHI PHÍ KHÁM BỆNH','items'=>$consultItems,'total'=>$invoice->consultation_fee];
                 if($medItems->count())     $sections[] = ['label'=>'II','title'=>'DANH SÁCH THUỐC','items'=>$medItems,'total'=>$invoice->medicine_fee];

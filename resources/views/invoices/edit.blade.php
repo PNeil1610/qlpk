@@ -74,12 +74,73 @@
                                 @error('consultation_fee') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-muted">Chi phí thuốc (Đồng bộ từ bác sĩ)</label>
+                                <label class="form-label text-muted">Chi phí thuốc (Tự động tính từ danh sách)</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" value="{{ number_format($invoice->medicine_fee, 0, ',', '.') }}" readonly>
+                                    <input type="text" id="medicine_fee_preview" class="form-control" value="{{ number_format($invoice->medicine_fee, 0, ',', '.') }}" readonly>
                                     <span class="input-group-text">VNĐ</span>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h6 class="fw-bold text-primary mb-3">
+                                <i class="fas fa-pills me-1"></i> Chi tiết đơn thuốc và lựa chọn tính tiền
+                            </h6>
+                            @php
+                                $medicineDetails = $invoice->details->where('item_type', \App\Models\InvoiceDetail::TYPE_MEDICINE);
+                            @endphp
+                            @if($medicineDetails->isNotEmpty())
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 5%">STT</th>
+                                                <th>Tên thuốc</th>
+                                                <th style="width: 15%" class="text-center">Số lượng</th>
+                                                <th style="width: 20%" class="text-end">Đơn giá (VNĐ)</th>
+                                                <th style="width: 15%" class="text-center">Tính tiền</th>
+                                                <th style="width: 25%" class="text-end">Thành tiền (VNĐ)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @php $stt = 1; @endphp
+                                            @foreach($medicineDetails as $detail)
+                                                <tr>
+                                                    <td class="text-center">{{ $stt++ }}</td>
+                                                    <td>
+                                                        <div class="fw-bold text-dark">{{ $detail->item_name }}</div>
+                                                        @if($detail->notes)
+                                                            <small class="text-muted fst-italic">{{ $detail->notes }}</small>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-center fw-semibold text-secondary">{{ $detail->quantity }}</td>
+                                                    <td class="text-end fw-semibold">
+                                                        {{ number_format($detail->unit_price, 0, ',', '.') }}đ
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="checkbox" name="medicine_billing[{{ $detail->id }}]" 
+                                                               class="form-check-input medicine-billing-checkbox" 
+                                                               data-id="{{ $detail->id }}"
+                                                               data-quantity="{{ $detail->quantity }}"
+                                                               data-price="{{ (int) $detail->unit_price }}"
+                                                               value="1" {{ $detail->status == 1 ? 'checked' : '' }}>
+                                                    </td>
+                                                    <td class="text-end fw-bold text-primary medicine-line-total" id="line_total_{{ $detail->id }}">
+                                                        {{ number_format($detail->status == 1 ? $detail->line_total : 0, 0, ',', '.') }}đ
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="form-text text-muted mb-3">
+                                    <i class="fas fa-info-circle me-1"></i> Bỏ tích chọn đối với các loại thuốc phòng khám đã hết trong kho (bệnh nhân tự mua ngoài) để không tính tiền và không hiển thị trên hóa đơn khi in.
+                                </div>
+                            @else
+                                <div class="alert alert-light border text-center py-3 text-muted">
+                                    <i class="fas fa-info-circle me-1"></i> Không có thuốc nào được kê cho hóa đơn này.
+                                </div>
+                            @endif
                         </div>
 
                         <hr class="my-4">
@@ -142,7 +203,6 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        const medicineFee = {{ $invoice->medicine_fee }};
         const labTestFee = {{ $invoice->lab_test_fee }};
         
         function calculateTotal() {
@@ -150,13 +210,31 @@
             let otherFee = parseFloat($('#other_fee').val()) || 0;
             let discount = parseFloat($('#discount').val()) || 0;
             
-            let total = consultationFee + medicineFee + labTestFee + otherFee - discount;
+            // Calculate dynamic medicine fee based on checked items
+            let calculatedMedicineFee = 0;
+            $('.medicine-billing-checkbox').each(function() {
+                let isChecked = $(this).is(':checked');
+                let price = parseFloat($(this).data('price')) || 0;
+                let qty = parseFloat($(this).data('quantity')) || 0;
+                let lineTotal = isChecked ? (price * qty) : 0;
+                calculatedMedicineFee += lineTotal;
+                
+                // Update individual line total text
+                let detailId = $(this).data('id');
+                $(`#line_total_${detailId}`).text(new Intl.NumberFormat('vi-VN').format(lineTotal) + 'đ');
+            });
+            
+            // Update the read-only medicine fee input
+            $('#medicine_fee_preview').val(new Intl.NumberFormat('vi-VN').format(calculatedMedicineFee));
+            
+            let total = consultationFee + calculatedMedicineFee + labTestFee + otherFee - discount;
             if (total < 0) total = 0;
             
             $('#total_amount_preview').text(new Intl.NumberFormat('vi-VN').format(total) + ' VNĐ');
         }
 
         $('#consultation_fee, #other_fee, #discount').on('input', calculateTotal);
+        $('.medicine-billing-checkbox').on('change', calculateTotal);
     });
 </script>
 @endpush

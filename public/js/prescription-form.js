@@ -56,7 +56,7 @@ function buildMedicineCard(opts) {
       <!-- Tên thuốc -->
       <div class="rx-med" style="min-width:180px;flex:1 1 180px;">
         <div class="rx-label">Tên thuốc <span class="text-danger">*</span></div>
-        <select name="medicines[]" class="form-select form-select-sm medicine-select" required>
+        <select name="medicines[]" form="examineForm" class="form-select form-select-sm medicine-select" required>
           ${medId ? `<option value="${medId}" selected>${medName}</option>` : ''}
         </select>
       </div>
@@ -64,7 +64,7 @@ function buildMedicineCard(opts) {
       <!-- Đơn vị -->
       <div style="width:45px;flex-shrink:0;">
         <div class="rx-label text-center">ĐVT</div>
-        <input type="text" name="units[]" class="form-control form-control-sm unit-input text-center px-1"
+        <input type="text" name="units[]" form="examineForm" class="form-control form-control-sm unit-input text-center px-1"
                readonly placeholder="-" value="${unit}" title="Đơn vị">
       </div>
 
@@ -91,15 +91,15 @@ function buildMedicineCard(opts) {
       <!-- Số ngày -->
       <div style="width:50px;flex-shrink:0;">
         <div class="rx-label text-center">Ngày</div>
-        <input type="number" name="duration_days[]" class="form-control form-control-sm text-center duration-days px-0"
+        <input type="number" name="duration_days[]" form="examineForm" class="form-control form-control-sm text-center duration-days px-0"
                min="1" step="1" placeholder="5" value="${duration}" required>
       </div>
 
       <!-- Tổng SL -->
       <div style="width:55px;flex-shrink:0;">
         <div class="rx-label text-center">Tổng</div>
-        <input type="number" name="quantities[]" class="form-control form-control-sm text-center total-quantity px-0 fw-bold text-success" readonly required value="${quantity}">
-        <input type="hidden" name="dosages[]" class="dosage-input" value="${dosage}">
+        <input type="number" name="quantities[]" form="examineForm" class="form-control form-control-sm text-center total-quantity px-0 fw-bold text-success" readonly required value="${quantity}">
+        <input type="hidden" name="dosages[]" form="examineForm" class="dosage-input" value="${dosage}">
       </div>
 
       <!-- Thời điểm uống -->
@@ -116,7 +116,7 @@ function buildMedicineCard(opts) {
         <div class="rx-label">Ghi chú thêm</div>
         <input type="text" class="form-control form-control-sm extra-note"
                placeholder="VD: cách xa sữa..." value="${extraNote}" style="margin-bottom: 12px;">
-        <input type="hidden" name="usage_instructions[]" class="usage-instructions-hidden" value="${usageRaw}">
+        <input type="hidden" name="usage_instructions[]" form="examineForm" class="usage-instructions-hidden" value="${usageRaw}">
       </div>
 
       <!-- Xóa -->
@@ -304,8 +304,8 @@ window.applyReuseData = function(data) {
     const adviceTA = document.querySelector('textarea[name="doctor_advice"]');
     if (adviceTA && data.advice) adviceTA.value = data.advice;
     (data.medicines || []).forEach(function(med) { addMedicineCard(med); });
-    const form = document.getElementById('prescriptionForm');
-    if (form) form.scrollIntoView({ behavior: 'smooth' });
+    const prescSection = document.getElementById('prescriptionSection');
+    if (prescSection) prescSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
 document.addEventListener('DOMContentLoaded', function() {
