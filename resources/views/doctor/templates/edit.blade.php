@@ -134,7 +134,7 @@
                                 <div class="col-md-7 form-group-custom">
                                     <label>Chọn Thuốc <span class="text-danger">*</span></label>
                                     <select class="form-select medicine-select" name="medicines[]" style="width: 100%;" required>
-                                        <option value="{{ $detail->medicine_id }}" selected>{{ $detail->medicine->medicine_name }} ({{ $detail->medicine->trade_name }}) - {{ $detail->medicine->unit }}</option>
+                                        <option value="{{ $detail->medicine_id }}" selected>{{ $detail->medicine->medicine_name }}{{ $detail->medicine->trade_name ? ' (' . $detail->medicine->trade_name . ')' : '' }} - {{ $detail->medicine->unit }}</option>
                                     </select>
                                 </div>
 
@@ -261,7 +261,7 @@ $(document).ready(function() {
                     return {
                         results: $.map(data, function (item) {
                             return {
-                                text: item.medicine_name + ' (' + item.trade_name + ') - ' + item.unit,
+                                text: item.medicine_name + (item.trade_name ? ' (' + item.trade_name + ')' : '') + ' - ' + item.unit,
                                 id: item.id,
                                 unit: item.unit
                             }

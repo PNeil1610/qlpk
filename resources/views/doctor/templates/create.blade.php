@@ -204,7 +204,7 @@ $(document).ready(function() {
                     return {
                         results: $.map(data, function (item) {
                             return {
-                                text: item.medicine_name + ' (' + item.trade_name + ') - ' + item.unit,
+                                text: item.medicine_name + (item.trade_name ? ' (' + item.trade_name + ')' : '') + ' - ' + item.unit,
                                 id: item.id,
                                 unit: item.unit
                             }
