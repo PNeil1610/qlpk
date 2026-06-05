@@ -33,6 +33,23 @@ function buildMedicineCard(opts) {
     const timingDuring = timing === 'during' ? 'btn-info active'    : 'btn-outline-info';
     const timingAfter  = timing === 'after'  ? 'btn-success active' : 'btn-outline-success';
 
+    let sangVal = '';
+    let truaVal = '';
+    let chieuVal = '';
+    let toiVal = '';
+
+    if (dosage) {
+        const sangMatch = dosage.match(/Sáng\s+([0-9.]+)/i);
+        const truaMatch = dosage.match(/Trưa\s+([0-9.]+)/i);
+        const chieuMatch = dosage.match(/Chiều\s+([0-9.]+)/i);
+        const toiMatch = dosage.match(/Tối\s+([0-9.]+)/i);
+
+        if (sangMatch) sangVal = sangMatch[1];
+        if (truaMatch) truaVal = truaMatch[1];
+        if (chieuMatch) chieuVal = chieuMatch[1];
+        if (toiMatch) toiVal = toiMatch[1];
+    }
+
     const card = document.createElement('div');
     card.className = 'rx-card mb-2 border rounded bg-white';
     card.dataset.cardIndex = idx;
@@ -72,19 +89,19 @@ function buildMedicineCard(opts) {
       <div class="d-flex align-items-end gap-1" style="flex-shrink:0;">
         <div class="text-center" style="width:45px;">
           <div class="rx-label">Sáng</div>
-          <input type="number" class="form-control form-control-sm text-center dose-sang dose-input px-0" min="0" step="0.5" placeholder="0" value="">
+          <input type="number" class="form-control form-control-sm text-center dose-sang dose-input px-0" min="0" step="0.5" placeholder="0" value="${sangVal}">
         </div>
         <div class="text-center" style="width:45px;">
           <div class="rx-label">Trưa</div>
-          <input type="number" class="form-control form-control-sm text-center dose-trua dose-input px-0" min="0" step="0.5" placeholder="0" value="">
+          <input type="number" class="form-control form-control-sm text-center dose-trua dose-input px-0" min="0" step="0.5" placeholder="0" value="${truaVal}">
         </div>
         <div class="text-center" style="width:45px;">
           <div class="rx-label">Chiều</div>
-          <input type="number" class="form-control form-control-sm text-center dose-chieu dose-input px-0" min="0" step="0.5" placeholder="0" value="">
+          <input type="number" class="form-control form-control-sm text-center dose-chieu dose-input px-0" min="0" step="0.5" placeholder="0" value="${chieuVal}">
         </div>
         <div class="text-center" style="width:45px;">
           <div class="rx-label">Tối</div>
-          <input type="number" class="form-control form-control-sm text-center dose-toi dose-input px-0" min="0" step="0.5" placeholder="0" value="">
+          <input type="number" class="form-control form-control-sm text-center dose-toi dose-input px-0" min="0" step="0.5" placeholder="0" value="${toiVal}">
         </div>
       </div>
 
@@ -273,6 +290,7 @@ function addMedicineCard(opts) {
         }
     });
 
+    recalcCard(card);
     updateCardNumbers();
     updateRemoveButtons();
     return card;
