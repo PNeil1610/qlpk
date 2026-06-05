@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="mb-0 text-primary"><i class="fas fa-door-open me-2"></i>Danh sách Phòng</h3>
         <a href="{{ route('rooms.create') }}" class="btn btn-primary shadow-sm">
-            <i class="fas fa-plus-circle"></i>
+            <i class="fas fa-plus-circle me-1"></i> Thêm phòng
         </a>
     </div>
 
