@@ -100,7 +100,7 @@
                                         <a href="{{ route('medicines.edit', $item->id) }}" class="btn btn-sm btn-primary shadow-sm" title="Chỉnh sửa">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('medicines.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thuốc này không?');">
+                                        <form action="{{ route('medicines.destroy', $item->id) }}" method="POST" style="display: contents;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thuốc này không?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger shadow-sm" title="Xóa">
