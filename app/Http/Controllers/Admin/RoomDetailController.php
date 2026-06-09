@@ -32,6 +32,10 @@ class RoomDetailController extends Controller
             'area_sqm' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
             'last_cleaned_at' => 'nullable|date',
+        ], [
+            'room_id.required' => 'Vui lòng chọn phòng.',
+            'room_id.exists' => 'Phòng đã chọn không tồn tại trong hệ thống.',
+            'room_id.unique' => 'Phòng này đã được cấu hình thông tin chi tiết.',
         ]);
 
         RoomDetail::create($validated);
@@ -64,6 +68,10 @@ class RoomDetailController extends Controller
             'area_sqm' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
             'last_cleaned_at' => 'nullable|date',
+        ], [
+            'room_id.required' => 'Vui lòng chọn phòng.',
+            'room_id.exists' => 'Phòng đã chọn không tồn tại trong hệ thống.',
+            'room_id.unique' => 'Phòng này đã được cấu hình thông tin chi tiết.',
         ]);
 
         $roomDetail->update($validated);

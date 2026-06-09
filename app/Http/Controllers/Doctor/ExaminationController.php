@@ -5,7 +5,12 @@ namespace App\Http\Controllers\Doctor;
 use App\Http\Controllers\Controller;
 use App\Models\Consultation;
 use App\Models\Medicine;
+use App\Models\Prescription;
+use App\Models\PrescriptionDetail;
+use App\Models\Invoice;
+use App\Models\InvoiceDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ExaminationController extends Controller
 {
@@ -127,6 +132,144 @@ class ExaminationController extends Controller
 
         return redirect()->route('consultations.doctor')
             ->with('success', 'Đã lưu kết luận thành công!');
+    }
+
+    /**
+     * 💾 Lưu kết quả khám (kết luận + đơn thuốc) trong một lần submit
+     */
+    public function saveExamination(Request $request, $id)
+    {
+        $consultation = Consultation::findOrFail($id);
+
+        // 🔒 Không cho sửa nếu đã hoàn thành thanh toán
+        if ($consultation->status === Consultation::STATUS_COMPLETED) {
+            return redirect()->route('consultations.doctor')
+                ->with('error', 'Phiên khám #' . $id . ' đã hoàn thành. Không thể chỉnh sửa nội dung.');
+        }
+
+        $request->validate([
+            'diagnosis_notes' => 'nullable|string',
+            'diagnosis_code'  => 'nullable|string|max:15',
+            'follow_up_date'  => 'nullable|date',
+            // Đơn thuốc là tùy chọn (bác sĩ có thể không kê thuốc)
+            'medicines'       => 'nullable|array',
+            'medicines.*'     => 'exists:medicine,id',
+            'quantities'      => 'nullable|array',
+            'quantities.*'    => 'nullable|integer|min:1',
+            'dosages'         => 'nullable|array',
+            'units'           => 'nullable|array',
+            'doctor_advice'   => 'nullable|string',
+        ], [
+            'medicines.*.exists' => 'Một hoặc nhiều thuốc không hợp lệ.',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request, $consultation) {
+                // --- 1. LƯU KẾT LUẬN CHUYÊN MÔN ---
+                $newStatus = $consultation->status;
+                if (in_array($consultation->status, [
+                    Consultation::STATUS_NEW,
+                    Consultation::STATUS_PENDING,
+                    Consultation::STATUS_PROCESSING,
+                ])) {
+                    $newStatus = Consultation::STATUS_WAIT_PAYMENT;
+                }
+
+                $consultation->update([
+                    'diagnosis_notes'    => $request->diagnosis_notes,
+                    'diagnosis_code'     => $request->diagnosis_code,
+                    'follow_up_date'     => $request->follow_up_date,
+                    'status'             => $newStatus,
+                    'doctor_id'          => auth()->user()->staff->id ?? $consultation->doctor_id,
+                    'patient_id'         => $request->patient_id ?? $consultation->patient_id,
+                    'consultation_date'  => $request->consultation_date ?? $consultation->consultation_date,
+                    'chief_complaint'    => $request->chief_complaint ?? $consultation->chief_complaint,
+                    'symptoms'           => $request->symptoms ?? $consultation->symptoms,
+                    'temperature'        => $request->temperature ?? $consultation->temperature,
+                    'blood_pressure'     => $request->blood_pressure ?? $consultation->blood_pressure,
+                ]);
+
+                // --- 2. KÊ ĐƠN THUỐC (nếu có thuốc được chọn) ---
+                $medicineIds = array_filter($request->medicines ?? [], fn($v) => !empty($v));
+
+                if (!empty($medicineIds)) {
+                    $quantities    = $request->quantities ?? [];
+                    $dosages       = $request->dosages ?? [];
+                    $units         = $request->units ?? [];
+                    $instructions  = $request->usage_instructions ?? [];
+                    $durations     = $request->duration_days ?? [];
+
+                    $prescribedBy = auth()->user()?->staff?->id;
+
+                    $prescription = Prescription::create([
+                        'consultation_id' => $consultation->id,
+                        'prescribed_by'   => $prescribedBy,
+                        'doctor_advice'   => $request->doctor_advice,
+                        'prescribed_at'   => now(),
+                        'status'          => 1,
+                    ]);
+
+                    $invoice = Invoice::where('consultation_id', $consultation->id)->first();
+                    $additionalMedicineFee = 0;
+
+                    foreach ($medicineIds as $index => $medicineId) {
+                        $prescriptionDetail = PrescriptionDetail::create([
+                            'prescription_id'    => $prescription->id,
+                            'medicine_id'        => $medicineId,
+                            'quantity'           => $quantities[$index] ?? 1,
+                            'unit'               => $units[$index] ?? 'Viên',
+                            'dosage'             => $dosages[$index] ?? '',
+                            'usage_instructions' => $instructions[$index] ?? null,
+                            'duration_days'      => $durations[$index] ?? null,
+                            'status'             => 1,
+                        ]);
+
+                        if ($invoice) {
+                            $medicine = Medicine::with(['details' => function ($q) use ($prescriptionDetail) {
+                                $q->where('unit', $prescriptionDetail->unit);
+                            }])->find($medicineId);
+
+                            $medicinePrice = 0;
+                            if ($medicine && $medicine->details->isNotEmpty()) {
+                                $medicinePrice = $medicine->details->first()->price;
+                            } elseif ($medicine) {
+                                $firstDetail = $medicine->details()->first();
+                                if ($firstDetail) {
+                                    $medicinePrice = $firstDetail->price;
+                                }
+                            }
+
+                            $lineTotal = $prescriptionDetail->quantity * $medicinePrice;
+                            $additionalMedicineFee += $lineTotal;
+
+                            InvoiceDetail::create([
+                                'invoice_id'   => $invoice->id,
+                                'item_type'    => InvoiceDetail::TYPE_MEDICINE,
+                                'item_name'    => $medicine->medicine_name ?? 'Thuốc',
+                                'reference_id' => $medicineId,
+                                'quantity'     => $prescriptionDetail->quantity,
+                                'unit_price'   => $medicinePrice,
+                                'discount'     => 0,
+                                'line_total'   => $lineTotal,
+                                'notes'        => $prescriptionDetail->dosage,
+                                'status'       => 1,
+                            ]);
+                        }
+                    }
+
+                    if ($invoice && $additionalMedicineFee > 0) {
+                        $invoice->medicine_fee += $additionalMedicineFee;
+                        $invoice->total_amount += $additionalMedicineFee;
+                        $invoice->save();
+                    }
+                }
+
+                return redirect()->route('consultations.doctor')
+                    ->with('success', 'Đã lưu kết quả khám thành công!');
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+        }
     }
 
     /**
