@@ -12,13 +12,14 @@ class CheckRole
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         if (!Auth::check()) {
-            return redirect('/login');
+            return redirect()->route('login');
         }
 
-        $user = Auth::user();
+        // Đọc roles từ session Keycloak (được lưu lúc OIDC callback)
+        $userRoles = session('keycloak_roles', []);
 
         foreach ($roles as $role) {
-            if ($user->hasRole($role)) {
+            if (in_array($role, $userRoles)) {
                 return $next($request);
             }
         }

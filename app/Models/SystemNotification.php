@@ -65,10 +65,17 @@ class SystemNotification extends Model
 
     /**
      * Badge role của người gửi (lấy role đầu tiên)
+     * Sau Keycloak: roles không còn lưu trong DB, hiển thị generic
      */
     public function getSenderRoleNameAttribute(): string
     {
-        return $this->sender?->roles?->first()?->role_name ?? 'Hệ thống';
+        // Nếu sender là user hiện tại đang login, lấy roles từ session
+        if (auth()->check() && auth()->id() === $this->sender_id) {
+            $roles = session('keycloak_roles', []);
+            $firstRole = $roles[0] ?? null;
+            return $firstRole ? $this->getRoleLabelFromCode($firstRole) : 'Nhân viên';
+        }
+        return 'Nhân viên';
     }
 
     /**
@@ -76,7 +83,11 @@ class SystemNotification extends Model
      */
     public function getSenderRoleCodeAttribute(): string
     {
-        return $this->sender?->roles?->first()?->role_code ?? 'SYSTEM';
+        if (auth()->check() && auth()->id() === $this->sender_id) {
+            $roles = session('keycloak_roles', []);
+            return $roles[0] ?? 'SYSTEM';
+        }
+        return 'SYSTEM';
     }
 
     // ========================
@@ -92,7 +103,8 @@ class SystemNotification extends Model
      */
     public function scopeVisibleTo($query, User $user)
     {
-        $userRoleCodes = $user->roles->pluck('role_code')->toArray();
+        // Lấy roles từ session Keycloak (đã được lưu lúc OIDC callback)
+        $userRoleCodes = session('keycloak_roles', []);
 
         return $query->where('status', 1)
             ->where(function ($q) {

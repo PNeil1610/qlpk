@@ -2,13 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Auth\KeycloakController;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes (Shared)
 |--------------------------------------------------------------------------
 |
-| Routes dùng chung cho tất cả người dùng: Auth, Home, Profile.
+| Routes dùng chung cho tất cả người dùng: Auth (Keycloak OIDC), Home, Profile.
 | Các route theo domain được tách sang:
 |   - routes/admin.php   → Quản trị (CRUD)
 |   - routes/doctor.php  → Bác sĩ (Khám bệnh)
@@ -21,16 +22,35 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Auth::routes();
+// ===== KEYCLOAK OIDC AUTH =====
+// Trang đăng nhập trung gian (chứa nút "Đăng nhập qua Keycloak")
+Route::get('/login', function () {
+    if (auth()->check()) {
+        return redirect('/home');
+    }
+    return view('auth.login');
+})->name('login');
+
+// Redirect sang Keycloak login page
+Route::get('/auth/redirect', [KeycloakController::class, 'redirect'])->name('keycloak.redirect');
+
+// Keycloak callback sau khi đăng nhập
+Route::get('/auth/callback', [KeycloakController::class, 'callback'])->name('keycloak.callback');
+
+// Đăng xuất (Laravel + Keycloak Single Logout)
+Route::post('/auth/logout', [KeycloakController::class, 'logout'])->name('logout');
+Route::get('/auth/logout', [KeycloakController::class, 'logout']); // fallback GET
 
 // Home (sau đăng nhập)
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 // Profile
-Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
-Route::post('/profile/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
-Route::get('/profile/change-password', [App\Http\Controllers\ProfileController::class, 'changePassword'])->name('profile.change_password');
-Route::post('/profile/change-password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.update_password');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
+    Route::post('/profile/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    // Đổi mật khẩu → redirect Keycloak Account Console
+    Route::get('/profile/change-password', [App\Http\Controllers\ProfileController::class, 'changePassword'])->name('profile.change_password');
+});
 
 // ===== THÔNG BÁO NỘI BỘ =====
 // Accessible cho tất cả nhân viên đăng nhập (trừ PATIENT)

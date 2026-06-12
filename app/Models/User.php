@@ -12,9 +12,8 @@ class User extends Authenticatable
     protected $table = 'users';
 
     protected $fillable = [
-        'order_number',
+        'keycloak_sub',  // UUID từ Keycloak (sub claim) - định danh chính
         'username',
-        'password_hash',
         'full_name',
         'email',
         'phone_number',
@@ -22,49 +21,56 @@ class User extends Authenticatable
         'national_id',
         'avatar_url',
         'last_login_at',
-        'status'
+        'status',
     ];
 
     protected $hidden = [
-        'password_hash',
+        'password_hash', // deprecated sau Keycloak, giữ lại để không lỗi query cũ
     ];
 
-    public function getAuthPassword()
+    /**
+     * Kiểm tra role từ session Keycloak.
+     * Sau khi tích hợp Keycloak, roles được lưu trong session thay vì DB.
+     */
+    public function hasRole(string $roleCode): bool
     {
-        return $this->password_hash;
+        $roles = session('keycloak_roles', []);
+        return in_array($roleCode, $roles);
     }
 
-    public function roles()
+    /**
+     * Kiểm tra permission (legacy - giữ để tương thích ngược).
+     * Với Keycloak, permissions được quản lý thông qua roles.
+     */
+    public function hasPermission(string $permission): bool
     {
-        return $this->belongsToMany(Role::class, 'users_roles', 'user_id', 'role_id')
-                    ->wherePivot('status', 1);
+        // Delegate sang roles check
+        return !empty(session('keycloak_roles', []));
     }
 
-    public function hasRole($roleCode)
+    /**
+     * Quan hệ với bảng staff (liên kết qua users.id INT).
+     */
+    public function staff()
     {
-        return $this->roles()->where('role_code', $roleCode)->exists();
+        return $this->hasOne(Staff::class, 'user_id', 'id');
     }
 
-    public function hasPermission($permission)
-    {
-        foreach ($this->roles as $role) {
-            $hasPerm = $role->permissions()
-                            ->where('permission', $permission)
-                            ->where('status', 1)
-                            ->exists();
-            if ($hasPerm) {
-                return true;
-            }
-        }
-        return false;
-    }
+    /**
+     * Quan hệ với bảng patient (liên kết qua users.id INT).
+     */
     public function patient()
     {
         return $this->hasOne(Patient::class, 'user_id', 'id');
     }
 
-    public function staff()
+    /**
+     * Quan hệ roles DB (legacy - vẫn giữ để các view cũ không lỗi).
+     * Sau Keycloak, đây không còn là nguồn RBAC chính.
+     */
+    public function roles()
     {
-        return $this->hasOne(Staff::class, 'user_id', 'id');
+        return $this->belongsToMany(Role::class, 'users_roles', 'user_id', 'role_id')
+                    ->wherePivot('status', 1);
     }
 }

@@ -8,17 +8,19 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        * { box-sizing: border-box; }
         body {
             background: linear-gradient(135deg, #f0f4f8 0%, #d7e3fc 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Nunito', sans-serif;
+            font-family: 'Plus Jakarta Sans', 'Nunito', sans-serif;
             margin: 0;
         }
         .login-wrapper {
@@ -42,12 +44,13 @@
             align-items: center;
             text-align: center;
             position: relative;
+            overflow: hidden;
         }
         .login-left::after {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: url('data:image/svg+xml;utf8,<svg opacity="0.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="15" fill="%23ffffff"/><circle cx="80" cy="80" r="25" fill="%23ffffff"/><circle cx="85" cy="25" r="10" fill="%23ffffff"/></svg>') no-repeat center center;
+            background: url('data:image/svg+xml;utf8,<svg opacity="0.08" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="15" fill="%23ffffff"/><circle cx="80" cy="80" r="25" fill="%23ffffff"/><circle cx="85" cy="25" r="10" fill="%23ffffff"/></svg>') no-repeat center center;
             background-size: cover;
             pointer-events: none;
         }
@@ -62,17 +65,34 @@
             justify-content: center;
             border-radius: 50%;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            z-index: 1;
         }
         .login-left h2 {
             font-weight: 800;
             margin-bottom: 15px;
             letter-spacing: 1px;
             font-size: 1.8rem;
+            z-index: 1;
         }
         .login-left p {
             font-size: 1.05rem;
             opacity: 0.85;
             line-height: 1.6;
+            z-index: 1;
+        }
+        .login-left .security-badges {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            z-index: 1;
+        }
+        .login-left .badge-item {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
         .login-right {
             width: 55%;
@@ -85,87 +105,118 @@
         .login-right h3 {
             font-weight: 800;
             color: #1e293b;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
             font-size: 1.8rem;
         }
-        .form-label {
-            font-weight: 600;
-            color: #475569;
+        .login-right .subtitle {
+            color: #64748b;
+            margin-bottom: 35px;
             font-size: 0.95rem;
+            line-height: 1.6;
         }
-        .form-control {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px 15px;
-            font-size: 1rem;
-            color: #334155;
-            transition: all 0.3s ease;
-        }
-        .form-control:focus {
-            background: #ffffff;
-            border-color: #38bdf8;
-            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
-        }
-        .input-group-text {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-right: none;
-            color: #94a3b8;
-            border-radius: 12px 0 0 12px;
-            padding-left: 18px;
-            transition: all 0.3s ease;
-        }
-        .form-control.border-start-0 {
-            border-left: none;
-            border-radius: 0 12px 12px 0;
-            padding-left: 0;
-        }
-        .input-group:focus-within .input-group-text {
-            border-color: #38bdf8;
-            color: #0284c7;
-            background: #ffffff;
-        }
-        .input-group:focus-within .form-control {
-            border-color: #38bdf8;
-        }
-        .btn-login {
-            background: linear-gradient(to right, #0284c7, #0369a1);
+        /* Keycloak SSO Button */
+        .btn-keycloak {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
             border: none;
-            border-radius: 12px;
-            padding: 14px;
-            font-size: 1.1rem;
+            border-radius: 14px;
+            padding: 16px 24px;
+            font-size: 1.05rem;
             font-weight: 700;
-            letter-spacing: 0.5px;
-            transition: all 0.3s;
+            letter-spacing: 0.3px;
+            transition: all 0.3s ease;
             color: white;
-            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
-        }
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
-            background: linear-gradient(to right, #0369a1, #075985);
-        }
-        .form-check-input {
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-decoration: none;
+            width: 100%;
             cursor: pointer;
         }
-        .form-check-input:checked {
-            background-color: #0284c7;
-            border-color: #0284c7;
+        .btn-keycloak:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 28px rgba(2, 132, 199, 0.45);
+            background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+            color: white;
         }
-        .form-check-label {
-            cursor: pointer;
+        .btn-keycloak:active {
+            transform: translateY(-1px);
         }
-        .forgot-link {
-            color: #0284c7;
-            font-weight: 600;
-            transition: color 0.2s;
+        .btn-keycloak .kc-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.25);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
         }
-        .forgot-link:hover {
-            color: #075985;
-            text-decoration: underline !important;
+        /* Feature list */
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 35px 0;
         }
-        
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            color: #475569;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .feature-list li .feat-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        /* Alert styles */
+        .alert-keycloak {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: #0369a1;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+        .divider span {
+            padding: 0 12px;
+        }
+        /* Loading spinner overlay */
+        .btn-keycloak.loading {
+            pointer-events: none;
+            opacity: 0.85;
+        }
         @media (max-width: 768px) {
             .login-wrapper {
                 flex-direction: column;
@@ -173,90 +224,113 @@
                 margin: 20px;
                 min-height: auto;
             }
-            .login-left, .login-right {
-                width: 100%;
-            }
-            .login-left {
-                padding: 40px 20px;
-            }
-            .login-left .logo-icon {
-                width: 80px;
-                height: 80px;
-                font-size: 3.5rem;
-            }
-            .login-right {
-                padding: 40px 30px;
-            }
+            .login-left, .login-right { width: 100%; }
+            .login-left { padding: 40px 20px; }
+            .login-left .logo-icon { width: 80px; height: 80px; font-size: 3.5rem; }
+            .login-right { padding: 35px 25px; }
         }
+
+        /* Pulse animation for the shield icon */
+        @keyframes pulse-shield {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        .pulse { animation: pulse-shield 2.5s ease-in-out infinite; }
     </style>
 </head>
 <body>
-
     <div class="login-wrapper">
+        {{-- Cột trái: Branding --}}
         <div class="login-left">
-            <!-- <a href="{{ url('/') }}" class="text-white text-decoration-none" style="position: absolute; top: 30px; left: 30px; font-weight: 600; z-index: 10;">
-                <i class="fas fa-arrow-left me-2"></i> Về trang chủ
-            </a> -->
-            <div class="logo-icon mt-4">
+            <div class="logo-icon mt-4 pulse">
                 <i class="fas fa-heartbeat"></i>
             </div>
             <h2>Clinic Management System</h2>
             <p>Hệ thống Quản lý Phòng khám Đa khoa thông minh, tiện lợi và chuyên nghiệp.</p>
+
+            <div class="security-badges">
+                <div class="badge-item"><i class="fas fa-shield-halved me-1"></i> SSO</div>
+                <div class="badge-item"><i class="fas fa-lock me-1"></i> OIDC</div>
+                <div class="badge-item"><i class="fas fa-key me-1"></i> OAuth2</div>
+            </div>
         </div>
         
+        {{-- Cột phải: Đăng nhập qua Keycloak --}}
         <div class="login-right">
             <h3>Chào mừng trở lại!</h3>
-            
-            <form method="POST" action="{{ route('login') }}">
-                @csrf
+            <p class="subtitle">
+                Hệ thống sử dụng <strong>Keycloak</strong> làm cổng xác thực tập trung.<br>
+                Bấm nút bên dưới để đăng nhập an toàn.
+            </p>
 
-                <div class="mb-4">
-                    <label for="username" class="form-label">{{ __('Tên đăng nhập') }}</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-user"></i></span>
-                        <input id="username" type="text" class="form-control border-start-0 @error('username') is-invalid @enderror" name="username" value="{{ old('username') }}" required autocomplete="username" autofocus placeholder="Nhập tên đăng nhập của bạn">
-                    </div>
-                    @error('username')
-                        <div class="text-danger mt-2 small fw-bold">
-                            <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
-                        </div>
-                    @enderror
+            {{-- Hiển thị lỗi nếu có --}}
+            @if ($errors->any())
+                <div class="alert alert-danger rounded-3 mb-4 small">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    @foreach ($errors->all() as $error)
+                        {{ $error }}
+                    @endforeach
                 </div>
+            @endif
 
-                <div class="mb-4">
-                    <label for="password" class="form-label">{{ __('Mật khẩu') }}</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                        <input id="password" type="password" class="form-control border-start-0 @error('password') is-invalid @enderror" name="password" required autocomplete="current-password" placeholder="Nhập mật khẩu của bạn">
-                    </div>
-                    @error('password')
-                        <div class="text-danger mt-2 small fw-bold">
-                            <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
-                        </div>
-                    @enderror
+            @if (session('error'))
+                <div class="alert alert-danger rounded-3 mb-4 small">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ session('error') }}
                 </div>
+            @endif
 
-                <div class="d-flex justify-content-between align-items-center mb-4 pb-2">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-                        <label class="form-check-label text-secondary fw-medium" for="remember">
-                            {{ __('Ghi nhớ đăng nhập') }}
-                        </label>
-                    </div>
-                    @if (Route::has('password.request'))
-                        <a class="text-decoration-none forgot-link" href="{{ route('password.request') }}">
-                            {{ __('Quên mật khẩu?') }}
-                        </a>
-                    @endif
+            {{-- Thông tin Keycloak --}}
+            <div class="alert-keycloak">
+                <i class="fas fa-info-circle mt-1 flex-shrink-0"></i>
+                <div>
+                    Đăng nhập, tạo tài khoản và đặt lại mật khẩu được quản lý tập trung bởi <strong>Keycloak Identity Server</strong>.
                 </div>
+            </div>
 
-                <button type="submit" class="btn w-100 btn-login">
-                    {{ __('ĐĂNG NHẬP') }} <i class="fas fa-arrow-right ms-2"></i>
-                </button>
-            </form>
+            {{-- Nút đăng nhập Keycloak --}}
+            <a href="{{ route('keycloak.redirect') }}" class="btn-keycloak" id="loginBtn">
+                <div class="kc-icon">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <span>Đăng nhập qua Keycloak</span>
+                <i class="fas fa-arrow-right ms-auto"></i>
+            </a>
+
+            <div class="divider mt-4 mb-0">
+                <span>Thông tin bảo mật</span>
+            </div>
+
+            <ul class="feature-list mt-3">
+                <li>
+                    <div class="feat-icon" style="background:#eff6ff; color:#3b82f6;">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <span>Mật khẩu được Keycloak mã hóa và bảo vệ</span>
+                </li>
+                <li>
+                    <div class="feat-icon" style="background:#f0fdf4; color:#22c55e;">
+                        <i class="fas fa-arrows-rotate"></i>
+                    </div>
+                    <span>Đăng nhập một lần (SSO) cho toàn hệ thống</span>
+                </li>
+                <li>
+                    <div class="feat-icon" style="background:#fff7ed; color:#f97316;">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <span>Quên mật khẩu? Tự phục hồi qua email</span>
+                </li>
+            </ul>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Thêm hiệu ứng loading khi nhấn nút đăng nhập
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            this.classList.add('loading');
+            this.innerHTML = '<div class="kc-icon"><i class="fas fa-spinner fa-spin"></i></div><span>Đang chuyển hướng...</span>';
+        });
+    </script>
 </body>
 </html>
