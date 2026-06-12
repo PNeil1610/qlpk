@@ -77,6 +77,7 @@ class InvoiceController extends Controller
             'other_fee' => 'nullable|numeric|min:0',
             'other_fee_note' => 'nullable|string|max:255',
             'discount' => 'nullable|numeric|min:0',
+            'medicine_billing' => 'nullable|array',
         ]);
 
         try {
@@ -84,6 +85,36 @@ class InvoiceController extends Controller
                 $consultationFee = $request->consultation_fee ?? 100000;
                 $otherFee = $request->other_fee ?? 0;
                 $discount = $request->discount ?? 0;
+                
+                // Cập nhật trạng thái tính tiền của từng loại thuốc
+                $allMedicineDetails = InvoiceDetail::where('invoice_id', $invoice->id)
+                    ->where('item_type', InvoiceDetail::TYPE_MEDICINE)
+                    ->get();
+
+                $medicineBilling = $request->medicine_billing ?? [];
+
+                foreach ($allMedicineDetails as $detail) {
+                    $shouldBill = isset($medicineBilling[$detail->id]);
+                    if ($shouldBill) {
+                        // Nếu tính tiền, cập nhật trạng thái hoạt động và tính lại line_total
+                        $detail->update([
+                            'status' => 1,
+                            'line_total' => $detail->quantity * $detail->unit_price,
+                        ]);
+                    } else {
+                        // Nếu không tính tiền, cập nhật trạng thái ngừng hoạt động và đặt line_total bằng 0
+                        $detail->update([
+                            'status' => 0,
+                            'line_total' => 0,
+                        ]);
+                    }
+                }
+
+                // Tính lại tổng tiền thuốc từ các thuốc được tích chọn (status = 1)
+                $medicineFee = InvoiceDetail::where('invoice_id', $invoice->id)
+                    ->where('item_type', InvoiceDetail::TYPE_MEDICINE)
+                    ->where('status', 1)
+                    ->sum('line_total');
                 
                 // Cập nhật hoặc tạo lại dòng Chi phí khám bệnh trong InvoiceDetail
                 InvoiceDetail::updateOrCreate(
@@ -122,11 +153,12 @@ class InvoiceController extends Controller
                 }
                 
                 // Tính toán lại tổng tiền
-                $totalAmount = $consultationFee + $invoice->lab_test_fee + $invoice->medicine_fee + $otherFee - $discount;
+                $totalAmount = $consultationFee + $invoice->lab_test_fee + $medicineFee + $otherFee - $discount;
                 if ($totalAmount < 0) $totalAmount = 0;
                 
                 $invoice->update([
                     'consultation_fee' => $consultationFee,
+                    'medicine_fee' => $medicineFee,
                     'other_fee' => $otherFee,
                     'discount' => $discount,
                     'total_amount' => $totalAmount

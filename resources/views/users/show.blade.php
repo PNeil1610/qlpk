@@ -65,7 +65,7 @@
                     @endif
                 </div>
 
-                <div class="card-footer bg-white border-0 pb-3">
+                <!-- <div class="card-footer bg-white border-0 pb-3">
                     @if($user->last_login_at)
                         <small class="text-muted">
                             <i class="fas fa-clock me-1"></i>
@@ -74,7 +74,7 @@
                     @else
                         <small class="text-muted"><i class="fas fa-clock me-1"></i>Chưa đăng nhập lần nào</small>
                     @endif
-                </div>
+                </div> -->
             </div>
         </div>
 

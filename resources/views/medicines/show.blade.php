@@ -73,10 +73,10 @@
                             <div class="col-sm-8 fw-bold">{{ $currentDetail->active_ingredient ?: 'Chưa cập nhật' }}</div>
                         </div>
 
-                        <div class="row mb-3 border-bottom pb-2">
+                        <!-- <div class="row mb-3 border-bottom pb-2">
                             <div class="col-sm-4 text-muted">Số đăng ký (SĐK):</div>
                             <div class="col-sm-8 fw-bold">{{ $currentDetail->order_number ?: 'Chưa cập nhật' }}</div>
-                        </div>
+                        </div> -->
 
                         <div class="row mb-3 border-bottom pb-2">
                             <div class="col-sm-4 text-muted">Điều kiện bảo quản:</div>
