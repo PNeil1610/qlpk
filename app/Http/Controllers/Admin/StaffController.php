@@ -12,9 +12,17 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
+use App\Services\KeycloakAdminService;
 
 class StaffController extends Controller
 {
+    private KeycloakAdminService $keycloak;
+
+    public function __construct(KeycloakAdminService $keycloak)
+    {
+        $this->keycloak = $keycloak;
+    }
+
     public function index()
     {
         $staffs = Staff::with(['department', 'room'])->orderBy('id', 'desc')->paginate(10);
@@ -41,15 +49,57 @@ class StaffController extends Controller
             'staff_type'=> 'required',
         ]);
 
-        return DB::transaction(function () use ($request) {
+        // 1. Chuẩn bị payload tạo user trên Keycloak
+        $keycloakUserPayload = [
+            'username'  => $request->username,
+            'enabled'   => true,
+            'email'     => $request->email,
+            'firstName' => $request->full_name,
+            'credentials' => [
+                [
+                    'type'      => 'password',
+                    'value'     => $request->password,
+                    'temporary' => false
+                ]
+            ]
+        ];
+
+        // 2. Gọi Keycloak API tạo tài khoản trước
+        try {
+            $keycloakSub = $this->keycloak->createUser($keycloakUserPayload);
+            if (!$keycloakSub) {
+                return redirect()->back()->withInput()->withErrors([
+                    'username' => 'Không thể tạo tài khoản trên Keycloak. Tên đăng nhập hoặc Email có thể đã tồn tại trên Keycloak.'
+                ]);
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->withErrors([
+                'username' => 'Lỗi kết nối đến Keycloak: ' . $e->getMessage()
+            ]);
+        }
+
+        // 3. Gán Role tương ứng cho tài khoản trên Keycloak
+        $roleCode = strtoupper($request->staff_type);
+        try {
+            $kcRole = $this->keycloak->getRealmRole($roleCode);
+            if ($kcRole) {
+                $this->keycloak->assignRoles($keycloakSub, [$kcRole]);
+            }
+        } catch (\Exception $e) {
+            // Log cảnh báo nhưng không rollback vì tài khoản chính đã tạo thành công
+            logger()->warning("Không thể gán role {$roleCode} cho user Keycloak {$keycloakSub}: " . $e->getMessage());
+        }
+
+        // 4. Lưu thông tin local vào Database
+        return DB::transaction(function () use ($request, $keycloakSub) {
             $user = User::create([
+                'keycloak_sub'  => $keycloakSub,
                 'username'      => $request->username,
                 'full_name'     => $request->full_name,
                 'email'         => $request->email,
                 'phone_number'  => $request->phone_number,
                 'address'       => $request->address,
                 'national_id'   => $request->national_id,
-                'password_hash' => Hash::make($request->password),
                 'status'        => 1,
             ]);
 
@@ -74,7 +124,7 @@ class StaffController extends Controller
             $code = $prefix . date('y') . str_pad($staff->id, 4, '0', STR_PAD_LEFT);
             $staff->update(['staff_code' => $code]);
 
-            return redirect()->route('staff.index')->with('success', 'Tạo nhân viên thành công!');
+            return redirect()->route('staff.index')->with('success', 'Tạo nhân viên và tài khoản Keycloak thành công!');
         });
     }
 

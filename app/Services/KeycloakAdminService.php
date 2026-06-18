@@ -140,13 +140,22 @@ class KeycloakAdminService
 
     /**
      * Gán realm role cho user.
-     * $roles là mảng ['id' => '...', 'name' => '...']
+     * $roles là mảng [['id' => '...', 'name' => '...']]
      */
     public function assignRoles(string $keycloakId, array $roles): bool
     {
+        // Làm sạch payload: Chỉ gửi các trường 'id' và 'name' được yêu cầu bởi Keycloak
+        // tránh lỗi 400 Bad Request do gửi thừa các trường read-only khác.
+        $cleanedRoles = array_map(function ($role) {
+            return [
+                'id'   => $role['id'] ?? null,
+                'name' => $role['name'] ?? null,
+            ];
+        }, $roles);
+
         $response = $this->adminHttp()->post(
             "/users/{$keycloakId}/role-mappings/realm",
-            $roles
+            $cleanedRoles
         );
         return $response->successful();
     }
@@ -175,5 +184,24 @@ class KeycloakAdminService
     public function getAccountConsoleUrl(): string
     {
         return "{$this->baseUrl}/realms/{$this->realm}/account";
+    }
+
+    /**
+     * Tạo user mới trên Keycloak.
+     * Trả về Keycloak ID (UUID) nếu thành công, hoặc null nếu thất bại.
+     */
+    public function createUser(array $userData): ?string
+    {
+        $response = $this->adminHttp()->post('/users', $userData);
+
+        if ($response->status() === 201) {
+            $location = $response->header('Location');
+            if ($location) {
+                $parts = explode('/', $location);
+                return end($parts);
+            }
+        }
+
+        return null;
     }
 }

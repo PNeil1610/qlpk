@@ -40,27 +40,39 @@ class KeycloakController extends Controller
         $appRoles = ['ADMIN', 'RECEPTIONIST', 'DOCTOR', 'CASHIER', 'PHARMACIST', 'PATIENT'];
         $userRoles = array_values(array_intersect($realmRoles, $appRoles));
 
-        // Tìm hoặc tạo user local theo keycloak_sub
-        $user = User::firstOrCreate(
-            ['keycloak_sub' => $keycloakSub],
-            [
-                'full_name'  => $socialUser->getName() ?? $socialUser->getNickname() ?? 'Người dùng',
-                'email'      => $socialUser->getEmail(),
-                'username'   => $socialUser->getNickname() ?? $keycloakSub,
-                'status'     => 1,
-            ]
-        );
+        // Tìm user local theo keycloak_sub trước
+        $user = User::where('keycloak_sub', $keycloakSub)->first();
+        $isRecentlyCreated = false;
 
-        // Cập nhật thông tin nếu đã tồn tại
-        if (!$user->wasRecentlyCreated) {
+        if (!$user) {
+            // Nếu không tìm thấy bằng keycloak_sub, thử tìm bằng username (để liên kết tài khoản đã tạo sẵn từ seeder/thủ công)
+            $username = $socialUser->getNickname() ?? $keycloakSub;
+            $user = User::where('username', $username)->first();
+
+            if ($user) {
+                // Liên kết tài khoản hiện có với Keycloak sub UUID
+                $user->keycloak_sub = $keycloakSub;
+                $user->save();
+            } else {
+                // Tạo mới nếu hoàn toàn chưa tồn tại
+                $user = User::create([
+                    'keycloak_sub' => $keycloakSub,
+                    'full_name'    => $socialUser->getName() ?? $socialUser->getNickname() ?? 'Người dùng',
+                    'email'        => $socialUser->getEmail(),
+                    'username'     => $username,
+                    'status'       => 1,
+                ]);
+                $isRecentlyCreated = true;
+            }
+        }
+
+        // Cập nhật thông tin đăng nhập
+        if (!$isRecentlyCreated) {
             $user->full_name      = $socialUser->getName() ?? $user->full_name;
             $user->email          = $socialUser->getEmail() ?? $user->email;
-            $user->last_login_at  = now();
-            $user->save();
-        } else {
-            $user->last_login_at = now();
-            $user->save();
         }
+        $user->last_login_at = now();
+        $user->save();
 
         // Lưu roles và token vào session
         session([
@@ -72,7 +84,7 @@ class KeycloakController extends Controller
         ]);
 
         // Đăng nhập bằng Laravel Auth
-        Auth::login($user, true);
+        Auth::login($user);
 
         // Điều hướng dựa trên role
         return $this->redirectByRole($userRoles);

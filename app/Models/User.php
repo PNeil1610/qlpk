@@ -73,4 +73,22 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'users_roles', 'user_id', 'role_id')
                     ->wherePivot('status', 1);
     }
+
+    /**
+     * Vô hiệu hóa tính năng remember token do bảng users không có cột này.
+     */
+    public function getRememberToken()
+    {
+        return null;
+    }
+
+    public function setRememberToken($value)
+    {
+        // Không làm gì cả
+    }
+
+    public function getRememberTokenName()
+    {
+        return '';
+    }
 }
