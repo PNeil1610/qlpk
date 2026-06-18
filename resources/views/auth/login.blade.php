@@ -257,11 +257,11 @@
         
         {{-- Cột phải: Đăng nhập qua Keycloak --}}
         <div class="login-right">
-            <h3>Chào mừng trở lại!</h3>
-            <p class="subtitle">
+            <h3>Welcome!</h3>
+            <!-- <p class="subtitle">
                 Hệ thống sử dụng <strong>Keycloak</strong> làm cổng xác thực tập trung.<br>
                 Bấm nút bên dưới để đăng nhập an toàn.
-            </p>
+            </p> -->
 
             {{-- Hiển thị lỗi nếu có --}}
             @if ($errors->any())
