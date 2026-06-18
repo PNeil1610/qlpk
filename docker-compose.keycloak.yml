@@ -26,6 +26,8 @@ services:
       KC_DB_PASSWORD: keycloak_pass
     ports:
       - "8180:8180"
+    volumes:
+      - ./keycloak-theme:/opt/keycloak/themes/qlpk-theme
     depends_on:
       keycloak_db:
         condition: service_healthy

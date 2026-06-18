@@ -1,0 +1,249 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+/* =====================================================================
+   1. OVERRIDE PATTERNFLY FRAMEWORK VARIABLES (Ghi đè biến của PatternFly)
+   ===================================================================== */
+:root {
+    /* Fonts */
+    --pf-v5-global--FontFamily--sans-serif: 'Plus Jakarta Sans', sans-serif !important;
+    --pf-global--FontFamily--sans-serif: 'Plus Jakarta Sans', sans-serif !important;
+
+    /* Background and Layout (PatternFly 5) */
+    --pf-v5-c-login--Background: linear-gradient(135deg, #1A2980 0%, #26D0CE 100%) !important;
+    --pf-v5-c-login--BackgroundImage: none !important;
+    --pf-v5-c-login__main--MaxWidth: 450px !important;
+    --pf-v5-c-login__main--MarginLeft: auto !important;
+    --pf-v5-c-login__main--MarginRight: auto !important;
+    --pf-v5-c-login--GridTemplateRows: 1fr !important;
+
+    /* Background and Layout (PatternFly 4) */
+    --pf-c-login--Background: linear-gradient(135deg, #1A2980 0%, #26D0CE 100%) !important;
+    --pf-c-login--BackgroundImage: none !important;
+    --pf-c-login__main--MaxWidth: 450px !important;
+    --pf-c-login__main--MarginLeft: auto !important;
+    --pf-c-login__main--MarginRight: auto !important;
+    --pf-c-login--GridTemplateRows: 1fr !important;
+}
+
+/* =====================================================================
+   2. FORCE CENTERING & BG (Ghi đè hiển thị và căn giữa)
+   ===================================================================== */
+html,
+body,
+body.login-pf-page,
+.pf-v5-c-login,
+.pf-c-login {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    background: linear-gradient(135deg, #1A2980 0%, #26D0CE 100%) !important;
+    background-image: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 100vh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100vw !important;
+    overflow-x: hidden !important;
+}
+
+/* Căn giữa và giới hạn kích thước container */
+.pf-v5-c-login__container,
+.pf-c-login__container {
+    width: 100% !important;
+    max-width: 450px !important;
+    padding: 1.5rem !important;
+    box-sizing: border-box !important;
+    margin: auto !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
+/* Hộp thoại đăng nhập (Card) */
+.pf-v5-c-login__main,
+.pf-c-login__main,
+.card-pf {
+    background-color: #ffffff !important;
+    border-radius: 16px !important;
+    box-shadow: 0 15px 35px rgba(26, 41, 128, 0.15) !important;
+    border: none !important;
+    padding: 2.5rem !important;
+    width: 100% !important;
+    max-width: 450px !important;
+    box-sizing: border-box !important;
+    margin: 0 auto !important;
+    justify-self: center !important;
+    align-self: center !important;
+}
+
+/* Ẩn triệt để các phần thừa */
+.pf-v5-c-login__header,
+.pf-c-login__header,
+.pf-v5-c-login__footer,
+.pf-c-login__footer,
+#kc-header {
+    display: none !important;
+}
+
+/* Tiêu đề trong Card */
+.pf-v5-c-title,
+.pf-c-title,
+#kc-page-title {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-weight: 800 !important;
+    color: #1A2980 !important;
+    font-size: 1.6rem !important;
+    text-align: center !important;
+    margin-bottom: 2rem !important;
+    letter-spacing: -0.02em !important;
+    line-height: 1.2 !important;
+}
+
+/* =====================================================================
+   3. FORMS & INPUTS (Ô nhập liệu & Nhãn)
+   ===================================================================== */
+
+/* Định dạng nhãn (Label) */
+.pf-v5-c-form__label-text,
+.pf-c-form__label-text,
+.control-label {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
+    font-size: 0.88rem !important;
+    margin-bottom: 0.5rem !important;
+    display: inline-block !important;
+}
+
+/* Khung nhóm nhập mật khẩu (có nút con mắt) */
+.pf-v5-c-input-group,
+.pf-c-input-group {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    background-color: #f8fafc !important;
+    transition: all 0.2s ease-in-out !important;
+    overflow: hidden !important;
+    display: flex !important;
+    width: 100% !important;
+}
+
+/* Khi ô nhập liệu hoặc nhóm nhập liệu được focus */
+.pf-v5-c-input-group:focus-within,
+.pf-c-input-group:focus-within {
+    background-color: #ffffff !important;
+    border-color: #26D0CE !important;
+    box-shadow: 0 0 0 4px rgba(38, 208, 206, 0.15) !important;
+}
+
+/* Ô nhập liệu Input */
+.pf-v5-c-form-control,
+.pf-c-form-control,
+input.form-control {
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    padding: 0.75rem 1rem !important;
+    color: #1e293b !important;
+    font-size: 0.95rem !important;
+    transition: all 0.2s ease-in-out !important;
+    height: auto !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Thiết lập riêng cho ô input nằm trong group (tránh viền kép) */
+.pf-v5-c-input-group input.form-control,
+.pf-c-input-group input.form-control {
+    border: none !important;
+    background-color: transparent !important;
+    flex: 1 !important;
+}
+
+.pf-v5-c-form-control:focus,
+.pf-c-form-control:focus,
+input.form-control:focus {
+    background-color: #ffffff !important;
+    border-color: #26D0CE !important;
+    box-shadow: 0 0 0 4px rgba(38, 208, 206, 0.15) !important;
+    outline: none !important;
+}
+
+/* Nút ẩn/hiện mật khẩu (Con mắt) */
+.pf-v5-c-button.pf-m-control,
+.pf-c-button.pf-m-control {
+    background-color: transparent !important;
+    color: #64748b !important;
+    border: none !important;
+    padding: 0 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+}
+
+.pf-v5-c-button.pf-m-control:hover,
+.pf-c-button.pf-m-control:hover {
+    color: #1A2980 !important;
+}
+
+/* =====================================================================
+   4. BUTTONS & LINKS (Nút bấm & Liên kết)
+   ===================================================================== */
+
+/* Nút Submit chính */
+.pf-v5-c-button.pf-m-primary,
+.pf-c-button.pf-m-primary,
+input.btn-primary,
+#kc-login {
+    background: linear-gradient(135deg, #1A2980 0%, #26D0CE 100%) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 0.75rem 1.5rem !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(26, 41, 128, 0.2) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: pointer !important;
+    width: 100% !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
+.pf-v5-c-button.pf-m-primary:hover,
+.pf-c-button.pf-m-primary:hover,
+input.btn-primary:hover,
+#kc-login:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 18px rgba(26, 41, 128, 0.35) !important;
+    opacity: 0.95 !important;
+}
+
+/* Các liên kết */
+.pf-v5-c-login__main-footer-links a,
+.pf-c-login__main-footer-links a,
+a {
+    color: #1A2980 !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    font-size: 0.9rem !important;
+}
+
+.pf-v5-c-login__main-footer-links a:hover,
+.pf-c-login__main-footer-links a:hover,
+a:hover {
+    color: #26D0CE !important;
+    text-decoration: underline !important;
+}
+
+/* =====================================================================
+   5. ALERTS & MESSAGES (Thông báo & Lỗi)
+   ===================================================================== */
+.alert,
+.pf-v5-c-alert,
+.pf-c-alert {
+    border-radius: 8px !important;
+    font-size: 0.9rem !important;
+    padding: 0.75rem 1rem !important;
+    margin-bottom: 1.5rem !important;
+}
