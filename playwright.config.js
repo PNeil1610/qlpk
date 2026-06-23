@@ -42,4 +42,20 @@ module.exports = defineConfig({
       use: { ...devices['Desktop Safari'] },
     },
   ],
+
+  /* Tự động khởi động máy chủ Laravel và Vite phục vụ chạy E2E testing */
+  webServer: [
+    {
+      command: 'php artisan serve',
+      port: 8000,
+      reuseExistingServer: true,
+      timeout: 120000,
+    },
+    {
+      command: 'npm run dev',
+      port: 5173,
+      reuseExistingServer: true,
+      timeout: 120000,
+    }
+  ],
 });
