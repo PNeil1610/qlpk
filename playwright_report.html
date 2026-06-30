@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Tóm tắt Kiểm thử Playwright</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="p-6 md:p-12 text-slate-800">
+
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+        <!-- Header -->
+        <div class="border-b border-slate-100 pb-6 mb-6">
+            <h1 class="text-2xl font-bold text-slate-900">Báo Cáo Tóm Tắt Kiểm Thử Tự Động Playwright</h1>
+            <p class="text-slate-500 text-sm mt-1">Dự án: Hệ thống Quản lý Phòng khám Đa khoa (tích hợp Keycloak SSO)</p>
+        </div>
+
+        <!-- Content -->
+        <div class="space-y-6 text-sm md:text-base leading-relaxed text-slate-650">
+            <p>
+                Tôi đã hoàn thành việc xây dựng bộ kịch bản kiểm thử tự động giao diện **End-to-End (E2E)** bằng thư viện **Playwright** nhằm đảm bảo tính ổn định và liên thông dữ liệu cho hệ thống.
+            </p>
+
+            <div>
+                <h2 class="text-base font-bold text-slate-900 mb-3">Các chức năng chính đã được kiểm thử:</h2>
+                <ul class="list-disc pl-5 space-y-2 text-slate-600">
+                    <li>
+                        <strong>Xác thực SSO qua Keycloak:</strong> Giả lập tự động click nút đăng nhập, chuyển hướng sang cổng xác thực Keycloak, điền thông tin tài khoản và điều hướng thành công về Laravel.
+                    </li>
+                    <li>
+                        <strong>Quản lý nghiệp vụ độc lập:</strong> Kiểm thử tự động các hành động của từng vai trò riêng biệt bao gồm: Lễ tân tiếp đón bệnh nhân; Bác sĩ chẩn đoán ICD-10 & kê đơn; Thu ngân thanh toán hóa đơn; Dược sĩ phát thuốc.
+                    </li>
+                    <li>
+                        <strong>Quy trình khép kín (Integrated Flow):</strong> Một kịch bản chạy liên hoàn tự động mô phỏng từ lúc bệnh nhân mới vào tiếp đón, khám bệnh, thanh toán viện phí cho đến khi nhận thuốc thành công.
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <h2 class="text-sm font-bold text-slate-900 mb-2">Thông tin kỹ thuật & Khởi chạy:</h2>
+                <ul class="text-xs font-mono space-y-1 text-slate-600">
+                    <li>• Thư mục test: <span class="text-sky-700">tests/e2e</span></li>
+                    <li>• Cấu hình đa trình duyệt: Chromium, Firefox, WebKit (Safari)</li>
+                    <li>• Lệnh chạy test: <span class="bg-slate-200/60 px-1 py-0.5 rounded text-sky-800">npm run test:e2e</span></li>
+                    <li>• Lệnh chạy giao diện UI: <span class="bg-slate-200/60 px-1 py-0.5 rounded text-sky-800">npm run test:e2e:ui</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="border-t border-slate-100 pt-6 mt-8 text-center text-xs text-slate-400">
+            <p>© 2026 - Báo cáo thực hành kịch bản kiểm thử tự động giao diện Playwright</p>
+        </div>
+    </div>
+
+</body>
+</html>
