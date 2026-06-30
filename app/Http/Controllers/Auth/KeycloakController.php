@@ -86,6 +86,14 @@ class KeycloakController extends Controller
             'keycloak_sub'           => $keycloakSub,
         ]);
 
+        // Đồng bộ vai trò vào DB local
+        $roleIds = \App\Models\Role::whereIn('role_code', $userRoles)->pluck('id')->toArray();
+        $roleIdsWithPivot = [];
+        foreach ($roleIds as $roleId) {
+            $roleIdsWithPivot[$roleId] = ['status' => 1];
+        }
+        $user->roles()->sync($roleIdsWithPivot);
+
         // Đăng nhập bằng Laravel Auth
         Auth::login($user);
 
