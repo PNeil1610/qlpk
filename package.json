@@ -2,6 +2,7 @@
     "private": true,
     "scripts": {
         "dev": "vite",
+        "dev:all": "concurrently -n \"vite,laravel,http-server\" -c \"blue,green,magenta\" \"npm run dev\" \"php artisan serve\" \"npx http-server\"",
         "build": "vite build",
         "docker:up": "docker compose -f docker-compose.keycloak.yml up -d",
         "docker:down": "docker compose -f docker-compose.keycloak.yml down",
@@ -16,6 +17,7 @@
         "@popperjs/core": "^2.11.6",
         "axios": "^1.1.2",
         "bootstrap": "^5.2.3",
+        "concurrently": "^10.0.3",
         "laravel-vite-plugin": "^0.7.2",
         "sass": "^1.56.1",
         "vite": "^4.0.0"

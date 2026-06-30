@@ -25,8 +25,11 @@ class KeycloakController extends Controller
     public function callback(Request $request)
     {
         try {
-            $socialUser = Socialite::driver('keycloak')->user();
+            $socialUser = Socialite::driver('keycloak')->stateless()->user();
         } catch (\Exception $e) {
+            \Log::error('Keycloak Login Callback Error: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
             return redirect('/login')->withErrors(['keycloak' => 'Đăng nhập thất bại. Vui lòng thử lại.']);
         }
 
