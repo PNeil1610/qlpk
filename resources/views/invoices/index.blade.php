@@ -11,12 +11,12 @@
     <!-- TABS NAV -->
     <ul class="nav nav-tabs fw-bold mb-4" id="invoiceTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active text-warning" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+            <button class="nav-link text-warning {{ request('tab', 'pending') === 'pending' ? 'active' : '' }}" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
                 <i class="fas fa-clock me-2"></i>Hàng Đợi Chờ Thanh Toán
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link text-success" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+            <button class="nav-link text-success {{ request('tab') === 'history' ? 'active' : '' }}" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
                 <i class="fas fa-history me-2"></i>Lịch Sử Hóa Đơn
             </button>
         </li>
@@ -26,7 +26,7 @@
     <div class="tab-content" id="invoiceTabsContent">
         
         <!-- TAB 1: PENDING -->
-        <div class="tab-pane fade show active" id="pending" role="tabpanel" tabindex="0">
+        <div class="tab-pane fade {{ request('tab', 'pending') === 'pending' ? 'show active' : '' }}" id="pending" role="tabpanel" tabindex="0">
             <div class="card shadow-sm border-0 border-top border-warning border-3 mb-4">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-bold text-warning"><i class="fas fa-list-ol me-2"></i>Danh sách chờ thanh toán</h5>
@@ -89,7 +89,7 @@
         </div>
 
         <!-- TAB 2: HISTORY -->
-        <div class="tab-pane fade" id="history" role="tabpanel" tabindex="0">
+        <div class="tab-pane fade {{ request('tab') === 'history' ? 'show active' : '' }}" id="history" role="tabpanel" tabindex="0">
             <div class="card shadow-sm border-0 border-top border-success border-3 mb-4">
                 <div class="card-body py-3 bg-light">
                     <div class="row g-3 align-items-end">
@@ -160,7 +160,7 @@
                 </div>
                 <div class="card-footer bg-white border-0 py-3">
                     <div class="d-flex justify-content-end">
-                        {{ $historyInvoices->links() }}
+                        {{ $historyInvoices->appends(array_merge(request()->query(), ['tab' => 'history']))->links() }}
                     </div>
                 </div>
             </div>

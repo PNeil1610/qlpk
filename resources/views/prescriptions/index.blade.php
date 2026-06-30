@@ -111,6 +111,7 @@
         const searchStatus = document.getElementById('searchStatus');
         const tableContainer = document.getElementById('tableDataContainer');
         let timeout = null;
+        let currentUrl = window.location.href;
 
         function fetchPrescriptions(url = null) {
             const keyword = searchKeyword.value;
@@ -120,6 +121,7 @@
                 status: status
             });
             const fetchUrl = url || "{{ route('prescriptions.index') }}?" + queryParams.toString();
+            currentUrl = fetchUrl;
             
             // Show loading state
             tableContainer.style.opacity = '0.5';
@@ -169,13 +171,7 @@
         setInterval(function() {
             // Only auto-refresh if user is not actively typing
             if (document.activeElement !== searchKeyword || searchKeyword.value === '') {
-                // Fetch silently without changing opacity to avoid flashing
-                const keyword = searchKeyword.value;
-                const status = searchStatus.value;
-                const queryParams = new URLSearchParams({ keyword: keyword, status: status });
-                const fetchUrl = "{{ route('prescriptions.index') }}?" + queryParams.toString();
-                
-                fetch(fetchUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                fetch(currentUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(response => response.text())
                 .then(html => {
                     const parser = new DOMParser();
