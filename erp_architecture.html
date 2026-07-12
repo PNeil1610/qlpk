@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QLPK - Sơ đồ Kiến trúc Hệ thống ERP</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Mermaid.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            securityLevel: 'loose',
+            themeVariables: {
+                fontSize: '16px',
+                fontFamily: 'Plus Jakarta Sans, sans-serif'
+            },
+            flowchart: { useMaxWidth: false, htmlLabels: true, curve: 'basis' },
+            er: { useMaxWidth: false },
+            sequence: { useMaxWidth: false }
+        });
+    </script>
+
+    <!-- Custom Premium Styles (Vanilla CSS) -->
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --panel-bg: #111827;
+            --panel-border: #1f2937;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-dark: #6b7280;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+            --glass-bg: rgba(17, 24, 39, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 40%);
+        }
+
+        /* Layout Structure */
+        header {
+            padding: 2.5rem 2rem 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            border-bottom: 1px solid var(--panel-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .header-title h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-title p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .tech-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tech-tag {
+            background: var(--panel-border);
+            border: 1px solid var(--glass-border);
+            padding: 0.4rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .tech-tag::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--primary);
+        }
+
+        /* Navigation Tabs */
+        .nav-container {
+            max-width: 1400px;
+            margin: 1.5rem auto;
+            padding: 0 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            padding: 0.35rem;
+            border-radius: 12px;
+            gap: 0.25rem;
+            width: fit-content;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-muted);
+            padding: 0.75rem 1.5rem;
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .tab-btn.active {
+            color: var(--text-main);
+            background: var(--primary);
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        /* Main View Container */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+        }
+
+        .view-content {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .view-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Standard Card Style */
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-header {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Split Layout for ERD & Inspector */
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .split-layout {
+                grid-template-columns: 3fr 2fr;
+            }
+        }
+
+        /* Interactive DB Schema Inspector styles */
+        .inspector-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            height: fit-content;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--panel-border);
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border-radius: 10px;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dark);
+            width: 1.1rem;
+            height: 1.1rem;
+        }
+
+        .table-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.5rem;
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid var(--panel-border);
+            border-radius: 10px;
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        @media (min-width: 1024px) {
+            .table-list {
+                grid-template-columns: 1fr;
+                max-height: 480px;
+            }
+        }
+
+        .table-item-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            text-align: left;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-item-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.02);
+            border-color: var(--panel-border);
+        }
+
+        .table-item-btn.active {
+            color: var(--text-main);
+            background: var(--primary-glow);
+            border-color: var(--primary);
+        }
+
+        .table-item-btn .badge {
+            background: var(--panel-border);
+            font-size: 0.7rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            color: var(--text-dark);
+        }
+
+        .table-item-btn.active .badge {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        /* Detail Panel Card */
+        .detail-panel {
+            background: #111827;
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 20px;
+        }
+
+        .detail-header {
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 1rem;
+        }
+
+        .detail-tableName {
+            font-family: var(--font-mono);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .columns-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+        }
+
+        .columns-table th, .columns-table td {
+            text-align: left;
+            padding: 0.65rem 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .columns-table th {
+            color: var(--text-dark);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .col-name {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .col-type {
+            font-family: var(--font-mono);
+            color: var(--secondary);
+        }
+
+        .pill-badge {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .pill-pk {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .pill-fk {
+            background-color: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        /* Mermaid Wrapper zoom/pan container */
+        .diagram-wrapper-container {
+            position: relative;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .diagram-toolbar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 0.35rem;
+            z-index: 100;
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(6px);
+            padding: 0.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--panel-border);
+        }
+
+        .toolbar-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.35rem 0.7rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: var(--font-main);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .toolbar-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .diagram-wrapper {
+            padding: 3.5rem 1.5rem 1.5rem;
+            overflow: auto;
+            max-height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            transition: all 0.2s ease;
+            min-height: 500px;
+        }
+
+        .diagram-wrapper svg {
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transform-origin: top center;
+            max-width: none !important;
+            height: auto !important;
+        }
+
+        /* Responsive Fit-Width Mode */
+        .diagram-wrapper.fit-width {
+            justify-content: center;
+            align-items: center;
+        }
+
+        .diagram-wrapper.fit-width svg {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            transform: none !important;
+        }
+
+        /* Matrix Grid */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .matrix-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .matrix-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .matrix-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .matrix-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        .role-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .role-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .role-code {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            background: var(--primary-glow);
+            color: var(--primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .matrix-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .matrix-list li {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .matrix-list li::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--panel-border);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-dark);
+        }
+
+        /* E2E Info Steps overlay styles */
+        .info-step-detail {
+            margin-top: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid var(--primary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .info-step-detail.active {
+            display: block;
+        }
+
+        .info-step-detail h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+
+        .info-step-detail p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .info-step-detail .code-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            background: #1f2937;
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            color: var(--secondary);
+            display: inline-block;
+            margin-top: 0.4rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="header-title">
+            <h1>Hệ thống Quản lý Phòng khám (QLPK)</h1>
+            <p>Bản đồ tương tác Kiến trúc Hệ thống & Cơ sở dữ liệu ERP</p>
+        </div>
+        <div class="tech-tags">
+            <span class="tech-tag">Laravel 10 (MVC)</span>
+            <span class="tech-tag">MySQL 8.0</span>
+            <span class="tech-tag">Keycloak OIDC</span>
+            <span class="tech-tag">Tailwind-free Custom UI</span>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'layers')">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                Phân lớp Hệ thống
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'erd')">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7c0-2-1.5-3-3.5-3h-9C5.5 4 4 5 4 7z"></path><path d="M9 12h6m-3-3v6"></path></svg>
+                Sơ đồ Thực thể (ERD)
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'rbac')">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                Phân quyền (RBAC Matrix)
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'workflow')">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                Quy trình Nghiệp vụ (E2E)
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Views -->
+    <main>
+        
+        <!-- Tab 1: Architecture Layers -->
+        <div id="layers" class="view-content active">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Kiến trúc Phân lớp Hệ thống</h2>
+                </div>
+                <div class="diagram-wrapper-container">
+                    <div class="diagram-toolbar">
+                        <button class="toolbar-btn" onclick="zoomDiagram(this, 1.2)">➕ Phóng to</button>
+                        <button class="toolbar-btn" onclick="zoomDiagram(this, 0.8)">➖ Thu nhỏ</button>
+                        <button class="toolbar-btn" onclick="resetZoom(this)">↺ Đặt lại</button>
+                        <button class="toolbar-btn" onclick="toggleFitWidth(this)">⛶ Vừa màn hình</button>
+                    </div>
+                    <div class="diagram-wrapper zoomable">
+                        <pre class="mermaid">
+                        graph LR
+                            subgraph CLIENTS ["Clients / User Roles"]
+                                Admin["Admin (Quản trị viên)"]
+                                Doctor["Doctor (Bác sĩ)"]
+                                Cashier["Cashier (Thu ngân)"]
+                                Pharmacist["Pharmacist (Dược sĩ)"]
+                                Patient["Patient (Bệnh nhân)"]
+                                Receptionist["Receptionist (Tiếp đón)"]
+                            end
+
+                            subgraph AUTH ["Gateway & Identity Provider"]
+                                Keycloak["Keycloak OIDC Client (SSO / SLO)"]
+                            end
+
+                            subgraph PRESENTATION ["Presentation Layer (Frontend)"]
+                                Blade["Laravel Blade Templates"]
+                                CSS["Custom CSS (custom-premium-style.css)"]
+                                JS["Vite / JS / jQuery & Select2"]
+                            end
+
+                            subgraph APP ["Application / Logic Layer (Laravel)"]
+                                Middleware["RoleMiddleware (RBAC Check)"]
+                                AdminCtrl["Admin Controllers"]
+                                DoctorCtrl["Doctor Controllers"]
+                                CashierCtrl["Cashier Controllers"]
+                                PharmacistCtrl["Pharmacist Controllers"]
+                                PatientCtrl["Patient Controllers"]
+                                NotifCtrl["Notification Controller"]
+                            end
+
+                            subgraph DOMAIN ["Domain Model Layer (Eloquent ORM)"]
+                                UserM["User & Role Models"]
+                                ClinicM["Clinic & Staff/Room Models"]
+                                MedicalM["Patient & Consultation Models"]
+                                PrescM["Prescription & Medicine Models"]
+                                BillingM["Invoice Models"]
+                            end
+
+                            subgraph INFRA ["Infrastructure / Persistence"]
+                                MySQL[("MySQL 8.0 Database")]
+                                Redis[("Redis (Sessions & Cache)")]
+                                Mailpit["Mailpit (Email Capture)"]
+                            end
+
+                            CLIENTS --> AuthCheck{"Xác thực truy cập"}
+                            AuthCheck -- "Redirect" --> Keycloak
+                            Keycloak -- "Đăng nhập thành công" --> PRESENTATION
+                            PRESENTATION -- "Gửi HTTP Request" --> Middleware
+                            Middleware -- "Hợp lệ (Role check)" --> APP
+                            APP --> DOMAIN
+                            DOMAIN --> INFRA
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Database Schema (ERD & Inspector) -->
+        <div id="erd" class="view-content">
+            <div class="split-layout">
+                
+                <!-- Left: Diagram & Table list -->
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div class="card" style="margin-bottom: 0;">
+                        <div class="card-header">
+                            <h2 class="card-title">Sơ đồ Quan hệ Cơ sở dữ liệu (ERD)</h2>
+                        </div>
+                        <div class="diagram-wrapper-container">
+                            <div class="diagram-toolbar">
+                                <button class="toolbar-btn" onclick="zoomDiagram(this, 1.2)">➕ Phóng to</button>
+                                <button class="toolbar-btn" onclick="zoomDiagram(this, 0.8)">➖ Thu nhỏ</button>
+                                <button class="toolbar-btn" onclick="resetZoom(this)">↺ Đặt lại</button>
+                                <button class="toolbar-btn" onclick="toggleFitWidth(this)">⛶ Vừa màn hình</button>
+                            </div>
+                            <div class="diagram-wrapper zoomable">
+                                <pre class="mermaid">
+                                erDiagram
+                                    users ||--o| staff : "user_id"
+                                    users ||--o| patient : "user_id"
+                                    users }o--o{ roles : "users_roles"
+                                    roles ||--o{ roles_permission : "role_id"
+                                    department ||--o{ room : "department_id"
+                                    room ||--o| room_detail : "room_id"
+                                    department ||--o{ staff : "department_id"
+                                    room ||--o{ staff : "room_id"
+                                    patient ||--o{ consultation : "patient_id"
+                                    staff ||--o{ consultation : "doctor_id"
+                                    consultation ||--o{ consultation_room : "consultation_id"
+                                    room ||--o{ consultation_room : "room_id"
+                                    diagnosis ||--o{ consultation : "diagnosis_code"
+                                    consultation ||--o{ prescription : "consultation_id"
+                                    prescription ||--o{ prescription_detail : "prescription_id"
+                                    medicine ||--o{ prescription_detail : "medicine_id"
+                                    medicine_category ||--o{ medicine : "medicine_category_id"
+                                    medicine ||--o{ medicine_detail : "medicine_id"
+                                    staff ||--o{ prescription : "prescribed/dispensed_by"
+                                    consultation ||--o| invoice : "consultation_id"
+                                    invoice ||--o{ invoice_detail : "invoice_id"
+                                    staff ||--o{ invoice : "cashier_id"
+                                    users ||--o{ system_notification : "sender_id"
+                                    users ||--o{ notification_reads : "user_id"
+                                    system_notification ||--o{ notification_reads : "notification_id"
+                                    staff ||--o{ prescription_template : "doctor_id"
+                                    diagnosis ||--o{ prescription_template : "diagnosis_code"
+                                    prescription_template ||--o{ prescription_template_detail : "template_id"
+                                    medicine ||--o{ prescription_template_detail : "medicine_id"
+                                    users ||--o{ system_setting : "created_by"
+                                </pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="margin-bottom: 0;">
+                        <div class="card-header">
+                            <h2 class="card-title">Danh sách 23 Bảng Dữ Liệu</h2>
+                        </div>
+                        <div class="search-box" style="margin-bottom: 1rem;">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <input type="text" id="dbSearch" placeholder="Tìm kiếm bảng dữ liệu..." oninput="filterTables()">
+                        </div>
+                        <div class="table-list" id="tableListContainer">
+                            <!-- Dynamic Table buttons will be injected here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right: Table Inspector Details -->
+                <div class="inspector-container">
+                    <div class="detail-panel" id="detailPanel">
+                        <div class="detail-header">
+                            <div class="detail-tableName" id="detailTableName">Chọn một bảng dữ liệu</div>
+                            <div class="detail-desc" id="detailDesc">Nhấn vào danh sách bảng bên trái để tra cứu chi tiết Schema cơ sở dữ liệu.</div>
+                        </div>
+                        <table class="columns-table">
+                            <thead>
+                                <tr>
+                                    <th>Cột</th>
+                                    <th>Kiểu</th>
+                                    <th>Thuộc tính</th>
+                                    <th>Mô tả</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailColumnsBody">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: var(--text-dark); padding: 2rem;">Chưa có dữ liệu</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tab 3: RBAC Matrix -->
+        <div id="rbac" class="view-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Ma trận Phân quyền & Vai trò (RBAC)</h2>
+                </div>
+                
+                <div class="matrix-grid">
+                    <div class="matrix-card">
+                        <div class="role-header">
+                            <span class="role-title">Quản trị viên</span>
+                            <span class="role-code">ADMIN</span>
+                        </div>
+                        <ul class="matrix-list">
+                            <li>Toàn quyền cấu hình phòng khám (System Setting)</li>
+                            <li>CRUD Nhân viên (Staff) & Tài khoản (Users)</li>
+                            <li>Import danh mục mã bệnh ICD-10 & Thuốc từ Excel</li>
+                            <li>Xem Dashboard tổng hợp doanh thu và số liệu lượt khám</li>
+                            <li>Quản lý danh mục khoa, phòng ban chức năng</li>
+                        </ul>
+                    </div>
+
+                    <div class="matrix-card">
+                        <div class="role-header">
+                            <span class="role-title">Tiếp đón / Lễ tân</span>
+                            <span class="role-code">RECEPTIONIST</span>
+                        </div>
+                        <ul class="matrix-list">
+                            <li>Đăng ký và tìm kiếm hồ sơ Bệnh nhân (Patient)</li>
+                            <li>Tạo Phiếu khám (Consultation) ban đầu</li>
+                            <li>Nhập các chỉ số sinh hiệu (nhiệt độ, huyết áp)</li>
+                            <li>Xếp bệnh nhân vào phòng chờ khám (Queue)</li>
+                            <li>Xem danh sách hàng đợi các phòng chức năng</li>
+                        </ul>
+                    </div>
+
+                    <div class="matrix-card">
+                        <div class="role-header">
+                            <span class="role-title">Bác sĩ khám bệnh</span>
+                            <span class="role-code">DOCTOR</span>
+                        </div>
+                        <ul class="matrix-list">
+                            <li>Xem hàng chờ khám của phòng mình đảm nhiệm</li>
+                            <li>Sử dụng EMR View 2 cột để chẩn đoán lâm sàng</li>
+                            <li>Tra cứu lịch sử bệnh án cũ của bệnh nhân</li>
+                            <li>Kê đơn thuốc điện tử (áp dụng thuốc mẫu hoặc đơn cũ)</li>
+                            <li>Quản lý danh sách Toa thuốc mẫu (Prescription Template)</li>
+                        </ul>
+                    </div>
+
+                    <div class="matrix-card">
+                        <div class="role-header">
+                            <span class="role-title">Thu ngân</span>
+                            <span class="role-code">CASHIER</span>
+                        </div>
+                        <ul class="matrix-list">
+                            <li>Tra cứu hóa đơn chờ thanh toán của bệnh nhân</li>
+                            <li>Chỉnh sửa hóa đơn, thêm phụ phí ngoài hoặc chiết khấu</li>
+                            <li>Xác nhận thanh toán hóa đơn (hóa đơn chuyển Đã thanh toán)</li>
+                            <li>In biên nhận tài chính chuẩn hóa cho bệnh nhân</li>
+                            <li>Xem lịch sử giao dịch trong ngày</li>
+                        </ul>
+                    </div>
+
+                    <div class="matrix-card">
+                        <div class="role-header">
+                            <span class="role-title">Dược sĩ cấp phát</span>
+                            <span class="role-code">PHARMACIST</span>
+                        </div>
+                        <ul class="matrix-list">
+                            <li>Tra cứu danh sách đơn thuốc đã đóng tiền thành công</li>
+                            <li>Kiểm tra số lượng, hướng dẫn liều dùng</li>
+                            <li>Xác nhận đã cấp phát thuốc vật lý cho người bệnh</li>
+                            <li>Xem lịch sử cấp phát thuốc của nhà thuốc</li>
+                        </ul>
+                    </div>
+
+                    <div class="matrix-card">
+                        <div class="role-header">
+                            <span class="role-title">Bệnh nhân</span>
+                            <span class="role-code">PATIENT</span>
+                        </div>
+                        <ul class="matrix-list">
+                            <li>Đăng nhập cổng thông tin tự tra cứu cá nhân</li>
+                            <li>Xem toàn bộ lịch sử các phiên khám cũ</li>
+                            <li>Xem chi tiết chẩn đoán của bác sĩ điều trị</li>
+                            <li>Xem hướng dẫn sử dụng, liều dùng các đơn thuốc</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: E2E Business Flow -->
+        <div id="workflow" class="view-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Quy trình vận hành Phòng khám (End-to-End Workflow)</h2>
+                </div>
+                <div class="diagram-wrapper-container">
+                    <div class="diagram-toolbar">
+                        <button class="toolbar-btn" onclick="zoomDiagram(this, 1.2)">➕ Phóng to</button>
+                        <button class="toolbar-btn" onclick="zoomDiagram(this, 0.8)">➖ Thu nhỏ</button>
+                        <button class="toolbar-btn" onclick="resetZoom(this)">↺ Đặt lại</button>
+                        <button class="toolbar-btn" onclick="toggleFitWidth(this)">⛶ Vừa màn hình</button>
+                    </div>
+                    <div class="diagram-wrapper zoomable">
+                        <pre class="mermaid">
+                        sequenceDiagram
+                            autonumber
+                            actor Patient as Bệnh nhân
+                            actor Receptionist as Lễ tân / Tiếp đón
+                            actor Doctor as Bác sĩ (Khám lâm sàng)
+                            actor Cashier as Thu ngân (Tài chính)
+                            actor Pharmacist as Dược sĩ (Nhà thuốc)
+
+                            Patient->>Receptionist: 1. Đến khám & cung cấp thông tin (SĐT/CCCD)
+                            Note over Receptionist: PatientController@store<br/>Tạo/Cập nhật hồ sơ Patient
+                            Receptionist->>Receptionist: 2. Lập Phiếu khám & Đo sinh hiệu (Nhiệt độ, Huyết áp)
+                            Note over Receptionist: ConsultationController@store<br/>Tạo Consultation (STATUS_NEW)
+                            Receptionist->>Receptionist: 3. Xếp hàng chờ vào phòng khám chuyên khoa
+                            Note over Receptionist: ConsultationRoomController@store<br/>Tạo ConsultationRoom (status = 1)
+                            
+                            Note over Doctor: Hàng chờ phòng khám tự động hiển thị ca bệnh mới
+                            Doctor->>Doctor: 4. Mở EMR, click khám bệnh (Examine)
+                            Note over Doctor: ExaminationController@examine<br/>Consultation -> STATUS_PROCESSING (2)
+                            Doctor->>Doctor: 5. Tra cứu lịch sử, chẩn đoán bệnh (ICD-10)
+                            Note over Doctor: Select2 AJAX tìm mã ICD-10 từ bảng Diagnosis
+                            Doctor->>Doctor: 6. Kê đơn thuốc điện tử (Sử dụng toa mẫu/toa cũ)
+                            Note over Doctor: Select2 AJAX tìm Medicine / MedicineDetail
+                            Doctor->>Doctor: 7. Lưu kết luận & Hướng điều trị
+                            Note over Doctor: ExaminationController@saveConclusion<br/>Consultation -> STATUS_WAIT_PAYMENT (3)<br/>Tạo Invoice (STATUS_PENDING) và Prescription (STATUS_PENDING)
+
+                            Note over Cashier: Hàng chờ thanh toán hiển thị hóa đơn mới
+                            Cashier->>Cashier: 8. Tra cứu hóa đơn của bệnh nhân
+                            Note over Cashier: InvoiceController@index / InvoiceController@edit
+                            Cashier->>Cashier: 9. Thêm phụ phí (other_fee) hoặc chiết khấu (discount)
+                            Note over Cashier: InvoiceController@update -> Tự động tính toán total_amount
+                            Cashier->>Cashier: 10. Xác nhận thanh toán (Cash/Card/Transfer)
+                            Note over Cashier: InvoiceController@pay<br/>Invoice -> STATUS_PAID (1)<br/>Consultation -> STATUS_COMPLETED (4)
+
+                            Note over Pharmacist: Hàng chờ cấp phát nhận đơn thuốc đã trả tiền
+                            Pharmacist->>Pharmacist: 11. Soạn thuốc vật lý theo toa
+                            Pharmacist->>Pharmacist: 12. Xác nhận đã cấp phát thuốc
+                            Note over Pharmacist: PrescriptionController@updateStatus<br/>Prescription -> status = 1 (Đã phát)
+                            Pharmacist->>Patient: 13. Trao thuốc và hướng dẫn sử dụng
+                            Patient->>Patient: 14. Ra về & Đăng nhập cổng tra cứu lịch sử khám bệnh
+                            Note over Patient: MyRecordController@index (Role PATIENT)
+                        </pre>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <h3 style="margin-bottom: 0.75rem;">Các Endpoint và Logic tương ứng</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+                        <div class="matrix-card" style="padding: 1rem;">
+                            <strong style="color: var(--primary);">Tiếp đón:</strong>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                Router: <code style="font-family: var(--font-mono); color: var(--secondary);">POST /patients</code> & <code style="font-family: var(--font-mono); color: var(--secondary);">POST /consultations</code><br>
+                                Ghi nhận hồ sơ hành chính, số liệu sinh hiệu ban đầu, gán hàng đợi buồng khám qua bảng trung gian <code style="font-family: var(--font-mono);">consultation_room</code>.
+                            </p>
+                        </div>
+                        <div class="matrix-card" style="padding: 1rem;">
+                            <strong style="color: var(--primary);">Bác sĩ khám:</strong>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                Router: <code style="font-family: var(--font-mono); color: var(--secondary);">POST /doctor/consultations/{id}/save-examination</code><br>
+                                Lưu kết quả khám và đơn thuốc trong một Transaction, đổi trạng thái Consultation thành <code style="font-family: var(--font-mono);">STATUS_WAIT_PAYMENT</code>.
+                            </p>
+                        </div>
+                        <div class="matrix-card" style="padding: 1rem;">
+                            <strong style="color: var(--primary);">Thu ngân:</strong>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                Router: <code style="font-family: var(--font-mono); color: var(--secondary);">PUT /invoices/{id}/pay</code><br>
+                                Thu ngân xác nhận thu tiền, cập nhật trạng thái hóa đơn là <code style="font-family: var(--font-mono);">STATUS_PAID</code> và kích hoạt trạng thái Consultation hoàn thành.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Schema Inspector Data & Controller -->
+    <script>
+        // Database Schema Definition containing all 23 tables
+        const databaseSchema = {
+            users: {
+                description: "Quản lý thông tin tài khoản đăng nhập và xác thực (Keycloak OIDC).",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Mã tự tăng định danh tài khoản" },
+                    { name: "keycloak_sub", type: "varchar(36)", attr: "Unique, Nullable", desc: "UUID định danh chính thức từ Keycloak OIDC" },
+                    { name: "username", type: "varchar(255)", attr: "Unique, Nullable", desc: "Tên đăng nhập (Keycloak là nguồn chính)" },
+                    { name: "password_hash", type: "varchar(255)", attr: "Nullable", desc: "Deprecated sau Keycloak, chỉ giữ lại tương thích" },
+                    { name: "full_name", type: "varchar(255)", attr: "Required", desc: "Họ và tên đầy đủ của người dùng" },
+                    { name: "email", type: "varchar(255)", attr: "Unique, Nullable", desc: "Địa chỉ email" },
+                    { name: "phone_number", type: "varchar(255)", attr: "Nullable", desc: "Số điện thoại liên lạc" },
+                    { name: "address", type: "text", attr: "Nullable", desc: "Địa chỉ liên hệ thường trú" },
+                    { name: "national_id", type: "varchar(255)", attr: "Nullable", desc: "Số CCCD/CMND" },
+                    { name: "avatar_url", type: "varchar(255)", attr: "Nullable", desc: "Đường dẫn ảnh đại diện" },
+                    { name: "last_login_at", type: "datetime", attr: "Nullable", desc: "Lịch sử thời gian đăng nhập gần nhất" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái hoạt động (1: Hoạt động, 0: Đã khóa)" }
+                ]
+            },
+            roles: {
+                description: "Bảng lưu trữ các vai trò (Roles) trong hệ thống phục vụ RBAC.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Định danh vai trò" },
+                    { name: "role_code", type: "varchar(50)", attr: "Unique", desc: "Mã vai trò viết hoa (ADMIN, DOCTOR, CASHIER, etc.)" },
+                    { name: "role_name", type: "varchar(100)", attr: "Required", desc: "Tên vai trò hiển thị trực quan" },
+                    { name: "description", type: "text", attr: "Nullable", desc: "Mô tả phạm vi quyền hạn" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái (1: Hoạt động, 0: Ngưng)" }
+                ]
+            },
+            users_roles: {
+                description: "Bảng liên kết nhiều-nhiều giữa Users và Roles (Legacy DB RBAC).",
+                columns: [
+                    { name: "user_id", type: "bigint", attr: "FK (users)", desc: "Liên kết tài khoản người dùng" },
+                    { name: "role_id", type: "bigint", attr: "FK (roles)", desc: "Liên kết vai trò được gán" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái kích hoạt của liên kết" }
+                ]
+            },
+            roles_permission: {
+                description: "Bảng định nghĩa các quyền chi tiết chi phối cụ thể các Route gắn với Roles.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Định danh bản ghi" },
+                    { name: "role_id", type: "bigint", attr: "FK (roles)", desc: "Liên kết vai trò sở hữu quyền" },
+                    { name: "permission", type: "varchar(255)", attr: "Required", desc: "Tên mã quyền (e.g. view_dashboard, create_patient)" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái kích hoạt" }
+                ]
+            },
+            staff: {
+                description: "Thông tin chi tiết nhân sự y tế/vận hành, liên kết 1-1 với tài khoản User.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Mã định danh nhân viên" },
+                    { name: "user_id", type: "bigint", attr: "FK (users)", desc: "Liên kết tài khoản người dùng" },
+                    { name: "staff_code", type: "varchar(50)", attr: "Unique", desc: "Mã nhân viên (e.g. BS001, TN002)" },
+                    { name: "staff_type", type: "varchar(50)", attr: "Required", desc: "Phân loại (Doctor, Nurse, Cashier, Pharmacist, Admin)" },
+                    { name: "full_name", type: "varchar(255)", attr: "Required", desc: "Họ và tên nhân viên" },
+                    { name: "yob", type: "integer", attr: "Nullable", desc: "Năm sinh" },
+                    { name: "age", type: "integer", attr: "Nullable", desc: "Tuổi nhân viên" },
+                    { name: "gender", type: "varchar(10)", attr: "Nullable", desc: "Giới tính" },
+                    { name: "email", type: "varchar(255)", attr: "Nullable", desc: "Email công việc" },
+                    { name: "phone_number", type: "varchar(50)", attr: "Nullable", desc: "Số điện thoại cá nhân" },
+                    { name: "address", type: "text", attr: "Nullable", desc: "Địa chỉ liên hệ thường trú" },
+                    { name: "national_id", type: "varchar(50)", attr: "Nullable", desc: "Số CCCD/CMND" },
+                    { name: "academic_degree", type: "varchar(100)", attr: "Nullable", desc: "Học vị y khoa (Thạc sĩ, Bác sĩ chuyên khoa II...)" },
+                    { name: "specialty", type: "varchar(255)", attr: "Nullable", desc: "Chuyên khoa đảm nhận (Tai Mũi Họng, Nội...)" },
+                    { name: "medical_license", type: "varchar(100)", attr: "Nullable", desc: "Số chứng chỉ hành nghề y khoa" },
+                    { name: "department_id", type: "bigint", attr: "FK (department)", desc: "Khoa lâm sàng làm việc chính" },
+                    { name: "room_id", type: "bigint", attr: "FK (room), Nullable", desc: "Phòng khám/phòng làm việc được phân bổ" },
+                    { name: "position", type: "varchar(100)", attr: "Nullable", desc: "Chức vụ hành chính (Trưởng khoa, Nhân viên)" },
+                    { name: "career_start_year", type: "integer", attr: "Nullable", desc: "Năm bắt đầu hành nghề y" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái (1: Đang làm việc, 0: Đã nghỉ việc)" }
+                ]
+            },
+            patient: {
+                description: "Hồ sơ hành chính của người bệnh đến khám chữa bệnh tại phòng khám.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Mã định danh bệnh nhân" },
+                    { name: "user_id", type: "bigint", attr: "FK (users), Nullable", desc: "Tài khoản liên kết để bệnh nhân tự đăng nhập tra cứu" },
+                    { name: "patient_code", type: "varchar(50)", attr: "Unique", desc: "Mã số bệnh nhân sinh tự động (BN2026xxxx)" },
+                    { name: "full_name", type: "varchar(255)", attr: "Required", desc: "Họ và tên bệnh nhân" },
+                    { name: "gender", type: "varchar(10)", attr: "Required", desc: "Giới tính (Male, Female, Other)" },
+                    { name: "age", type: "integer", attr: "Nullable", desc: "Tuổi bệnh nhân" },
+                    { name: "email", type: "varchar(255)", attr: "Nullable", desc: "Địa chỉ email liên hệ" },
+                    { name: "phone_number", type: "varchar(50)", attr: "Unique", desc: "Số điện thoại chính (Dùng để tìm kiếm hồ sơ nhanh)" },
+                    { name: "address", type: "text", attr: "Nullable", desc: "Địa chỉ liên hệ thường trú" },
+                    { name: "national_id", type: "varchar(50)", attr: "Nullable", desc: "Số CCCD/CMND" },
+                    { name: "insurance_number", type: "varchar(100)", attr: "Nullable", desc: "Số thẻ bảo hiểm y tế (nếu có)" },
+                    { name: "emergency_contact", type: "varchar(255)", attr: "Nullable", desc: "SĐT người thân liên hệ khẩn cấp" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái (1: Hoạt động, 0: Ngưng theo dõi)" }
+                ]
+            },
+            department: {
+                description: "Danh sách các khoa chuyên môn (Nội khoa, Ngoại khoa, Cận lâm sàng...).",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Định danh khoa" },
+                    { name: "dept_code", type: "varchar(50)", attr: "Unique", desc: "Mã viết tắt của khoa (e.g. KLS, KCLS)" },
+                    { name: "dept_name", type: "varchar(255)", attr: "Required", desc: "Tên đầy đủ của khoa chuyên môn" },
+                    { name: "description", type: "text", attr: "Nullable", desc: "Mô tả chức năng nhiệm vụ khoa" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái (1: Hoạt động, 2: Đang xây dựng, 0: Đóng)" }
+                ]
+            },
+            room: {
+                description: "Danh sách các phòng chức năng thuộc các khoa (Phòng khám, Siêu âm, Thu ngân...).",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Định danh phòng" },
+                    { name: "room_code", type: "varchar(50)", attr: "Unique", desc: "Mã phòng (e.g. PK-SINGLE, P-XN1)" },
+                    { name: "room_name", type: "varchar(255)", attr: "Required", desc: "Tên phòng hiển thị" },
+                    { name: "room_type", type: "varchar(50)", attr: "Required", desc: "Loại phòng (Examination, Lab, Pharmacy, Emergency, Waiting...)" },
+                    { name: "department_id", type: "bigint", attr: "FK (department)", desc: "Thuộc khoa chuyên môn quản lý" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái (1: Hoạt động, 2: Đang sử dụng, 3: Bảo trì, 0: Đóng)" }
+                ]
+            },
+            room_detail: {
+                description: "Cấu hình chi tiết cơ sở vật chất hạ tầng vật lý của từng phòng chức năng.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Định danh chi tiết" },
+                    { name: "room_id", type: "bigint", attr: "FK (room)", desc: "Liên kết phòng chức năng (Quan hệ 1-1)" },
+                    { name: "floor", type: "integer", attr: "Required", desc: "Số tầng đặt phòng (e.g. Tầng 1, Tầng 2)" },
+                    { name: "capacity", type: "integer", attr: "Required", desc: "Sức chứa tối đa (số người hoặc số giường bệnh)" },
+                    { name: "equipment_list", type: "text", attr: "Nullable", desc: "Danh sách trang thiết bị y tế hiện có trong phòng" },
+                    { name: "area_sqm", type: "decimal(8,2)", attr: "Required", desc: "Diện tích thực tế tính bằng m²" },
+                    { name: "notes", type: "text", attr: "Nullable", desc: "Ghi chú điều kiện hoặc đặc tính phòng" },
+                    { name: "last_cleaned_at", type: "datetime", attr: "Nullable", desc: "Thời gian ghi nhận vệ sinh gần nhất" }
+                ]
+            },
+            consultation: {
+                description: "Thực thể trung tâm ghi nhận toàn bộ thông tin lâm sàng của một lượt khám bệnh.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Mã định danh phiên khám" },
+                    { name: "patient_id", type: "bigint", attr: "FK (patient)", desc: "Bệnh nhân thực hiện khám" },
+                    { name: "doctor_id", type: "bigint", attr: "FK (staff), Nullable", desc: "Bác sĩ phụ trách kết luận lâm sàng" },
+                    { name: "order_number", type: "integer", attr: "Required", desc: "Số thứ tự khám bệnh trong ngày" },
+                    { name: "consultation_date", type: "datetime", attr: "Required", desc: "Thời gian đăng ký và bắt đầu khám" },
+                    { name: "chief_complaint", type: "text", attr: "Nullable", desc: "Lý do khám (Bệnh nhân tự khai báo)" },
+                    { name: "symptoms", type: "text", attr: "Nullable", desc: "Triệu chứng lâm sàng ghi nhận bởi y tá/lễ tân" },
+                    { name: "temperature", type: "decimal(3,1)", attr: "Nullable", desc: "Nhiệt độ sinh hiệu cơ thể" },
+                    { name: "blood_pressure", type: "varchar(50)", attr: "Nullable", desc: "Chỉ số huyết áp (ví dụ: 120/80 mmHg)" },
+                    { name: "diagnosis_code", type: "varchar(15)", attr: "FK (diagnosis), Nullable", desc: "Mã chẩn đoán chính theo chuẩn ICD-10" },
+                    { name: "diagnosis_notes", type: "text", attr: "Nullable", desc: "Ghi chú chẩn đoán lâm sàng chi tiết của bác sĩ" },
+                    { name: "follow_up_date", type: "date", attr: "Nullable", desc: "Lịch hẹn tái khám (nếu có)" },
+                    { name: "status", type: "tinyint", attr: "Default: 0", desc: "Trạng thái (0: Mới, 1: Chờ, 2: Đang khám, 3: Chờ thanh toán, 4: Hoàn thành)" }
+                ]
+            },
+            consultation_room: {
+                description: "Bảng phân bổ hàng đợi bệnh nhân chờ khám tại phòng cụ thể (Quan hệ nhiều-nhiều giữa Consultation và Room).",
+                columns: [
+                    { name: "consultation_id", type: "bigint", attr: "FK (consultation)", desc: "Mã phiên khám tương ứng" },
+                    { name: "room_id", type: "bigint", attr: "FK (room)", desc: "Mã phòng bệnh đang xếp hàng chờ" },
+                    { name: "notes", type: "text", attr: "Nullable", desc: "Ghi chú xếp hàng (lý do chuyển phòng khám...)" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái (1: Đang chờ, 2: Đang khám, 3: Đã khám xong tại phòng này, 0: Hủy)" }
+                ]
+            },
+            diagnosis: {
+                description: "Danh mục các mã bệnh chuẩn hóa theo phân loại quốc tế ICD-10.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Định danh mã bệnh" },
+                    { name: "diagnosis_code", type: "varchar(15)", attr: "Unique", desc: "Mã ICD-10 viết chuẩn (e.g. A09, J06.9)" },
+                    { name: "diagnosis_name", type: "varchar(255)", attr: "Required", desc: "Tên bệnh tiếng Việt mô tả đầy đủ" },
+                    { name: "description", type: "text", attr: "Nullable", desc: "Mô tả bổ sung về bệnh lý" },
+                    { name: "icd_version", type: "varchar(50)", attr: "Required", desc: "Phiên bản ICD sử dụng (thông thường là ICD-10)" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái (1: Cho phép sử dụng, 0: Ngưng)" }
+                ]
+            },
+            prescription: {
+                description: "Đơn thuốc điện tử cấp cho bệnh nhân sau khi kết thúc lượt khám lâm sàng.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Mã định danh đơn thuốc" },
+                    { name: "consultation_id", type: "bigint", attr: "FK (consultation)", desc: "Phiên khám bệnh gốc liên quan" },
+                    { name: "prescribed_by", type: "bigint", attr: "FK (staff)", desc: "Bác sĩ thực hiện kê đơn thuốc" },
+                    { name: "prescribed_at", type: "datetime", attr: "Required", desc: "Ngày giờ bác sĩ chốt kê đơn" },
+                    { name: "doctor_advice", type: "text", attr: "Nullable", desc: "Lời dặn dò chung về chế độ ăn uống, sinh hoạt" },
+                    { name: "dispensed_at", type: "datetime", attr: "Nullable", desc: "Ngày giờ thực tế phát thuốc tại phòng dược" },
+                    { name: "dispensed_by", type: "bigint", attr: "FK (staff), Nullable", desc: "Dược sĩ phụ trách đóng gói và giao thuốc" },
+                    { name: "status", type: "tinyint", attr: "Default: 0", desc: "Trạng thái đơn thuốc (0: Chờ phát, 1: Đã cấp phát)" }
+                ]
+            },
+            prescription_detail: {
+                description: "Chi tiết số lượng, đơn vị, liều lượng và hướng dẫn uống của từng thuốc trong đơn thuốc.",
+                columns: [
+                    { name: "prescription_id", type: "bigint", attr: "FK (prescription)", desc: "Thuộc đơn thuốc nào" },
+                    { name: "medicine_id", type: "bigint", attr: "FK (medicine)", desc: "Mã thuốc gốc được chỉ định" },
+                    { name: "quantity", type: "integer", attr: "Required", desc: "Tổng số lượng thuốc cấp phát vật lý" },
+                    { name: "unit", type: "varchar(50)", attr: "Required", desc: "Đơn vị tính dùng cấp phát (Viên, Gói, Chai)" },
+                    { name: "dosage", type: "varchar(255)", attr: "Required", desc: "Chi tiết phân chia liều uống (Sáng: x, Trưa: y, Chiều: z...)" },
+                    { name: "usage_instructions", type: "text", attr: "Nullable", desc: "Lời dặn chi tiết cách dùng (Trước ăn, sau ăn 30 phút...)" },
+                    { name: "duration_days", type: "integer", attr: "Required", desc: "Số ngày duy trì uống thuốc" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái hoạt động của dòng thuốc" }
+                ]
+            },
+            medicine: {
+                description: "Danh mục thuốc gốc chính thức được cấp phép phân phối tại phòng khám.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Định danh thuốc gốc" },
+                    { name: "medicine_category_id", type: "bigint", attr: "FK (medicine_category)", desc: "Phân loại nhóm dược lý của thuốc" },
+                    { name: "medicine_code", type: "varchar(50)", attr: "Unique", desc: "Mã thuốc nội bộ dùng quản lý kho" },
+                    { name: "medicine_name", type: "varchar(255)", attr: "Required", desc: "Tên thương mại của thuốc" },
+                    { name: "note", type: "text", attr: "Nullable", desc: "Ghi chú bổ sung cách dùng chung" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái hoạt động (1: Cho phép kê, 0: Ngưng bán)" }
+                ]
+            },
+            medicine_category: {
+                description: "Phân nhóm dược lý thuốc hỗ trợ bác sĩ tìm kiếm kê đơn nhanh theo nhóm bệnh lý.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Định danh nhóm thuốc" },
+                    { name: "category_code", type: "varchar(50)", attr: "Unique", desc: "Mã phân nhóm (e.g. KS - Kháng sinh, GT - Giảm đau)" },
+                    { name: "category_name", type: "varchar(255)", attr: "Required", desc: "Tên nhóm dược lý hiển thị" },
+                    { name: "description", type: "text", attr: "Nullable", desc: "Mô tả đặc tính nhóm dược lý" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái hoạt động" }
+                ]
+            },
+            medicine_detail: {
+                description: "Bảng chi tiết thông tin đơn giá bán và hoạt chất của thuốc theo phiên bản (Versioning) để lưu vết lịch sử.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Định danh chi tiết bản cập nhật" },
+                    { name: "medicine_id", type: "bigint", attr: "FK (medicine)", desc: "Liên kết thuốc gốc" },
+                    { name: "order_number", type: "integer", attr: "Required", desc: "Số thứ tự phiên bản cập nhật giá" },
+                    { name: "unit", type: "varchar(50)", attr: "Required", desc: "Quy cách đóng gói áp đơn giá bán hiện tại" },
+                    { name: "price", type: "decimal(12,2)", attr: "Required", desc: "Đơn giá bán hiện hành tại phiên bản này" },
+                    { name: "active_ingredient", type: "varchar(255)", attr: "Required", desc: "Hoạt chất hóa học chính và hàm lượng kèm theo" },
+                    { name: "storage_condition", type: "varchar(255)", attr: "Nullable", desc: "Điều kiện bảo quản khuyến nghị trong kho" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái hiệu lực (1: Phiên bản giá hiện hành, 0: Lịch sử giá cũ)" }
+                ]
+            },
+            prescription_template: {
+                description: "Toa thuốc mẫu thiết lập sẵn giúp bác sĩ kê đơn siêu tốc đối với các bệnh phổ biến.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Định danh mẫu đơn" },
+                    { name: "template_name", type: "varchar(255)", attr: "Required", desc: "Tên gọi gợi nhớ của đơn thuốc mẫu" },
+                    { name: "disease_name", type: "varchar(255)", attr: "Required", desc: "Tên bệnh lâm sàng áp dụng đơn này" },
+                    { name: "diagnosis_code", type: "varchar(15)", attr: "FK (diagnosis)", desc: "Mã ICD-10 liên kết chặt chẽ với mẫu chẩn đoán" },
+                    { name: "doctor_id", type: "bigint", attr: "FK (staff)", desc: "Bác sĩ tạo và sở hữu toa mẫu cá nhân này" },
+                    { name: "description", type: "text", attr: "Nullable", desc: "Mô tả ghi chú lưu ý khi áp dụng toa thuốc" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái (1: Kích hoạt, 0: Ngưng áp dụng)" }
+                ]
+            },
+            prescription_template_detail: {
+                description: "Chi tiết danh mục thuốc và liều dùng nằm trong đơn thuốc mẫu.",
+                columns: [
+                    { name: "template_id", type: "bigint", attr: "FK (prescription_template)", desc: "Thuộc đơn thuốc mẫu nào" },
+                    { name: "medicine_id", type: "bigint", attr: "FK (medicine)", desc: "Thuốc được gán sẵn" },
+                    { name: "quantity", type: "integer", attr: "Required", desc: "Số lượng mặc định" },
+                    { name: "unit", type: "varchar(50)", attr: "Required", desc: "Đơn vị tính mặc định" },
+                    { name: "dosage", type: "varchar(255)", attr: "Required", desc: "Liều dùng mặc định" },
+                    { name: "usage_instructions", type: "text", attr: "Nullable", desc: "Lời dặn chi tiết mặc định" },
+                    { name: "duration_days", type: "integer", attr: "Required", desc: "Số ngày uống mặc định" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái hoạt động" }
+                ]
+            },
+            invoice: {
+                description: "Hóa đơn thanh toán tài chính chứa thông tin viện phí tổng hợp của một phiên khám.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Mã định danh hóa đơn" },
+                    { name: "invoice_code", type: "varchar(50)", attr: "Unique", desc: "Mã hóa đơn sinh định dạng chuẩn HD-YYYYMMDD-XXXX" },
+                    { name: "consultation_id", type: "bigint", attr: "FK (consultation)", desc: "Phiên khám bệnh được thanh toán" },
+                    { name: "invoice_date", type: "datetime", attr: "Required", desc: "Ngày tạo hóa đơn thanh toán" },
+                    { name: "consultation_fee", type: "decimal(12,2)", attr: "Required", desc: "Tiền công khám lâm sàng gốc (thường 100k)" },
+                    { name: "lab_test_fee", type: "decimal(12,2)", attr: "Default: 0.00", desc: "Tổng chi phí cận lâm sàng (siêu âm, xét nghiệm)" },
+                    { name: "medicine_fee", type: "decimal(12,2)", attr: "Default: 0.00", desc: "Tổng tiền thuốc được kết chuyển tự động từ đơn thuốc" },
+                    { name: "other_fee", type: "decimal(12,2)", attr: "Default: 0.00", desc: "Phụ phí dịch vụ phát sinh do thu ngân nhập thủ công" },
+                    { name: "discount", type: "decimal(12,2)", attr: "Default: 0.00", desc: "Số tiền giảm giá, chiết khấu áp dụng cho bệnh nhân" },
+                    { name: "total_amount", type: "decimal(12,2)", attr: "Required", desc: "Tổng số tiền thực thu sau chiết khấu và phụ phí" },
+                    { name: "payment_method", type: "varchar(50)", attr: "Nullable", desc: "Phương thức đóng tiền (Cash, Card, Transfer, Insurance)" },
+                    { name: "paid_at", type: "datetime", attr: "Nullable", desc: "Thời điểm ghi nhận thu tiền thực tế" },
+                    { name: "cashier_id", type: "bigint", attr: "FK (staff), Nullable", desc: "Thu ngân thực hiện thu tiền và in phiếu thu" },
+                    { name: "status", type: "tinyint", attr: "Default: 0", desc: "Trạng thái thanh toán (0: Chờ thanh toán, 1: Đã thu tiền, 2: Đã hủy)" }
+                ]
+            },
+            invoice_detail: {
+                description: "Chi tiết liệt kê từng mục viện phí in trên phiếu thu (phân rã chi tiết để bệnh nhân kiểm tra).",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Định danh dòng chi tiết hóa đơn" },
+                    { name: "invoice_id", type: "bigint", attr: "FK (invoice)", desc: "Thuộc hóa đơn tài chính nào" },
+                    { name: "item_type", type: "varchar(50)", attr: "Required", desc: "Phân loại khoản thu (Consultation, Medicine, LabTest, Other)" },
+                    { name: "item_name", type: "varchar(255)", attr: "Required", desc: "Tên gọi chi tiết của dịch vụ/thuốc được thu tiền" },
+                    { name: "reference_id", type: "bigint", attr: "Required", desc: "ID tham chiếu trỏ tới đối tượng gốc tương ứng" },
+                    { name: "quantity", type: "integer", attr: "Required", desc: "Số lượng chỉ định thực tế" },
+                    { name: "unit_price", type: "decimal(12,2)", attr: "Required", desc: "Đơn giá bán hiện hành" },
+                    { name: "discount", type: "decimal(12,2)", attr: "Default: 0.00", desc: "Chiết khấu riêng cho dòng dịch vụ này" },
+                    { name: "line_total", type: "decimal(12,2)", attr: "Required", desc: "Thành tiền của dòng dịch vụ (= SL * Đơn giá - Giảm giá)" },
+                    { name: "notes", type: "text", attr: "Nullable", desc: "Ghi chú riêng về khoản thu" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái hiệu lực dòng" }
+                ]
+            },
+            system_notification: {
+                description: "Bảng lưu trữ thông tin thông báo nội bộ thời gian thực gửi giữa các phòng ban.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Định danh thông báo" },
+                    { name: "sender_id", type: "bigint", attr: "FK (users)", desc: "Tài khoản gửi thông báo" },
+                    { name: "target_type", type: "varchar(50)", attr: "Required", desc: "Phạm vi nhận (all: Tất cả, role: Nhóm chức vụ, user: Cá nhân cụ thể)" },
+                    { name: "target_role", type: "varchar(50)", attr: "Nullable", desc: "Mã vai trò nhận tin (DOCTOR, CASHIER, etc.) nếu gửi theo nhóm" },
+                    { name: "target_user_id", type: "bigint", attr: "FK (users), Nullable", desc: "Tài khoản nhận tin cụ thể nếu gửi cá nhân" },
+                    { name: "title", type: "varchar(255)", attr: "Required", desc: "Tiêu đề ngắn gọn của thông báo" },
+                    { name: "content", type: "text", attr: "Required", desc: "Nội dung chi tiết thông báo gửi đi" },
+                    { name: "notified_at", type: "datetime", attr: "Required", desc: "Thời gian phát đi thông báo" },
+                    { name: "expires_at", type: "datetime", attr: "Nullable", desc: "Thời hạn hiển thị thông báo trước khi tự ẩn" },
+                    { name: "status", type: "tinyint", attr: "Default: 1", desc: "Trạng thái thông báo (1: Đang hiển thị, 0: Đã ẩn)" }
+                ]
+            },
+            notification_reads: {
+                description: "Quản lý trạng thái đã đọc/chưa đọc thông báo nội bộ của từng nhân viên.",
+                columns: [
+                    { name: "notification_id", type: "bigint", attr: "FK (system_notification)", desc: "Mã thông báo liên kết" },
+                    { name: "user_id", type: "bigint", attr: "FK (users)", desc: "Mã tài khoản nhân viên đã đọc tin" },
+                    { name: "read_at", type: "datetime", attr: "Required", desc: "Thời điểm nhân viên click mở xem thông báo" }
+                ]
+            },
+            system_setting: {
+                description: "Cấu hình thông tin hành chính chính thức của phòng khám dùng để in hóa đơn biên nhận.",
+                columns: [
+                    { name: "id", type: "bigint", attr: "PK, AI", desc: "Định danh cấu hình" },
+                    { name: "created_by", type: "bigint", attr: "FK (users)", desc: "Admin thực hiện cập nhật cấu hình" },
+                    { name: "clinic_name", type: "varchar(255)", attr: "Required", desc: "Tên giao dịch chính thức của phòng khám" },
+                    { name: "phone_number", type: "varchar(50)", attr: "Required", desc: "Số điện thoại tổng đài liên hệ" },
+                    { name: "email", type: "varchar(255)", attr: "Required", desc: "Email chính thức nhận phản hồi bệnh nhân" },
+                    { name: "address", type: "text", attr: "Required", desc: "Địa chỉ phòng khám vật lý" },
+                    { name: "additional_info", type: "text", attr: "Nullable", desc: "Thông tin ghi chú chân trang biên nhận" },
+                    { name: "logo_data", type: "mediumtext", attr: "Nullable", desc: "Dữ liệu Logo dạng chuỗi mã hóa Base64 dùng in ấn trực tiếp" },
+                    { name: "status", type: "tinyint", attr: "Default: 0", desc: "Trạng thái cấu hình (1: Đang áp dụng, 0: Bản lưu nháp/bản cũ)" }
+                ]
+            }
+        };
+
+        // Render tab content switcher
+        function switchTab(evt, tabId) {
+            const tabContents = document.querySelectorAll('.view-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+            
+            // Re-render mermaid diagrams if they were hidden when loaded
+            if (tabId === 'erd' || tabId === 'workflow' || tabId === 'layers') {
+                mermaid.run();
+            }
+        }
+
+        // Generate database tables selector list
+        function renderTableList(filter = '') {
+            const container = document.getElementById('tableListContainer');
+            container.innerHTML = '';
+            
+            Object.keys(databaseSchema).sort().forEach(tableName => {
+                if (filter && !tableName.toLowerCase().includes(filter.toLowerCase())) return;
+                
+                const tableInfo = databaseSchema[tableName];
+                const btn = document.createElement('button');
+                btn.className = `table-item-btn ${selectedTable === tableName ? 'active' : ''}`;
+                btn.onclick = () => selectTable(tableName);
+                btn.innerHTML = `
+                    <span>${tableName}</span>
+                    <span class="badge">${tableInfo.columns.length} cột</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        let selectedTable = 'users';
+
+        // Selected table detailed schema rendering
+        function selectTable(tableName) {
+            selectedTable = tableName;
+            
+            // Update active state in sidebar list buttons
+            const buttons = document.querySelectorAll('.table-item-btn');
+            buttons.forEach(btn => {
+                const name = btn.querySelector('span').innerText;
+                if (name === tableName) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            const tableData = databaseSchema[tableName];
+            document.getElementById('detailTableName').innerText = tableName;
+            document.getElementById('detailDesc').innerText = tableData.description;
+            
+            const tbody = document.getElementById('detailColumnsBody');
+            tbody.innerHTML = '';
+            
+            tableData.columns.forEach(col => {
+                const tr = document.createElement('tr');
+                
+                let attrBadge = '';
+                if (col.attr) {
+                    const attrs = col.attr.split(', ');
+                    attrs.forEach(a => {
+                        let badgeClass = 'pill-badge';
+                        if (a.startsWith('PK')) badgeClass += ' pill-pk';
+                        else if (a.startsWith('FK')) badgeClass += ' pill-fk';
+                        else badgeClass += ' pill-pk'; // General yellow style
+                        
+                        attrBadge += `<span class="${badgeClass}" style="margin-right: 0.25rem;">${a}</span>`;
+                    });
+                } else {
+                    attrBadge = '<span style="color: var(--text-dark);">---</span>';
+                }
+                
+                tr.innerHTML = `
+                    <td class="col-name">${col.name}</td>
+                    <td class="col-type">${col.type}</td>
+                    <td>${attrBadge}</td>
+                    <td style="color: var(--text-muted); font-size: 0.8rem;">${col.desc}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Live search filter for database tables list
+        function filterTables() {
+            const query = document.getElementById('dbSearch').value;
+            renderTableList(query);
+        }
+
+        // Zoom and Pan helpers
+        function zoomDiagram(btn, scaleFactor) {
+            const container = btn.closest('.diagram-wrapper-container');
+            const wrapper = container.querySelector('.diagram-wrapper');
+            
+            // Disable fit-width when manually zooming
+            wrapper.classList.remove('fit-width');
+            
+            const svg = wrapper.querySelector('svg');
+            if (!svg) return;
+            
+            let currentScale = parseFloat(svg.getAttribute('data-scale') || '1.0');
+            let newScale = currentScale * scaleFactor;
+            
+            // Limit scale between 0.3 and 4.0
+            if (newScale < 0.3) newScale = 0.3;
+            if (newScale > 4.0) newScale = 4.0;
+            
+            svg.setAttribute('data-scale', newScale);
+            svg.style.transform = `scale(${newScale})`;
+            
+            // Shift alignment to flex-start when overflowing to allow scrolling
+            updateAlignment(wrapper, svg, newScale);
+        }
+
+        function resetZoom(btn) {
+            const container = btn.closest('.diagram-wrapper-container');
+            const wrapper = container.querySelector('.diagram-wrapper');
+            wrapper.classList.remove('fit-width');
+            const svg = wrapper.querySelector('svg');
+            if (!svg) return;
+            
+            svg.setAttribute('data-scale', '1.0');
+            svg.style.transform = 'scale(1.0)';
+            wrapper.style.justifyContent = 'center';
+            wrapper.style.alignItems = 'flex-start';
+        }
+
+        function toggleFitWidth(btn) {
+            const container = btn.closest('.diagram-wrapper-container');
+            const wrapper = container.querySelector('.diagram-wrapper');
+            wrapper.classList.toggle('fit-width');
+            const svg = wrapper.querySelector('svg');
+            if (!svg) return;
+            
+            if (wrapper.classList.contains('fit-width')) {
+                svg.removeAttribute('data-scale');
+                svg.style.transform = '';
+                wrapper.style.justifyContent = 'center';
+                wrapper.style.alignItems = 'center';
+            } else {
+                resetZoom(btn);
+            }
+        }
+
+        function updateAlignment(wrapper, svg, scale) {
+            const wrapperRect = wrapper.getBoundingClientRect();
+            const svgWidth = (svg.viewBox && svg.viewBox.baseVal) ? svg.viewBox.baseVal.width : svg.clientWidth;
+            
+            if (svgWidth * scale > wrapperRect.width) {
+                wrapper.style.justifyContent = 'flex-start';
+                svg.style.transformOrigin = 'top left';
+            } else {
+                wrapper.style.justifyContent = 'center';
+                svg.style.transformOrigin = 'top center';
+            }
+        }
+
+        // Initial setup
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTableList();
+            selectTable('users');
+        });
+    </script>
+</body>
+</html>

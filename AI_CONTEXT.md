@@ -20,6 +20,7 @@ Hệ thống QLPK được thiết kế để số hóa toàn diện hoạt đ�
 # 2. Kiến trúc Công nghệ (Tech Stack & Architecture)
 
 *   **Backend:** **PHP 8.1+**, framework **Laravel 10** áp dụng mô hình kiến trúc MVC truyền thống nhưng phân tách lớp Route và Controller khoa học.
+*   **Xác thực & Identity (IAM):** Tích hợp **Keycloak OIDC Client** (OpenID Connect) thông qua `KeycloakController` hỗ trợ **Single Sign-On (SSO)** và **Single Logout (SLO)**. Mật khẩu và tài khoản được quản lý tập trung ở Keycloak.
 *   **Database:** **MySQL 8.0** kết hợp Eloquent ORM tối ưu quan hệ dữ liệu phức tạp.
 *   **Frontend:**
     *   **Laravel Blade Template** (giao diện server-side rendering).
@@ -38,13 +39,14 @@ Hệ thống QLPK được thiết kế để số hóa toàn diện hoạt đ�
 
 # 3. Từ điển Dữ liệu & Database Schema Chi tiết
 
-Hệ thống quản trị cơ sở dữ liệu quan hệ (RDBMS) gồm các thực thể chính được thiết kế chuẩn hóa:
+Hệ thống quản trị cơ sở dữ liệu quan hệ (RDBMS) gồm 24 bảng dữ liệu (tương ứng với 23 Eloquent Models và 1 bảng pivot `users_roles`) được thiết kế chuẩn hóa:
 
 ### 3.1. Bảng `users` (Tài khoản người dùng)
 Quản lý thông tin xác thực và tài khoản đăng nhập của cả nhân viên phòng khám và bệnh nhân.
 *   `id` (BigInt, Primary Key, Auto Increment)
-*   `username` (Varchar 255, Unique): Tên đăng nhập.
-*   `password_hash` (Varchar 255): Mật khẩu đã mã hóa (sử dụng hàm `Hash::make`).
+*   `keycloak_sub` (Varchar 36, Unique, Nullable): UUID định danh chính từ Keycloak OIDC.
+*   `username` (Varchar 255, Unique, Nullable): Tên đăng nhập (Keycloak là nguồn chính).
+*   `password_hash` (Varchar 255, Nullable): Mật khẩu (Deprecated sau Keycloak).
 *   `full_name` (Varchar 255): Họ và tên đầy đủ.
 *   `email` (Varchar 255, Nullable, Unique)
 *   `phone_number` (Varchar 255, Nullable): Số điện thoại liên lạc.
@@ -55,7 +57,30 @@ Quản lý thông tin xác thực và tài khoản đăng nhập của cả nhâ
 *   `status` (TinyInt, Default: 1): Trạng thái hoạt động (`1`: Active, `0`: Blocked).
 *   `created_at` & `updated_at` (Timestamp)
 
-### 3.2. Bảng `staff` (Nhân sự phòng khám)
+### 3.2. Bảng `roles` (Vai trò)
+Định nghĩa các nhóm vai trò trong hệ thống (ADMIN, DOCTOR, CASHIER, RECEPTIONIST, PHARMACIST, PATIENT).
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `role_code` (Varchar 50, Unique): Mã vai trò (e.g. `ADMIN`, `DOCTOR`).
+*   `role_name` (Varchar 100): Tên vai trò hiển thị trực quan.
+*   `description` (Text, Nullable)
+*   `status` (TinyInt, Default: 1)
+*   `created_at` & `updated_at` (Timestamp)
+
+### 3.3. Bảng pivot `users_roles` (Liên kết vai trò)
+Liên kết nhiều-nhiều giữa người dùng và vai trò.
+*   `user_id` (BigInt, Foreign Key liên kết `users.id`)
+*   `role_id` (BigInt, Foreign Key liên kết `roles.id`)
+*   `status` (TinyInt, Default: 1)
+
+### 3.4. Bảng `roles_permission` (Quyền hạn chi tiết)
+Quyền chi tiết gắn với từng vai trò phục vụ kiểm tra RBAC.
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `role_id` (BigInt, Foreign Key liên kết `roles.id`)
+*   `permission` (Varchar 255): Tên mã quyền.
+*   `status` (TinyInt, Default: 1)
+*   `created_at` & `updated_at` (Timestamp)
+
+### 3.5. Bảng `staff` (Nhân sự phòng khám)
 Liên kết 1-1 với bảng `users` để định danh bác sĩ, điều dưỡng, thu ngân, quản trị viên.
 *   `id` (BigInt, Primary Key, Auto Increment)
 *   `user_id` (BigInt, Foreign Key liên kết `users.id`): Liên kết tài khoản.
@@ -72,13 +97,14 @@ Liên kết 1-1 với bảng `users` để định danh bác sĩ, điều dưỡ
 *   `academic_degree` (Varchar 100, Nullable): Học vị (Thạc sĩ, Tiến sĩ, Cử nhân...).
 *   `specialty` (Varchar 255, Nullable): Chuyên khoa (Đa khoa, Nội khoa, Tai Mũi Họng...).
 *   `medical_license` (Varchar 100, Nullable): Số chứng chỉ hành nghề (dành cho Bác sĩ).
-*   `department_id` (BigInt, Foreign Key liên kết `departments.id`): Thuộc Khoa nào.
-*   `room_id` (BigInt, Foreign Key liên kết `rooms.id`, Nullable): Phòng làm việc/phòng khám được phân bổ.
+*   `department_id` (BigInt, Foreign Key liên kết `department.id`): Thuộc Khoa nào.
+*   `room_id` (BigInt, Foreign Key liên kết `room.id`, Nullable): Phòng làm việc/phòng khám được phân bổ.
 *   `position` (Varchar 100, Nullable): Chức vụ (Trưởng khoa, Nhân viên...).
 *   `career_start_year` (Integer, Nullable): Năm bắt đầu hành nghề.
 *   `status` (TinyInt, Default: 1): Trạng thái hoạt động.
+*   `created_at` & `updated_at` (Timestamp)
 
-### 3.3. Bảng `patient` (Hồ sơ bệnh nhân)
+### 3.6. Bảng `patient` (Hồ sơ bệnh nhân)
 Quản lý thông tin hành chính cốt lõi của người bệnh.
 *   `id` (BigInt, Primary Key, Auto Increment)
 *   `user_id` (BigInt, Foreign Key liên kết `users.id`, Nullable): Liên kết tài khoản cá nhân của bệnh nhân (nếu có để tự tra cứu lịch sử).
@@ -93,96 +119,213 @@ Quản lý thông tin hành chính cốt lõi của người bệnh.
 *   `insurance_number` (Varchar 100, Nullable): Số thẻ BHYT.
 *   `emergency_contact` (Varchar 255, Nullable): Số điện thoại người thân khi khẩn cấp.
 *   `status` (TinyInt, Default: 1): Trạng thái hoạt động.
+*   `created_at` & `updated_at` (Timestamp)
 
-### 3.4. Bảng `consultation` (Phiên khám bệnh - Thực thể trung tâm)
+### 3.7. Bảng `department` (Khoa lâm sàng/cận lâm sàng)
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `dept_code` (Varchar 50, Unique): Mã khoa (e.g. `KLS`).
+*   `dept_name` (Varchar 255): Tên khoa chuyên môn.
+*   `description` (Text, Nullable)
+*   `status` (TinyInt, Default: 1)
+*   `created_at` & `updated_at` (Timestamp)
+
+### 3.8. Bảng `room` (Phòng chức năng)
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `room_code` (Varchar 50, Unique): Mã phòng (e.g. `PK-SINGLE`).
+*   `room_name` (Varchar 255): Tên phòng khám/phòng hành chính.
+*   `room_type` (Varchar 50): Phân loại phòng (`Examination`, `Lab`, `Pharmacy`, `Emergency`, `Waiting`, `Administrative`).
+*   `department_id` (BigInt, Foreign Key liên kết `department.id`): Thuộc Khoa nào.
+*   `status` (TinyInt, Default: 1): Trạng thái (1: Hoạt động, 2: Đang sử dụng, 3: Bảo trì, 0: Đóng).
+*   `created_at` & `updated_at` (Timestamp)
+
+### 3.9. Bảng `room_detail` (Hạ tầng phòng khám)
+Thông tin vật lý chi tiết của từng phòng ban.
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `room_id` (BigInt, Foreign Key liên kết `room.id` - Quan hệ 1-1)
+*   `floor` (Integer): Số tầng đặt phòng.
+*   `capacity` (Integer): Sức chứa người/giường bệnh tối đa.
+*   `equipment_list` (Text, Nullable): Danh sách các thiết bị y khoa được trang bị.
+*   `area_sqm` (Decimal 8,2): Diện tích phòng (m²).
+*   `notes` (Text, Nullable)
+*   `last_cleaned_at` (Datetime, Nullable)
+*   `created_at` & `updated_at` (Timestamp)
+
+### 3.10. Bảng `consultation` (Phiên khám bệnh - Thực thể trung tâm)
 Trái tim của EMR, liên kết tất cả các tiến trình lâm sàng và tài chính của một lượt khám.
 *   `id` (BigInt, Primary Key, Auto Increment)
 *   `patient_id` (BigInt, Foreign Key liên kết `patient.id`): Bệnh nhân được khám.
 *   `doctor_id` (BigInt, Foreign Key liên kết `staff.id`, Nullable): Bác sĩ đảm nhiệm kết luận khám.
 *   `order_number` (Integer): Số thứ tự khám trong ngày.
 *   `consultation_date` (Datetime): Ngày giờ thực hiện đăng ký/khám.
-*   `chief_complaint` (Text, Nullable): Lý do vào viện (Bệnh nhân tự khai).
-*   `symptoms` (Text, Nullable): Triệu chứng lâm sàng ghi nhận bởi tiếp đón/điều dưỡng.
-*   `temperature` (Decimal 3,1, Nullable): Nhiệt độ cơ thể (được cast thành decimal).
-*   `blood_pressure` (Varchar 50, Nullable): Huyết áp (ví dụ: `120/80 mmHg`).
+*   `chief_complaint` (Text, Nullable): Lý do vào viện.
+*   `symptoms` (Text, Nullable): Triệu chứng lâm sàng ghi nhận ban đầu.
+*   `temperature` (Decimal 3,1, Nullable): Nhiệt độ sinh hiệu.
+*   `blood_pressure` (Varchar 50, Nullable): Huyết áp.
 *   `diagnosis_code` (Varchar 15, Foreign Key liên kết `diagnosis.diagnosis_code`, Nullable): Mã chẩn đoán chính ICD-10.
-*   `diagnosis_notes` (Text, Nullable): Mô tả chi tiết chẩn đoán của bác sĩ, hướng điều trị lâm sàng.
+*   `diagnosis_notes` (Text, Nullable): Mô tả chi tiết chẩn đoán của bác sĩ.
 *   `follow_up_date` (Date, Nullable): Lịch hẹn tái khám.
 *   `status` (TinyInt, Default: 0): Trạng thái phiên khám:
     *   `0` (`STATUS_NEW`): Mới tạo / Đăng ký.
     *   `1` (`STATUS_PENDING`): Chờ khám (trong phòng khám).
     *   `2` (`STATUS_PROCESSING`): Đang khám (Bác sĩ đang mở bệnh án).
-    *   `3` (`STATUS_WAIT_PAYMENT`): Chờ thanh toán (Đã có kết luận/đơn thuốc, chờ thu ngân thu tiền).
-    *   `4` (`STATUS_COMPLETED`): Hoàn thành (Đã đóng tiền và cấp phát xong).
+    *   `3` (`STATUS_WAIT_PAYMENT`): Chờ thanh toán.
+    *   `4` (`STATUS_COMPLETED`): Hoàn thành.
+*   `created_at` & `updated_at` (Timestamp)
 
-### 3.5. Bảng `departments` (Khoa lâm sàng/cận lâm sàng)
-*   `id`, `dept_code` (Mã khoa, e.g. `KLS`), `dept_name` (Họ tên khoa), `status` (Trạng thái).
+### 3.11. Bảng liên kết trung gian `consultation_room` (Xếp phòng chờ khám)
+Mối quan hệ nhiều - nhiều giữa Phiên khám (`consultation`) và Phòng (`room`). Cho biết phiên khám đó đã/đang được xếp vào hàng đợi phòng nào.
+*   `consultation_id` (BigInt, Foreign Key liên kết `consultation.id`)
+*   `room_id` (BigInt, Foreign Key liên kết `room.id`)
+*   `notes` (Text, Nullable): Ghi chú chuyển phòng.
+*   `status` (TinyInt, Default: 1): Trạng thái hàng đợi (`1`: Chờ khám, `2`: Đang khám, `3`: Đã khám xong, `0`: Đã hủy).
+*   `created_at` & `updated_at` (Timestamp)
 
-### 3.6. Bảng `rooms` (Phòng chức năng)
-*   `id`, `room_code` (e.g. `PK-SINGLE`), `room_name`, `room_type` (Phân loại phòng, e.g. Phòng khám, Phòng siêu âm, Phòng thu ngân...), `department_id`, `status`.
+### 3.12. Bảng `diagnosis` (Chuẩn mã bệnh ICD-10)
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `diagnosis_code` (Varchar 15, Unique): Mã bệnh viết chuẩn (ví dụ: `A09`, `J06.9`).
+*   `diagnosis_name` (Varchar 255): Tên bệnh lý tiếng Việt.
+*   `description` (Text, Nullable)
+*   `icd_version` (Varchar 50): Phiên bản chuẩn ICD (e.g. `ICD-10`).
+*   `status` (TinyInt, Default: 1)
+*   `created_at` & `updated_at` (Timestamp)
 
-### 3.7. Bảng liên kết trung gian `consultation_room` (Xếp phòng chờ khám)
-Mối quan hệ nhiều - nhiều giữa Phiên khám (`consultation`) và Phòng (`rooms`). Cho biết phiên khám đó đã/đang được xếp vào hàng đợi phòng nào.
-*   `consultation_id` (BigInt, Foreign Key)
-*   `room_id` (BigInt, Foreign Key)
-*   `notes` (Text, Nullable): Ghi chú lý do chuyển phòng/yêu cầu khám.
-*   `status` (TinyInt, Default: 1): Trạng thái hàng đợi tại phòng khám này (`1`: Chờ khám, `2`: Đang khám, `3`: Đã khám xong).
-
-### 3.8. Bảng `prescription` (Đơn thuốc điện tử)
+### 3.13. Bảng `prescription` (Đơn thuốc điện tử)
 *   `id` (BigInt, Primary Key, Auto Increment)
 *   `consultation_id` (BigInt, Foreign Key liên kết `consultation.id`)
 *   `prescribed_by` (BigInt, Foreign Key liên kết `staff.id`): Bác sĩ kê đơn.
 *   `prescribed_at` (Datetime): Thời điểm kê đơn.
-*   `doctor_advice` (Text, Nullable): Lời dặn dò chung của bác sĩ về chế độ ăn uống, sinh hoạt.
+*   `doctor_advice` (Text, Nullable): Lời dặn dò chung của bác sĩ.
 *   `dispensed_at` (Datetime, Nullable): Thời điểm dược sĩ cấp phát thuốc thực tế.
 *   `dispensed_by` (BigInt, Foreign Key liên kết `staff.id`, Nullable): Dược sĩ thực hiện cấp thuốc.
 *   `status` (TinyInt, Default: 0): Trạng thái đơn thuốc (`0`: Chờ phát, `1`: Đã cấp phát).
+*   `created_at` & `updated_at` (Timestamp)
 
-### 3.9. Bảng `prescription_detail` (Chi tiết đơn thuốc)
+### 3.14. Bảng `prescription_detail` (Chi tiết đơn thuốc)
 Chứa thông tin chi tiết từng loại thuốc được kê trong đơn thuốc.
-*   `prescription_id` (BigInt, Foreign Key)
+*   `prescription_id` (BigInt, Foreign Key liên kết `prescription.id`)
 *   `medicine_id` (BigInt, Foreign Key liên kết `medicine.id`)
 *   `quantity` (Integer): Tổng số lượng thuốc được cấp.
 *   `unit` (Varchar 50): Đơn vị tính (Viên, Gói, Chai...).
 *   `duration_days` (Integer): Số ngày uống thuốc.
-*   `dosage` (Varchar 255): Liều dùng hàng ngày chi tiết (ví dụ: `Sáng: 1, Trưa: 0, Chiều: 1, Tối: 0`).
-*   `usage_instructions` (Text, Nullable): Lời dặn chi tiết cách dùng (ví dụ: `Uống sau ăn 30 phút`).
+*   `dosage` (Varchar 255): Liều dùng hàng ngày chi tiết (ví dụ: `Sáng: 1, Chiều: 1`).
+*   `usage_instructions` (Text, Nullable): Lời dặn chi tiết cách dùng.
 *   `status` (TinyInt, Default: 1)
+*   `created_at` & `updated_at` (Timestamp)
 
-### 3.10. Bảng `invoice` (Hóa đơn thu phí)
-Quản lý toàn bộ thông tin thanh toán tài chính của phiên khám.
+### 3.15. Bảng `medicine` (Danh mục thuốc gốc)
 *   `id` (BigInt, Primary Key, Auto Increment)
-*   `invoice_code` (Varchar 50, Unique): Mã hóa đơn sinh tự động dạng `HD-YYYYMMDD-XXXX`.
+*   `medicine_category_id` (BigInt, Foreign Key liên kết `medicine_category.id`): Nhóm dược lý.
+*   `medicine_code` (Varchar 50, Unique): Mã thuốc nội bộ.
+*   `medicine_name` (Varchar 255): Tên thương mại của thuốc.
+*   `note` (Text, Nullable)
+*   `status` (TinyInt, Default: 1)
+*   `created_at` & `updated_at` (Timestamp)
+
+### 3.16. Bảng `medicine_category` (Phân nhóm dược lý thuốc)
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `category_code` (Varchar 50, Unique): Mã nhóm thuốc (ví dụ: `KS`, `GT`).
+*   `category_name` (Varchar 255): Tên nhóm thuốc (ví dụ: `Kháng sinh`, `Giảm đau`).
+*   `description` (Text, Nullable)
+*   `status` (TinyInt, Default: 1)
+*   `created_at` & `updated_at` (Timestamp)
+
+### 3.17. Bảng `medicine_detail` (Giá bán & Hoạt chất theo phiên bản)
+Lưu trữ thông tin biến động giá bán và hàm lượng thuốc phục vụ cơ chế versioning giữ giá trị hóa đơn cũ.
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `medicine_id` (BigInt, Foreign Key liên kết `medicine.id`)
+*   `order_number` (Integer): Số phiên bản giá thuốc.
+*   `unit` (Varchar 50): Đơn vị tính tương ứng với giá bán.
+*   `price` (Decimal 12,2): Giá bán hiện hành của phiên bản.
+*   `active_ingredient` (Varchar 255): Tên hoạt chất chính và hàm lượng.
+*   `storage_condition` (Varchar 255, Nullable): Điều kiện bảo quản thuốc.
+*   `status` (TinyInt, Default: 1): Trạng thái (`1` là phiên bản giá đang có hiệu lực).
+*   `created_at` & `updated_at` (Timestamp)
+
+### 3.18. Bảng `prescription_template` (Toa thuốc mẫu cá nhân)
+Danh sách đơn thuốc mẫu được các bác sĩ thiết lập sẵn để kê đơn nhanh.
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `template_name` (Varchar 255): Tên đơn thuốc mẫu.
+*   `disease_name` (Varchar 255): Tên bệnh lâm sàng liên quan.
+*   `diagnosis_code` (Varchar 15, Foreign Key liên kết `diagnosis.diagnosis_code`): Gắn với chẩn đoán ICD-10.
+*   `doctor_id` (BigInt, Foreign Key liên kết `staff.id`): Bác sĩ tạo/sở hữu mẫu.
+*   `description` (Text, Nullable)
+*   `status` (TinyInt, Default: 1)
+*   `created_at` & `updated_at` (Timestamp)
+
+### 3.19. Bảng `prescription_template_detail` (Chi tiết toa thuốc mẫu)
+*   `template_id` (BigInt, Foreign Key liên kết `prescription_template.id`)
+*   `medicine_id` (BigInt, Foreign Key liên kết `medicine.id`)
+*   `quantity` (Integer)
+*   `unit` (Varchar 50)
+*   `dosage` (Varchar 255)
+*   `usage_instructions` (Text, Nullable)
+*   `duration_days` (Integer)
+*   `status` (TinyInt, Default: 1)
+*   `created_at` & `updated_at` (Timestamp)
+
+### 3.20. Bảng `invoice` (Hóa đơn thu phí tài chính)
+Quản lý toàn bộ thông tin thanh toán của lượt khám.
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `invoice_code` (Varchar 50, Unique): Mã hóa đơn tự động chuẩn `HD-YYYYMMDD-XXXX`.
 *   `consultation_id` (BigInt, Foreign Key liên kết `consultation.id`)
 *   `invoice_date` (Datetime): Ngày tạo hóa đơn.
 *   `consultation_fee` (Decimal 12,2): Phí khám bệnh lâm sàng gốc (mặc định: `100,000 VND`).
 *   `lab_test_fee` (Decimal 12,2, Default: 0): Phí chỉ định xét nghiệm/cận lâm sàng.
-*   `medicine_fee` (Decimal 12,2, Default: 0): Tổng tiền thuốc từ đơn thuốc (được cộng dồn tự động).
-*   `other_fee` (Decimal 12,2, Default: 0): Phụ phí phát sinh do thu ngân điền thủ công.
-*   `discount` (Decimal 12,2, Default: 0): Số tiền chiết khấu, giảm giá cho bệnh nhân.
-*   `total_amount` (Decimal 12,2): Tổng tiền thực tế cần thanh toán (`= consultation_fee + lab_test_fee + medicine_fee + other_fee - discount`).
-*   `payment_method` (Varchar 50, Nullable): Phương thức thanh toán (`Cash` - Tiền mặt, `Card` - Thẻ, `Transfer` - Chuyển khoản ngân hàng, `Insurance` - Bảo hiểm bảo lãnh, `Other`).
+*   `medicine_fee` (Decimal 12,2, Default: 0): Tổng tiền thuốc từ đơn thuốc.
+*   `other_fee` (Decimal 12,2, Default: 0): Phụ phí phát sinh do thu ngân nhập thêm.
+*   `discount` (Decimal 12,2, Default: 0): Tiền chiết khấu giảm giá.
+*   `total_amount` (Decimal 12,2): Tổng tiền thực tế cần thanh toán.
+*   `payment_method` (Varchar 50, Nullable): Tiền mặt, Thẻ, Chuyển khoản, Bảo hiểm.
 *   `paid_at` (Datetime, Nullable): Ngày giờ nộp tiền thực tế.
-*   `cashier_id` (BigInt, Foreign Key liên kết `staff.id`, Nullable): Thu ngân thực hiện thu tiền.
-*   `status` (TinyInt, Default: 0): Trạng thái hóa đơn:
-    *   `0` (`STATUS_PENDING`): Chờ thanh toán.
-    *   `1` (`STATUS_PAID`): Đã thanh toán.
-    *   `2` (`STATUS_CANCELLED`): Đã hủy hóa đơn.
+*   `cashier_id` (BigInt, Foreign Key liên kết `staff.id`, Nullable): Thu ngân thực hiện thu.
+*   `status` (TinyInt, Default: 0): Trạng thái (`0`: Chờ thanh toán, `1`: Đã thanh toán, `2`: Đã hủy).
+*   `created_at` & `updated_at` (Timestamp)
 
-### 3.11. Bảng `invoice_detail` (Chi tiết hóa đơn)
-Phân rã chi tiết các khoản tiền trong hóa đơn để in ra phiếu thu.
-*   `id`, `invoice_id`, `item_type` (Loại dịch vụ, e.g. `CONSULTATION`, `MEDICINE`, `LAB`, `OTHER`), `item_name` (Tên khoản thu), `quantity`, `unit_price`, `discount`, `line_total`, `status`.
+### 3.21. Bảng `invoice_detail` (Chi tiết hóa đơn)
+Phân rã các mục chi phí cụ thể in ra phiếu thu cho bệnh nhân.
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `invoice_id` (BigInt, Foreign Key liên kết `invoice.id`)
+*   `item_type` (Varchar 50): Phân loại dịch vụ (`Consultation`, `Medicine`, `LabTest`, `Other`).
+*   `item_name` (Varchar 255): Tên dịch vụ/tên thuốc cụ thể.
+*   `reference_id` (BigInt): ID trỏ sang đối tượng gốc tương ứng.
+*   `quantity` (Integer)
+*   `unit_price` (Decimal 12,2)
+*   `discount` (Decimal 12,2)
+*   `line_total` (Decimal 12,2)
+*   `notes` (Text, Nullable)
+*   `status` (TinyInt, Default: 1)
+*   `created_at` & `updated_at` (Timestamp)
 
-### 3.12. Bảng `medicine` & `medicine_detail` (Quản lý thuốc & Giá bán theo phiên bản)
-Thiết kế tối ưu theo cơ chế Versioning nhằm lưu vết lịch sử thay đổi giá bán hoặc quy cách đóng gói của thuốc mà không làm sai lệch các hóa đơn cũ trong quá khứ.
-*   **Bảng `medicine`:** Chứa thông tin gốc của thuốc.
-    *   `id`, `medicine_category_id` (Foreign Key), `medicine_code` (Mã thuốc), `medicine_name` (Tên thương mại), `note`, `status`.
-*   **Bảng `medicine_detail`:** Lưu thông tin biến động giá và đặc tính chi tiết theo thời gian.
-    *   `id`, `medicine_id` (Foreign Key), `order_number` (Số phiên bản cập nhật), `unit` (Đơn vị tính hiện tại), `price` (Đơn giá bán hiện hành), `active_ingredient` (Dược chất hoạt tính/hàm lượng), `storage_condition` (Điều kiện bảo quản), `status` (`1` là phiên bản giá đang có hiệu lực).
+### 3.22. Bảng `system_notification` (Thông báo hệ thống)
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `sender_id` (BigInt, Foreign Key liên kết `users.id`): Người gửi thông báo.
+*   `target_type` (Varchar 50): Phạm vi gửi (`all` - Tất cả, `role` - Theo vai trò, `user` - Cá nhân).
+*   `target_role` (Varchar 50, Nullable): Mã vai trò mục tiêu nếu gửi theo nhóm.
+*   `target_user_id` (BigInt, Foreign Key liên kết `users.id`, Nullable): Người nhận nếu gửi cá nhân.
+*   `title` (Varchar 255): Tiêu đề thông báo.
+*   `content` (Text): Nội dung thông báo.
+*   `notified_at` (Datetime): Thời điểm phát thông báo.
+*   `expires_at` (Datetime, Nullable): Thời gian hết hạn của thông báo.
+*   `status` (TinyInt, Default: 1)
+*   `created_at` & `updated_at` (Timestamp)
 
-### 3.13. Bảng `system_notifications` & `notification_reads` (Thông báo nội bộ)
-*   **Bảng `system_notifications`:** `id`, `title` (Tiêu đề), `content` (Nội dung thông báo), `sender_id` (Người gửi), `recipient_id` (Người nhận cụ thể, Nullable), `type` (Phạm vi gửi: `All` - Tất cả, `Role` - Theo vai trò cụ thể, `User` - Chỉ định cá nhân), `target_role` (Mã vai trò mục tiêu nếu gửi theo nhóm), `created_at`.
-*   **Bảng `notification_reads`:** `user_id`, `notification_id`, `read_at` (Thời gian click đọc thông báo - để quản lý trạng thái đã đọc/chưa đọc).
+### 3.23. Bảng `notification_reads` (Trạng thái đã đọc thông báo)
+*   `notification_id` (BigInt, Foreign Key liên kết `system_notification.id`)
+*   `user_id` (BigInt, Foreign Key liên kết `users.id`)
+*   `read_at` (Datetime): Thời điểm click xem thông báo.
+
+### 3.24. Bảng `system_setting` (Cấu hình phòng khám)
+Thông tin hành chính phòng khám dùng hiển thị trên in ấn và biên nhận hóa đơn.
+*   `id` (BigInt, Primary Key, Auto Increment)
+*   `created_by` (BigInt, Foreign Key liên kết `users.id` - Admin thực hiện cấu hình)
+*   `clinic_name` (Varchar 255): Tên phòng khám.
+*   `phone_number` (Varchar 50): Số tổng đài liên hệ.
+*   `email` (Varchar 255): Email liên hệ chính thức.
+*   `address` (Text): Địa chỉ cơ sở.
+*   `additional_info` (Text, Nullable): Chân trang biên nhận.
+*   `logo_data` (MediumText, Nullable): Dữ liệu ảnh Logo Base64.
+*   `status` (TinyInt, Default: 0): Trạng thái kích hoạt cấu hình (`1`: Active).
+*   `created_at` & `updated_at` (Timestamp)
 
 ---
 
@@ -207,35 +350,61 @@ Hệ thống kiểm soát truy cập nghiêm ngặt dựa trên vai trò ngườ
 qlpk/
 ├── app/
 │   ├── Http/Controllers/
-│   │   ├── Admin/                  # Xử lý các nghiệp vụ quản trị tối cao của ADMIN & RECEPTIONIST
+│   │   ├── Admin/                  # Nghiệp vụ quản lý của ADMIN & RECEPTIONIST
 │   │   │   ├── ConsultationController.php    # Quản lý vòng đời phiên khám (CRUD Admin)
-│   │   │   ├── PatientController.php         # Tạo, sửa hồ sơ bệnh nhân hành chính
-│   │   │   ├── DiagnosisController.php       # Quản lý mã bệnh chuẩn ICD-10 (Có tính năng Import Excel)
-│   │   │   ├── StaffController.php           # Quản lý hồ sơ nhân viên và liên kết tài khoản
+│   │   │   ├── ConsultationRoomController.php # Xếp hàng chờ buồng khám của bệnh nhân
+│   │   │   ├── DashboardController.php       # Xem thống kê lượt khám, doanh thu ngày/tháng
+│   │   │   ├── DepartmentController.php      # Quản lý danh mục các khoa y khoa
+│   │   │   ├── DiagnosisController.php       # Quản lý danh mục mã bệnh chuẩn ICD-10 (Import Excel)
+│   │   │   ├── MedicineCategoryController.php # Quản lý phân nhóm thuốc (Kháng sinh, giảm đau...)
 │   │   │   ├── MedicineController.php        # CRUD Thuốc và các phiên bản giá bán
-│   │   │   └── SystemSettingController.php   # Quản lý thông tin phòng khám, logo Base64
-│   │   ├── Doctor/                 # Phân hệ lâm sàng chuyên sâu cho Bác sĩ
-│   │   │   ├── ExaminationController.php     # Logic danh sách chờ, khám bệnh, lưu kết luận và xem bệnh án cũ
-│   │   │   └── PrescriptionTemplateController.php # Tạo và áp dụng các toa thuốc mẫu
+│   │   │   ├── PatientController.php         # Quản lý hồ sơ bệnh nhân hành chính
+│   │   │   ├── PrescriptionController.php    # Quản lý và xem đơn thuốc toàn viện
+│   │   │   ├── RoomController.php            # CRUD Phòng khám, phòng chức năng
+│   │   │   ├── RoomDetailController.php      # Cấu hình giường bệnh, diện tích, thiết bị từng phòng
+│   │   │   ├── StaffController.php           # Quản lý nhân sự y tế (Bác sĩ, Y tá, Thu ngân...)
+│   │   │   ├── SystemSettingController.php   # Cấu hình tên, hotline, logo Base64 phòng khám
+│   │   │   └── UserController.php            # Quản lý tài khoản, toggle khóa/mở, reset password
+│   │   ├── Auth/                   # Xác thực bảo mật
+│   │   │   └── KeycloakController.php        # Xử lý login, callback, SLO qua Keycloak OIDC
 │   │   ├── Cashier/                # Xử lý tài chính
-│   │   │   └── InvoiceController.php         # Tra cứu hóa đơn, tính tiền, cập nhật phụ phí và thu ngân thanh toán
-│   │   ├── Pharmacist/             # Phân hệ nhà thuốc
-│   │   │   └── PrescriptionController.php    # Xác nhận và ghi nhận thời gian cấp phát thuốc thực tế
+│   │   │   └── InvoiceController.php         # Thu ngân thanh toán, phụ phí, chiết khấu
+│   │   ├── Doctor/                 # Lâm sàng cho Bác sĩ
+│   │   │   ├── ExaminationController.php     # EMR khám bệnh, chẩn đoán, kê đơn, lịch sử khám
+│   │   │   └── PrescriptionTemplateController.php # Tạo và áp dụng các toa thuốc mẫu cá nhân
 │   │   ├── Patient/                # Cổng thông tin bệnh nhân
-│   │   │   └── MyRecordController.php        # Tra cứu hồ sơ sức khỏe cá nhân
-│   │   ├── NotificationController.php        # Quản lý thông báo đa kênh, đếm AJAX chưa đọc
+│   │   │   └── MyRecordController.php        # Tra cứu bệnh án cá nhân (Role PATIENT)
+│   │   ├── Pharmacist/             # Phân hệ cấp phát thuốc
+│   │   │   └── PrescriptionController.php    # Xác nhận đã phát thuốc vật lý cho bệnh nhân
+│   │   ├── NotificationController.php        # Quản lý thông báo nội bộ, đếm AJAX chưa đọc
 │   │   └── ProfileController.php             # Cập nhật thông tin cá nhân và đổi mật khẩu dùng chung
 │   ├── Http/Middleware/
-│   │   └── RoleMiddleware.php      # Middleware kiểm tra vai trò (RBAC) để chặn truy cập trái phép
-│   └── Models/                     # Định nghĩa Schema dữ liệu và các mối quan hệ Eloquent ORM
-│       ├── User.php                # Thực thể tài khoản, kiểm tra hasRole(), hasPermission()
-│       ├── Staff.php               # Thông tin chi tiết nhân sự, liên kết User, Room, Department
-│       ├── Patient.php             # Hồ sơ bệnh nhân, scope tìm kiếm nhanh
-│       ├── Consultation.php        # Thực thể trung tâm, định nghĩa hằng số trạng thái (STATUS_NEW, PENDING...)
-│       ├── Invoice.php             # Hóa đơn thu phí, hàm tự động tạo mã HD-YYYYMMDD-XXXX
-│       ├── Medicine.php            # Thực thể thuốc gốc
-│       ├── MedicineDetail.php      # Phiên bản đóng gói, đơn vị và đơn giá thuốc hiện hành
-│       └── SystemNotification.php  # Cấu hình gửi thông báo toàn hệ thống
+│   │   └── RoleMiddleware.php      # Middleware kiểm tra vai trò (RBAC) chặn truy cập
+│   └── Models/                     # Eloquent Models & Database Schema
+│       ├── User.php                # Thực thể tài khoản, kiểm tra hasRole() từ Keycloak session
+│       ├── Role.php                # Vai trò hệ thống
+│       ├── RolePermission.php      # Quyền hạn chi tiết
+│       ├── Staff.php               # Nhân sự phòng khám, liên kết User, Room, Department
+│       ├── Patient.php             # Bệnh nhân, scope tìm kiếm nhanh
+│       ├── Department.php          # Khoa lâm sàng
+│       ├── Room.php                # Phòng khám, phòng chức năng, phân loại buồng
+│       ├── RoomDetail.php          # Hạ tầng vật lý, thiết bị y tế của phòng
+│       ├── Consultation.php        # Thực thể trung tâm, vòng đời phiên khám bệnh
+│       ├── ConsultationRoom.php    # Pivot hàng đợi xếp buồng khám
+│       ├── Diagnosis.php           # Danh mục mã bệnh ICD-10
+│       ├── Prescription.php        # Đơn thuốc điện tử, trạng thái cấp phát
+│       ├── PrescriptionDetail.php  # Chi tiết thuốc, liều dùng uống
+│       ├── PrescriptionTemplate.php # Đơn thuốc mẫu bác sĩ tự soạn
+│       ├── PrescriptionTemplateDetail.php # Chi tiết thuốc mẫu
+│       ├── Medicine.php            # Dược phẩm gốc
+│       ├── MedicineCategory.php    # Phân nhóm dược lý thuốc
+│       ├── MedicineDetail.php      # Phiên bản giá bán và hàm lượng hoạt chất của thuốc (Versioning)
+│       ├── Invoice.php             # Hóa đơn thanh toán tài chính
+│       ├── InvoiceDetail.php       # Phân rã chi tiết hóa đơn (biên nhận in ấn)
+│       ├── SystemNotification.php  # Cấu hình gửi thông báo nội bộ
+│       ├── NotificationRead.php    # Theo dõi trạng thái đã đọc thông báo của User
+│       └── SystemSetting.php       # Thông tin liên hệ và Logo Base64 của phòng khám
+```
 ├── database/
 │   ├── migrations/                 # Lịch sử cấu trúc cơ sở dữ liệu MySQL
 │   └── seeders/                    # Các kịch bản dữ liệu mẫu (Roles, Admin, Clinic duy nhất)
@@ -265,113 +434,151 @@ qlpk/
 
 # 6. Danh mục Routes & Các Endpoint Nghiệp vụ Chi tiết
 
-Dưới đây là bảng tra cứu toàn bộ danh sách routes trong hệ thống để phục vụ việc liên kết kiểm tra phân quyền và ánh xạ các màn hình chức năng:
+Dưới đây là bảng tra cứu toàn bộ danh sách routes trong hệ thống phục vụ việc liên kết kiểm tra phân quyền và ánh xạ các màn hình chức năng:
 
 ### 6.1. Routes Dùng Chung (Shared Web Routes - `routes/web.php`)
-Các tuyến đường này yêu cầu đăng nhập chung (`auth` middleware) và phục vụ cho tất cả các tài khoản nhân viên.
+Các tuyến đường này yêu cầu đăng nhập chung (ngoại trừ các route login) và phục vụ cho tất cả các tài khoản nhân viên.
 
 *   `GET /` `->` Tự động chuyển hướng về trang đăng nhập `/login`.
-*   `GET /login` & `POST /login` `->` Route xác thực mặc định của Laravel Auth.
-*   `GET /home` `[HomeController@index]` `->` Trang chủ điều phối chung sau khi đăng nhập thành công.
-*   `GET /profile` `[ProfileController@index]` `->` Xem thông tin tài khoản cá nhân hiện hành.
-*   `POST /profile/update` `[ProfileController@update]` `->` Cập nhật thông tin cơ bản.
-*   `GET /profile/change-password` `[ProfileController@changePassword]` `->` Giao diện đổi mật khẩu.
-*   `POST /profile/change-password` `[ProfileController@updatePassword]` `->` Lưu mật khẩu mới.
-*   `GET /notifications` `[NotificationController@index]` `->` Danh sách thông báo nội bộ nhận được.
+*   `GET /login` `->` Trang đăng nhập trung gian (Hiển thị nút Đăng nhập qua Keycloak).
+*   `GET /auth/redirect` `[KeycloakController@redirect]` `->` Điều hướng sang trang đăng nhập Keycloak OIDC.
+*   `GET /auth/callback` `[KeycloakController@callback]` `->` Tiếp nhận callback OIDC từ Keycloak, xác thực, lưu token/roles vào session.
+*   `POST /auth/logout` & `GET /auth/logout` `[KeycloakController@logout]` `->` Đăng xuất tài khoản (Single Logout).
+*   `GET /home` `[HomeController@index]` `->` Trang chủ điều phối chung sau đăng nhập.
+*   `GET /profile` `[ProfileController@index]` `->` Xem thông tin tài khoản cá nhân.
+*   `POST /profile/update` `[ProfileController@update]` `->` Cập nhật thông tin tài khoản.
+*   `GET /profile/change-password` `[ProfileController@changePassword]` `->` Chuyển hướng đến Keycloak Account Console để đổi mật khẩu.
+*   `GET /notifications` `[NotificationController@index]` `->` Danh sách thông báo nhận được.
 *   `GET /notifications/create` `[NotificationController@create]` `->` Soạn thông báo mới (Chỉ dành cho nhân viên).
 *   `POST /notifications` `[NotificationController@store]` `->` Gửi thông báo đến đối tượng chỉ định.
-*   `GET /notifications/{id}` `[NotificationController@show]` `->` Đọc chi tiết thông báo (Ghi nhận trạng thái đã đọc thông qua bảng trung gian).
+*   `GET /notifications/{id}` `[NotificationController@show]` `->` Đọc chi tiết thông báo (Đánh dấu đã đọc).
 *   `DELETE /notifications/{id}` `[NotificationController@destroy]` `->` Xóa thông báo khỏi danh sách.
-*   `GET /notifications/ajax/unread-count` `[NotificationController@ajaxUnreadCount]` `->` Endpoint AJAX trả về số lượng thông báo chưa đọc dạng JSON để sidebar cập nhật chấm đỏ.
+*   `GET /notifications/ajax/unread-count` `[NotificationController@ajaxUnreadCount]` `->` Endpoint AJAX trả về số lượng thông báo chưa đọc dạng JSON.
 
 ---
 
 ### 6.2. Routes Tiếp Đón & Quản Trị Hệ Thống (`routes/admin.php`)
-Được bảo vệ bởi Middleware `role:ADMIN,RECEPTIONIST` hoặc `role:ADMIN` và `role:ADMIN,DOCTOR,PHARMACIST`.
+Được bảo vệ bởi các Middleware tương ứng theo RBAC.
 
 #### A. Quyền của Tiếp Đón viên & Admin (`role:ADMIN,RECEPTIONIST`):
-*   `GET /patients` `[PatientController@index]` `->` Danh sách hồ sơ bệnh nhân toàn phòng khám.
+*   `GET /patients` `[PatientController@index]` `->` Danh sách hồ sơ bệnh nhân.
 *   `GET /patients/create` `[PatientController@create]` `->` Giao diện tạo mới hồ sơ bệnh nhân.
-*   `POST /patients` `[PatientController@store]` `->` Lưu hồ sơ bệnh nhân mới vào hệ thống.
-*   `GET /patients/{id}/edit` `[PatientController@edit]` `->` Giao diện cập nhật hồ sơ bệnh nhân.
+*   `POST /patients` `[PatientController@store]` `->` Lưu hồ sơ bệnh nhân mới.
+*   `GET /patients/{id}` `[PatientController@show]` `->` Xem chi tiết hồ sơ bệnh nhân.
+*   `GET /patients/{id}/edit` `[PatientController@edit]` `->` Giao diện sửa hồ sơ bệnh nhân.
 *   `PUT /patients/{id}` `[PatientController@update]` `->` Cập nhật hồ sơ bệnh nhân.
+*   `DELETE /patients/{id}` `[PatientController@destroy]` `->` Xóa hồ sơ bệnh nhân.
 *   `GET /patients/search` `[PatientController@search]` `->` Tìm kiếm bệnh nhân theo từ khóa (Mã BN, Họ Tên, SĐT).
-*   `GET /patients/ajax/search` `[PatientController@ajaxSearch]` `->` Trả về danh sách bệnh nhân AJAX dạng JSON phục vụ Auto-complete.
-*   `GET /consultations` `[ConsultationController@index]` `->` Quản lý danh sách các phiên khám toàn diện.
-*   `GET /consultations/create` `[ConsultationController@create]` `->` Tạo mới một phiên khám bệnh ban đầu, gán chỉ số sinh hiệu (nhiệt độ, huyết áp).
-*   `POST /consultations` `[ConsultationController@store]` `->` Ghi nhận phiên khám mới vào DB.
+*   `GET /patients/ajax/search` `[PatientController@ajaxSearch]` `->` AJAX tìm kiếm bệnh nhân phục vụ auto-complete.
+*   `GET /consultations` `[ConsultationController@index]` `->` Danh sách các phiên khám toàn diện.
+*   `GET /consultations/create` `[ConsultationController@create]` `->` Tạo mới phiên khám (đo chỉ số sinh hiệu: nhiệt độ, huyết áp).
+*   `POST /consultations` `[ConsultationController@store]` `->` Lưu phiên khám mới.
 *   `GET /consultations/{id}/edit` `[ConsultationController@edit]` `->` Sửa thông tin hành chính/sinh hiệu của phiên khám.
 *   `PUT /consultations/{id}` `[ConsultationController@update]` `->` Cập nhật thông tin phiên khám.
-*   `DELETE /consultations/{id}` `[ConsultationController@destroy]` `->` Hủy/xóa phiên khám (Chỉ áp dụng khi chưa khám).
-*   `GET /consultation-rooms` `[ConsultationRoomController@index]` `->` Quản lý danh sách xếp hàng chờ khám tại các phòng.
-*   `POST /consultation-rooms` `[ConsultationRoomController@store]` `->` Xếp một phiên khám vào hàng đợi của một phòng cụ thể (`consultation_room`).
-*   `DELETE /consultation-rooms/{consultation_id}/{room_id}` `[ConsultationRoomController@destroy]` `->` Rút bệnh nhân khỏi hàng đợi của phòng đó.
+*   `DELETE /consultations/{id}` `[ConsultationController@destroy]` `->` Hủy/xóa phiên khám (chỉ khi chưa khám).
+*   `GET /consultations/ajax/search` `[ConsultationController@ajaxSearch]` `->` AJAX tìm kiếm phiên khám.
+*   `GET /consultation-rooms` `[ConsultationRoomController@index]` `->` Danh sách xếp phòng khám.
+*   `GET /consultation-rooms/create` `[ConsultationRoomController@create]` `->` Giao diện phân buồng khám.
+*   `POST /consultation-rooms` `[ConsultationRoomController@store]` `->` Xếp bệnh nhân vào phòng chờ khám (`consultation_room`).
+*   `GET /consultation-rooms/{consultation_id}/{room_id}` `[ConsultationRoomController@show]` `->` Xem chi tiết xếp phòng.
+*   `GET /consultation-rooms/{consultation_id}/{room_id}/edit` `[ConsultationRoomController@edit]` `->` Sửa buồng khám.
+*   `PUT /consultation-rooms/{consultation_id}/{room_id}` `[ConsultationRoomController@update]` `->` Cập nhật buồng khám.
+*   `DELETE /consultation-rooms/{consultation_id}/{room_id}` `[ConsultationRoomController@destroy]` `->` Rút bệnh nhân khỏi hàng chờ phòng khám.
 
 #### B. Quyền Hạn Tối Cao của Admin (`role:ADMIN`):
 *   `GET /dashboard` `[DashboardController@index]` `->` Trang tổng quan số liệu thống kê.
-*   `GET /dashboard/stats` `[DashboardController@getStats]` `->` Trả về JSON thống kê lượt khám, doanh thu ngày/tháng để vẽ biểu đồ.
-*   `GET /diagnoses/import` & `POST /diagnoses/import` `->` Nhập danh sách mã bệnh ICD-10 hàng loạt từ file Excel.
-*   `GET /diagnoses/create` & `POST /diagnoses` `->` Tạo thủ công mã bệnh ICD-10 mới.
+*   `GET /dashboard/stats` `[DashboardController@getStats]` `->` Trả về JSON thống kê lượt khám, doanh thu phục vụ vẽ biểu đồ.
+*   `GET /diagnoses/import` & `POST /diagnoses/import` `->` Nhập danh sách mã bệnh ICD-10 từ file Excel.
+*   `GET /diagnoses/import/template` `->` Tải file Excel mẫu chẩn đoán ICD-10.
+*   `GET /diagnoses/create` & `POST /diagnoses` `->` CRUD mã bệnh ICD-10 thủ công.
 *   `PUT /diagnoses/{id}` & `DELETE /diagnoses/{id}` `->` Chỉnh sửa, xóa mã chẩn đoán.
-*   `GET /staff` `[StaffController@index]` `->` Quản lý danh sách nhân sự (Bác sĩ, Y tá, Thu ngân...).
-*   `GET /staff/create` & `POST /staff` `->` Khai báo hồ sơ nhân sự mới, liên kết với tài khoản `users`.
-*   `GET /staff/{id}/edit` & `PUT /staff/{id}` `->` Thay đổi phòng làm việc, chuyên khoa, thông tin của nhân sự.
-*   `GET /medicines` `[MedicineController@index]` `->` Xem danh mục thuốc toàn phòng khám.
-*   `GET /medicines/create` & `POST /medicines` `->` Tạo loại thuốc gốc mới.
-*   `POST /medicines/{id}/details` `[MedicineController@storeDetail]` `->` Cập nhật phiên bản đơn giá bán mới cho thuốc (Versioning).
-*   `GET /users` `[UserController@index]` `->` Quản lý tài khoản đăng nhập toàn hệ thống.
-*   `PATCH /users/{id}/toggle-status` `[UserController@toggleStatus]` `->` Khóa hoặc kích hoạt lại tài khoản nhân viên/bệnh nhân.
-*   `POST /users/{id}/reset-password` `[UserController@resetPassword]` `->` Đặt lại mật khẩu mặc định nhanh chóng cho nhân viên khi quên.
-*   `GET /settings` `[SystemSettingController@index]` `->` Xem thông tin cấu hình phòng khám (Tên phòng khám, Địa chỉ, Số điện thoại, Logo đại diện).
-*   `POST /settings` & `PUT /settings/{id}` `->` Cập nhật thông tin liên hệ phòng khám hoặc thay đổi logo Base64 trực tiếp hiển thị trên các hóa đơn in ấn.
+*   `GET /departments` `[DepartmentController@index]` `->` Quản lý danh sách các khoa chuyên môn.
+*   `GET /departments/create` & `POST /departments` `->` CRUD khoa chuyên môn mới.
+*   `GET /departments/ajax/search` `->` AJAX tìm kiếm khoa.
+*   `GET /departments/{id}` `[DepartmentController@show]` `->` Xem thông tin khoa.
+*   `GET /departments/{id}/edit` & `PUT /departments/{id}` `->` Sửa khoa chuyên môn.
+*   `DELETE /departments/{id}` `->` Xóa khoa.
+*   `GET /rooms` `[RoomController@index]` `->` Danh sách phòng ban chức năng.
+*   `GET /rooms/create` & `POST /rooms` `->` CRUD phòng ban mới.
+*   `GET /rooms/ajax/search` `->` AJAX tìm kiếm phòng.
+*   `GET /rooms/{id}` `[RoomController@show]` `->` Xem chi tiết phòng.
+*   `GET /rooms/{id}/edit` & `PUT /rooms/{id}` `->` Sửa phòng.
+*   `DELETE /rooms/{id}` `->` Xóa phòng.
+*   `GET /room-details/ajax/search` `->` AJAX tìm kiếm chi tiết phòng.
+*   `GET /room-details` `->` Resource route quản lý cấu hình vật lý giường/thiết bị của phòng.
+*   `GET /staff` `[StaffController@index]` `->` Quản lý danh sách nhân sự (Bác sĩ, Y tá, Thu ngân, Dược sĩ).
+*   `GET /staff/ajax/search` `->` AJAX tìm kiếm nhân viên.
+*   `GET /staff/create` & `POST /staff` `->` CRUD nhân viên mới, liên kết tài khoản `users`.
+*   `GET /staff/{id}/edit` & `PUT /staff/{id}` `-> Chỉnh sửa thông tin nhân viên.
+*   `DELETE /staff/{id}` `->` Xóa nhân viên.
+*   `GET /medicine-categories` `[MedicineCategoryController@index]` `->` Danh sách nhóm thuốc dược lý.
+*   `GET /medicine-categories/import` & `POST /medicine-categories/import` `->` Import Excel danh mục nhóm thuốc.
+*   `GET /medicine-categories/merge` & `POST /medicine-categories/merge` `->` Trộn nhóm thuốc bị trùng lặp.
+*   `GET /medicine-categories/create` & `POST /medicine-categories` `->` CRUD nhóm thuốc thủ công.
+*   `DELETE /medicine-categories/{id}` `->` Xóa nhóm thuốc.
+*   `GET /medicines` `[MedicineController@index]` `->` Quản lý danh mục thuốc toàn phòng khám.
+*   `GET /medicines/import` & `POST /medicines/import` `->` Import Excel danh mục thuốc gốc.
+*   `GET /medicines/create` & `POST /medicines` `->` Tạo thuốc gốc mới.
+*   `POST /medicines/{id}/details` `[MedicineController@storeDetail]` `->` Cập nhật đơn giá bán và hoạt chất mới cho thuốc (Versioning).
+*   `GET /medicines/details/{detail_id}/edit` & `PUT /medicines/details/{detail_id}` `->` Sửa phiên bản giá thuốc.
+*   `DELETE /medicines/details/{detail_id}` `->` Xóa phiên bản giá thuốc.
+*   `GET /users` `[UserController@index]` `->` Quản lý danh sách tài khoản toàn viện.
+*   `GET /users/ajax/search` `->` AJAX tìm kiếm tài khoản.
+*   `PATCH /users/{id}/toggle-status` `[UserController@toggleStatus]` `->` Khóa hoặc mở tài khoản.
+*   `POST /users/{id}/reset-password` `[UserController@resetPassword]` `->` Đặt lại mật khẩu mặc định nhanh chóng.
+*   `GET /settings` `[SystemSettingController@index]` `->` Cấu hình thông tin liên hệ và Logo Base64 của phòng khám.
+*   `POST /settings` & `PUT /settings/{id}` `->` CRUD thông tin cấu hình phòng khám.
+*   `DELETE /settings/{id}/logo` `[SystemSettingController@removeLogo]` `->` Xóa Logo Base64 khỏi cấu hình.
 
-#### C. Xem danh mục dùng chung (`role:ADMIN,DOCTOR,PHARMACIST` hoặc `role:ADMIN,DOCTOR`):
-*   `GET /prescriptions` `[PrescriptionController@index]` `->` Xem lịch sử kê đơn toàn phòng khám.
-*   `GET /prescriptions/{id}/show` `[PrescriptionController@show]` `->` Xem chi tiết đơn thuốc đã kê.
-*   `GET /diagnoses` `[DiagnosisController@index]` `->` Tra cứu mã bệnh ICD-10.
-*   `GET /medicines/ajax/search` `->` Endpoint AJAX cho Select2 gõ từ khóa tìm kiếm nhanh tên thuốc.
-*   `GET /diagnoses/ajax/search` `->` Endpoint AJAX tìm kiếm nhanh mã/tên bệnh ICD-10.
+#### C. Quyền xem Danh mục dùng chung (`role:ADMIN,DOCTOR,PHARMACIST`):
+*   `GET /prescriptions` `[PrescriptionController@index]` `->` Xem lịch sử đơn thuốc toàn viện.
+*   `GET /prescriptions/{id}/show` `[PrescriptionController@show]` `->` Xem chi tiết đơn thuốc.
+*   `GET /diagnoses` `[DiagnosisController@index]` `->` Tra cứu danh sách mã bệnh ICD-10.
+*   `GET /medicine-categories/ajax/search` `->` AJAX tìm kiếm nhanh nhóm thuốc.
+*   `GET /medicines/ajax/search` `->` AJAX Select2 tìm kiếm nhanh thuốc.
+*   `GET /diagnoses/ajax/search` `->` AJAX Select2 tìm kiếm nhanh mã/tên bệnh ICD-10.
 
 ---
 
 ### 6.3. Routes Nghiệp Vụ Lâm Sàng của Bác Sĩ (`routes/doctor.php`)
 Được bảo vệ nghiêm ngặt bởi Middleware `role:DOCTOR`.
 
-*   `GET /consultations/doctor/my-consultations` `[ExaminationController@index]` `->` Dashboard chính của Bác sĩ. Hiển thị danh sách các bệnh nhân đang xếp hàng chờ khám tại phòng mà Bác sĩ được chỉ định (`room_id` liên kết bảng `staff`).
-*   `GET /consultations/doctor/ajax/search` `[ExaminationController@ajaxSearch]` `->` AJAX tìm nhanh bệnh nhân trong hàng chờ khám của phòng mình làm việc.
-*   `GET /consultations/doctor/{id}/examine` `[ExaminationController@examine]` `->` **Giao diện Khám bệnh Lâm sàng chính (EMR View)**. Đồng thời cập nhật trạng thái phiên khám thành `2` (`STATUS_PROCESSING`).
-*   `PUT /doctor/consultations/{id}/conclusion` `[ExaminationController@saveConclusion]` `->` **Lưu kết luận khám bệnh**. Bác sĩ gửi dữ liệu chẩn đoán chính (mã ICD-10), ghi chú chẩn đoán, và hẹn ngày tái khám. Cập nhật trạng thái phiên khám thành `3` (`STATUS_WAIT_PAYMENT`).
-*   `GET /doctor/my-history` `[ExaminationController@myHistory]` `->` Tra cứu lịch sử tất cả các ca khám do chính bác sĩ hiện tại thực hiện.
-*   `GET /my-clinic` `[ExaminationController@myRoomPatients]` `->` Xem danh sách theo dõi bệnh nhân nội trú/phòng khám hiện tại.
-*   `GET /templates` `[PrescriptionTemplateController@index]` `->` Quản lý danh sách các Toa thuốc mẫu (mẫu kê đơn định sẵn).
-*   `POST /templates/from-prescription/{id}` `[PrescriptionTemplateController@storeFromPrescription]` `->` Tạo nhanh một đơn thuốc mẫu dựa trên đơn thuốc thực tế vừa kê cho bệnh nhân.
-*   `POST /templates` & `PUT /templates/{id}` `->` Tạo mới hoặc cập nhật toa thuốc mẫu thủ công.
+*   `GET /consultations/doctor/my-consultations` `[ExaminationController@index]` `->` Danh sách bệnh nhân đang chờ tại phòng khám được phân bổ của bác sĩ hiện tại.
+*   `GET /consultations/doctor/ajax/search` `[ExaminationController@ajaxSearch]` `->` AJAX tìm kiếm bệnh nhân trong hàng chờ khám.
+*   `GET /consultations/doctor/{id}/examine` `[ExaminationController@examine]` `->` Giao diện Khám bệnh EMR lâm sàng 2 cột. (Đổi trạng thái Consultation sang `STATUS_PROCESSING`).
+*   `PUT /doctor/consultations/{id}/conclusion` `[ExaminationController@saveConclusion]` `->` Lưu kết luận chẩn đoán ICD-10 của bác sĩ. (Đổi trạng thái Consultation sang `STATUS_WAIT_PAYMENT`).
+*   `POST /doctor/consultations/{id}/save-examination` `[ExaminationController@saveExamination]` `->` Lưu tổng hợp kết luận khám và kê đơn thuốc trong một DB Transaction.
+*   `GET /doctor/my-history` `[ExaminationController@myHistory]` `->` Lịch sử các ca khám bác sĩ hiện tại đã thực hiện.
+*   `GET /my-clinic` `[ExaminationController@myRoomPatients]` `->` Xem danh sách bệnh nhân buồng khám hiện tại.
+*   `GET /templates` `[PrescriptionTemplateController@index]` `->` Danh sách các Toa thuốc mẫu.
+*   `POST /templates/from-prescription/{id}` `[PrescriptionTemplateController@storeFromPrescription]` `->` Tạo toa thuốc mẫu từ đơn thuốc thực tế vừa kê.
+*   `POST /templates` & `PUT /templates/{id}` `->` CRUD toa thuốc mẫu cá nhân.
 
 ---
 
 ### 6.4. Routes Nghiệp Vụ Thu Ngân (`routes/cashier.php`)
 Được bảo vệ bởi Middleware `role:ADMIN,CASHIER`.
 
-*   `GET /invoices` `[InvoiceController@index]` `->` Giao diện thu ngân. Chia 2 khu vực rõ ràng: **Hàng đợi chờ đóng tiền** (hóa đơn trạng thái `0`) và **Lịch sử hóa đơn đã thu** (hóa đơn trạng thái `1` hoặc `2`).
-*   `GET /invoices/ajax/pending` `[InvoiceController@ajaxPending]` `->` Lấy danh sách hàng đợi hóa đơn chờ thanh toán qua AJAX để tự động làm mới giao diện thu ngân.
-*   `GET /invoices/{id}/edit` `[InvoiceController@edit]` `->` Giao diện chỉnh sửa hóa đơn chưa thanh toán. Cho phép thu ngân nhập thêm Phụ phí (`other_fee`), Ghi chú phụ phí (`other_fee_note`), hoặc Tiền chiết khấu giảm giá (`discount`).
-*   `PUT /invoices/{id}` `[InvoiceController@update]` `->` Cập nhật phụ phí/chiết khấu và tự động tính toán lại tổng tiền `total_amount` bằng DB Transaction.
-*   `GET /invoices/{id}/show` `[InvoiceController@show]` `->` Màn hình xem chi tiết hóa đơn, đồng thời là mẫu in biên nhận tài chính chuyên nghiệp (tích hợp đầy đủ thông tin phòng khám từ cấu hình hệ thống).
-*   `PUT /invoices/{id}/pay` `[InvoiceController@pay]` `->` **Xác nhận Thanh toán Hóa đơn**. Thu ngân bấm xác nhận phương thức trả tiền (`Cash`, `Card`, `Transfer`...), hệ thống cập nhật hóa đơn thành `STATUS_PAID` (`1`) và tự động nâng trạng thái phiên khám liên quan thành `STATUS_COMPLETED` (`4`).
+*   `GET /invoices` `[InvoiceController@index]` `->` Màn hình hàng chờ thanh toán (hóa đơn `STATUS_PENDING`) và lịch sử hóa đơn.
+*   `GET /invoices/ajax/pending` `[InvoiceController@ajaxPending]` `->` AJAX cập nhật hàng chờ đóng tiền tự động.
+*   `GET /invoices/{id}/edit` `[InvoiceController@edit]` `->` Sửa hóa đơn (cho phép thu ngân nhập thêm Phụ phí `other_fee` hoặc Chiết khấu `discount`).
+*   `PUT /invoices/{id}` `[InvoiceController@update]` `->` Cập nhật giá trị hóa đơn và tính toán lại tổng tiền thực thu.
+*   `GET /invoices/{id}/show` `[InvoiceController@show]` `->` Biên nhận tài chính in ấn (ẩn header/sidebar khi in).
+*   `PUT /invoices/{id}/pay` `[InvoiceController@pay]` `->` Xác nhận thanh toán hóa đơn. Hóa đơn chuyển sang `STATUS_PAID` và Consultation liên quan chuyển sang `STATUS_COMPLETED`.
 
 ---
 
 ### 6.5. Routes Nghiệp Vụ Cấp Phát Thuốc (`routes/pharmacist.php`)
 Được bảo vệ bởi Middleware `role:ADMIN,PHARMACIST`.
 
-*   `PATCH /prescriptions/{id}/status` `[PrescriptionController@updateStatus]` `->` Dược sĩ bấm xác nhận đã cấp phát thuốc vật lý cho bệnh nhân. Đơn thuốc chuyển trạng thái từ Chờ phát sang Đã phát, cập nhật `dispensed_at` và `dispensed_by`.
+*   `PATCH /prescriptions/{id}/status` `[PrescriptionController@updateStatus]` `->` Dược sĩ xác nhận cấp phát thuốc vật lý. Đơn thuốc chuyển trạng thái từ Chờ phát sang Đã phát, cập nhật thời điểm phát `dispensed_at` và người phát `dispensed_by`.
 
 ---
 
 ### 6.6. Routes Cổng Thông Tin Bệnh Nhân (`routes/patient.php`)
 Được bảo vệ bởi Middleware `role:PATIENT`.
 
-*   `GET /my-medical-record` `[MyRecordController@index]` `->` Bệnh nhân đăng nhập tự tra cứu toàn bộ lịch sử bệnh án cá nhân qua các thời kỳ khám, xem chi tiết từng đơn thuốc, chẩn đoán của bác sĩ và hướng dẫn liều dùng.
+*   `GET /my-medical-record` `[MyRecordController@index]` `->` Cổng thông tin cho bệnh nhân tự đăng nhập xem toàn bộ lịch sử bệnh án, chẩn đoán của bác sĩ và hướng dẫn sử dụng đơn thuốc.
 
 ---
 
